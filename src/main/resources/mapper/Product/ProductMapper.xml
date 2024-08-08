@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="productMapper">
+<!--    <resultMap id="ProductMap" type="Product">-->
+<!--        <id column="product_id" property="userNo" jdbcType="INTEGER" javaType="int"/>-->
+<!--        <result column="name" property="userName" jdbcType="VARCHAR" javaType="String"/>-->
+<!--    </resultMap>-->
+
+
+    <select id="findById" parameterType="String" resultType="String">
+        SELECT name FROM product WHERE product_id = #{productId}
+    </select>
+    <select>
+
+    </select>
+
+
+
+
+    <insert id="save" parameterType="com.fastcampus.toyproject2.product.dto.Product">
+        INSERT INTO product (product_id,
+                             product_description_id,
+                             category_id,
+                             brand_id,
+                             name,
+                             rep_img,
+                             price,
+                             is_displayed,
+                             create_datetime,
+                             modify_datetime,
+                             sales_quantity,
+                             register_manager,
+                             star_rating,
+                             view_count,
+                             review_count)
+        VALUES (#{productId},#{productDescriptionId},#{categoryId},#{brandId}
+               , #{name}, #{repImg}, #{productPrice}, #{isDisplayed}
+               ,#{createDatetime}, #{modifyDatetime}, #{salesQuantity}
+               , #{registerManager}, #{starRating},#{viewCount}
+               ,#{reviewCount})
+
+    </insert>
+
+</mapper>
