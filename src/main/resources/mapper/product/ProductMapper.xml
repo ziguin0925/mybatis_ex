@@ -12,14 +12,12 @@
     <select id="findById" parameterType="String" resultType="String">
         SELECT name FROM product WHERE product_id = #{productId}
     </select>
-    <select>
-
-    </select>
 
 
 
 
-    <insert id="save" parameterType="com.fastcampus.toyproject2.product.dto.Product">
+
+    <insert id="insert" parameterType="com.fastcampus.toyproject2.product.dto.Product">
         INSERT INTO product (product_id,
                              product_description_id,
                              category_id,
@@ -36,11 +34,15 @@
                              view_count,
                              review_count)
         VALUES (#{productId},#{productDescriptionId},#{categoryId},#{brandId}
-               , #{name}, #{repImg}, #{productPrice}, #{isDisplayed}
-               ,#{createDatetime}, #{modifyDatetime}, #{salesQuantity}
-               , #{registerManager}, #{starRating},#{viewCount}
+               , #{name}, #{repImg}, #{price}, #{isDisplayed}
+               , NOW() , NOW(), #{salesQuantity}
+               , #{registerManager}, #{starRating}, #{viewCount}
                ,#{reviewCount})
 
     </insert>
+
+    <delete id="deleteByProductId" parameterType="String">
+        DELETE FROM product WHERE product_id = #{productId}
+    </delete>
 
 </mapper>

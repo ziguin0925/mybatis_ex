@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="stockMapper">
+<!--    <resultMap id="ProductMap" type="Product">-->
+<!--        <id column="product_id" property="userNo" jdbcType="INTEGER" javaType="int"/>-->
+<!--        <result column="name" property="userName" jdbcType="VARCHAR" javaType="String"/>-->
+<!--    </resultMap>-->
+
+    <!-- 나중에 동적 쿼리로 만들기  -->
+    <select id="findById" parameterType="com.fastcampus.toyproject2.stock.dto.StockPk" resultType="com.fastcampus.toyproject2.stock.dto.Stock">
+        SELECT * FROM Stock WHERE product_id = #{productId} AND size = #{size} AND color = #{color}
+    </select>
+
+    <select id="findAllByProductId" parameterType="String" resultType="com.fastcampus.toyproject2.stock.dto.Stock">
+        SELECT * FROM Stock WHERE product_id = #{productId}
+    </select>
+
+    <insert id="insert" parameterType="java.util.List">
+        INSERT INTO Stock (product_id,
+                             size,
+                             color,
+                           quantity,
+                           create_datetime)
+        VALUES
+        <foreach collection="list" item="item" index="idx" separator=",">
+            (
+            #{item.productId}
+            , #{item.size}
+            , #{item.color}
+            , #{item.quantity}
+            ,  NOW()
+            )
+        </foreach>
+
+
+    </insert>
+
+    <delete id="deleteByStockPk" parameterType="com.fastcampus.toyproject2.stock.dto.StockPk">
+        DELETE FROM stock WHERE product_id = #{productId} AND size = #{size} AND color=#{color}
+    </delete>
+    <delete id="deleteByProductId" parameterType="String">
+        DELETE FROM stock WHERE product_id = #{productId}
+    </delete>
+
+
+
+</mapper>

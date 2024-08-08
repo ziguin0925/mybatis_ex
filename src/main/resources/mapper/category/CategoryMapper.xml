@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="categoryMapper">
+<!--    <resultMap id="ProductMap" type="Product">-->
+<!--        <id column="product_id" property="userNo" jdbcType="INTEGER" javaType="int"/>-->
+<!--        <result column="name" property="userName" jdbcType="VARCHAR" javaType="String"/>-->
+<!--    </resultMap>-->
+
+    <select id="findById" parameterType="String" resultType="String">
+        SELECT category_id FROM category WHERE category_id = #{categoryId}
+    </select>
+
+    <insert id="insert" parameterType="com.fastcampus.toyproject2.category.dto.Category">
+        INSERT INTO category (category_id
+                             , category_name
+                             , parent_category_id)
+        VALUES (
+                   #{categoryId}
+            , #{categoryName}
+            , #{parentCategoryId}
+               )
+
+    </insert>
+
+
+
+</mapper>
