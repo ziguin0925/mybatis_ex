@@ -6,9 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
+import java.util.InvalidPropertiesFormatException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,15 +20,22 @@ import static org.junit.jupiter.api.Assertions.*;
 class StockDaoMysqlTest {
     @Autowired
     StockDaoMysql stockDao;
+    @Qualifier("forceAutoProxyCreatorToUseClassProxying")
+    @Autowired
+    private BeanFactoryPostProcessor forceAutoProxyCreatorToUseClassProxying;
 
     @Test
     @Order(1)
     @DisplayName("재고 찾기")
     void findStock() throws Exception {
-
+        //하나만 찾는 경우
         StockPk stockPk = new StockPk("P008","24","blue");
-        Stock stock =stockDao.findById(stockPk);
+        List<Stock> stock =stockDao.findByStockPk(stockPk);
         assertNotNull(stock);
+        assertTrue(stock.size()==1);
+
+        //이터레이터 사용 고려
+        assertTrue(stock.get(0).getProductId().equals("P008"));
     }
 
     @Test
@@ -45,8 +55,10 @@ class StockDaoMysqlTest {
 
         stockDao.insert(stocks);
 
-        Stock stock =stockDao.findById(stockPk);
+        List<Stock> stock =stockDao.findByStockPk(stockPk);
         assertNotNull(stock);
+        assertTrue(stock.size()==1);
+        assertTrue(stock.get(0).getSize().equals("24"));
 
     }
 
@@ -54,10 +66,10 @@ class StockDaoMysqlTest {
     @Order(3)
     @DisplayName("재고 StockPK 로 삭제")
     void deleteStock() throws Exception {
-        StockPk stockPk = new StockPk("P008","24","red");
-        stockDao.delete(stockPk);
-        Stock stock =stockDao.findById(stockPk);
-        assertNull(stock);
+        StockPk stockPk = StockPk.IdAndSizeAndColor("P008","24","red");
+        stockDao.deleteByStockPk(stockPk);
+        List<Stock> stock =stockDao.findByStockPk(stockPk);
+        assertTrue(stock.size()==0);
     }
 
     //P004 다 없애고 시작하기.
@@ -76,17 +88,26 @@ class StockDaoMysqlTest {
             stocks.add(stock);
         }
         stockDao.insert(stocks);
-        assertEquals(10,stockDao.findAllByProductId("P004").size());
+        assertEquals(10,stockDao.findByStockPk(StockPk.onlyId("P004")).size());
     }
 
     @Test
     @Order(5)
     @DisplayName("상품 id에 대한 모든 재고 지우기")
     void  deleteByProductId() throws Exception {
-        stockDao.delete("P004");
+        stockDao.deleteByStockPk(StockPk.onlyId("P004"));
+        assertEquals(0,stockDao.findByStockPk(StockPk.onlyId("P004")).size());
+    }
 
-        assertEquals(0,stockDao.findAllByProductId("P004").size());
-
+    @Test
+    @Order(6)
+    @DisplayName("StockPk 에 productId 지정 안했을 경우")
+    void noProductId() {
+        try {
+            stockDao.findByStockPk(StockPk.builder().size("24").build());
+        }catch (Exception e ){
+            assertEquals("productId를 지정 하지 않았습니다.", e.getMessage());
+        }
     }
 
 }

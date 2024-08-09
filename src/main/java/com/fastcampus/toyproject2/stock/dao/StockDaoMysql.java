@@ -7,7 +7,9 @@ import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.stereotype.Repository;
 
+import java.util.InvalidPropertiesFormatException;
 import java.util.List;
+import java.util.Map;
 
 
 @RequiredArgsConstructor
@@ -20,14 +22,13 @@ public class StockDaoMysql implements StockDao{
 
 
     @Override
-    public Stock findById(StockPk stockPk) throws Exception {
-        return sqlSession.selectOne(namespace+"findById", stockPk);
+    public List<Stock> findByStockPk(StockPk stockPk) throws Exception {
+        if(stockPk.getProductId()==null){
+            throw new InvalidPropertiesFormatException("productId를 지정 하지 않았습니다.");
+        }
+        return sqlSession.selectList(namespace+"selectByStockPk", stockPk);
     }
 
-    @Override
-    public List<Stock> findAllByProductId(String productId) throws Exception {
-        return sqlSession.selectList(namespace+"findAllByProductId", productId);
-    }
 
     @Override
     public int insert(List<Stock> stock) throws Exception{
@@ -35,14 +36,15 @@ public class StockDaoMysql implements StockDao{
     }
 
     @Override
-    public int delete(StockPk stockPk) throws Exception {
+    public int deleteByStockPk(StockPk stockPk) throws Exception {
+
+        if(stockPk.getProductId()==null){
+            throw new InvalidPropertiesFormatException("productId를 지정 하지 않았습니다.");
+        }
+
         return sqlSession.delete(namespace+"deleteByStockPk", stockPk);
     }
 
-    @Override
-    public int delete(String productId) throws Exception {
-        return sqlSession.delete(namespace+"deleteByProductId", productId);
-    }
 
 
 

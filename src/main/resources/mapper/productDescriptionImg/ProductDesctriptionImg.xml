@@ -9,34 +9,36 @@
 <!--    </resultMap>-->
 
     <select id="findAllByProductDescriptionId" parameterType="String" resultType="com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImg">
-        SELECT * FROM product_description_img WHERE product_description_id = #{ProductDescriptionId}
+        SELECT * FROM product_description_img WHERE product_description_id = #{productDescriptionId}
 
     </select>
-<insert id="insert" parameterType="java.util.List">
-    INSERT INTO product_description_img(
-    product_description_id
-    , name
-    , order_num
-    , path
-    , is_used
-    , kind_of
-    , size
-    , create_datetime
-    , modify_datetime
-    ) VALUES
-    <foreach collection="list" item="item" separator=",">
-        (
-        #{item.productDescriptionId}
-        , #{item.name}
-        , #{item.orderNum}
-        , #{item.path}
-        , #{item.isUsed}
-        , #{item.kindOf}
-        , #{item.size}
-        ,  NOW()
-        ,  NOW()
-        )
-    </foreach>
-</insert>
+
+
+    <insert id="insert" parameterType="java.util.List">
+        INSERT INTO product_description_img(
+          product_description_id
+        , name
+        , order_num
+        , path
+        , is_used
+        , kind_of
+        , size
+        , create_datetime
+        , modify_datetime
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+             #{item.productDescriptionId}
+            , #{item.name}
+            , #{item.orderNum}
+            , #{item.path}
+            , #{item.isUsed}
+            , #{item.kindOf}
+            , #{item.size}
+            ,  NOW()
+            ,  NOW()
+            )
+        </foreach>
+    </insert>
 
 </mapper>

@@ -16,8 +16,8 @@ public class ProductDaoMysql implements ProductDao {
     private String namespace ="productMapper.";
 
     @Override
-    public String findNameById(String id) throws Exception {
-        return sqlSession.selectOne(namespace+"findById", id);
+    public String findNameById(String productId) throws Exception {
+        return sqlSession.selectOne(namespace+"findNameById", productId);
     }
 
     @Override

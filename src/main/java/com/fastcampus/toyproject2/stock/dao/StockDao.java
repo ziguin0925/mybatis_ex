@@ -6,18 +6,15 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface StockDao {
 
-    Stock findById(@Param("StockPk") StockPk stockPk )throws Exception;
+    List<Stock> findByStockPk(@Param("StockPk") StockPk stockPk )throws Exception;
 
     int insert(@Param("Stock") List<Stock> stock) throws Exception;
 
-    int delete(@Param("StockPk") StockPk stockPk)throws Exception;
-
-    int delete(@Param("productId") String productId)throws Exception;
-
-    List<Stock> findAllByProductId(@Param("productId") String productId)throws Exception;
+    int deleteByStockPk(@Param("StockPk") StockPk stockPk)throws Exception;
 
 }

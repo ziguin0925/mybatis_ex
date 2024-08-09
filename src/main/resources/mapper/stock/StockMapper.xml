@@ -9,12 +9,19 @@
 <!--    </resultMap>-->
 
     <!-- 나중에 동적 쿼리로 만들기  -->
-    <select id="findById" parameterType="com.fastcampus.toyproject2.stock.dto.StockPk" resultType="com.fastcampus.toyproject2.stock.dto.Stock">
-        SELECT * FROM Stock WHERE product_id = #{productId} AND size = #{size} AND color = #{color}
-    </select>
-
-    <select id="findAllByProductId" parameterType="String" resultType="com.fastcampus.toyproject2.stock.dto.Stock">
-        SELECT * FROM Stock WHERE product_id = #{productId}
+    <select id="selectByStockPk" parameterType="com.fastcampus.toyproject2.stock.dto.StockPk" resultType="com.fastcampus.toyproject2.stock.dto.Stock">
+        SELECT * FROM Stock
+        <where>
+            <if test="productId != null">
+                product_id = #{productId}
+            </if>
+            <if test="size != null">
+                AND size = #{size}
+            </if>
+            <if test="color != null">
+                AND color = #{color}
+            </if>
+        </where>
     </select>
 
     <insert id="insert" parameterType="java.util.List">
@@ -38,7 +45,18 @@
     </insert>
 
     <delete id="deleteByStockPk" parameterType="com.fastcampus.toyproject2.stock.dto.StockPk">
-        DELETE FROM stock WHERE product_id = #{productId} AND size = #{size} AND color=#{color}
+        DELETE FROM stock
+        <where>
+            <if test="productId != null">
+                product_id = #{productId}
+            </if>
+            <if test="size != null">
+                AND size = #{size}
+            </if>
+            <if test="color != null">
+                AND color = #{color}
+            </if>
+        </where>
     </delete>
     <delete id="deleteByProductId" parameterType="String">
         DELETE FROM stock WHERE product_id = #{productId}

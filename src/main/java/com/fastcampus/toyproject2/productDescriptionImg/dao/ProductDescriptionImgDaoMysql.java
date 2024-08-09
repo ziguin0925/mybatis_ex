@@ -16,7 +16,7 @@ import java.util.List;
 public class ProductDescriptionImgDaoMysql implements ProductDescriptionImgDao {
 
     private final SqlSession sqlSession;
-    private final String namespace = "productDescriptionMapper.";
+    private final String namespace = "productDescriptionImgMapper.";
 
 
     @Override
@@ -26,7 +26,7 @@ public class ProductDescriptionImgDaoMysql implements ProductDescriptionImgDao {
 
     @Override
     public int insert(List<ProductDescriptionImg> productDescriptionImgs) throws Exception {
-        return sqlSession.insert(namespace+"saveAll", productDescriptionImgs);
+        return sqlSession.insert(namespace+"insert", productDescriptionImgs);
     }
 
 

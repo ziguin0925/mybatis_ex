@@ -57,7 +57,7 @@ public class ProductRestController {
         //받아온 brand 가 있는지 확인. - 없으면 등록 불가.
         Brand brand = brandService.findById(productRegisterDto.getBrandId());
         if (brand == null) {
-            return new ResponseEntity<>(productRegisterDto.getName() + " 불가(brand없음)", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(productRegisterDto.getName() + " 불가(brand없음)", HttpStatus.PARTIAL_CONTENT);
         }
 
 
@@ -81,6 +81,7 @@ public class ProductRestController {
         if (productDescription != null) {
             try {
                 product = productService.registerSave(productRegisterDto, repImg);
+                return new ResponseEntity<>(product + " 완료", HttpStatus.OK);
 
             }catch (Exception e) {
                 //현재 서버가 일시적으로 사용이 불가함
@@ -101,7 +102,7 @@ public class ProductRestController {
             return new ResponseEntity<>(product + " 완료", HttpStatus.OK);
 
         } catch (Exception e) {
-            return new ResponseEntity<>(productRegisterDto.getName() + " 불가(등록 에러)", HttpStatus.SERVICE_UNAVAILABLE);
+            return new ResponseEntity<>(productRegisterDto.getName() + " 불가(등록 에러)", HttpStatus.CREATED);
         }
 
         //나중에 회원 테이블 구현이 끝나면 회원 조회.

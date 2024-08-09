@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.View;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ public class ProductService {
     private final ProductDescriptionImgDaoMysql productDescriptionImgDao;
 
     private final FileService fileService;
+    private final View error;
 
     @Value("${productImgLocation}")
     private String imgLocation;
@@ -54,27 +56,29 @@ public class ProductService {
     }
 
 
+    @Transactional
     public String registerSave(ProductRegisterDto productRegisterDto
             , MultipartFile productRepImg
             , MultipartFile[] DescriptionImgs
             , MultipartFile[] productImgs) throws Exception {
 
+
         ProductDescriptionDto productDescriptionDto = productRegisterDto.getProductDescriptionDto();
-
-        registerProductAndRepImg(productRegisterDto, productRepImg);
-
 
         /*
         * ProductDescription 저장
         * */
 
+        System.out.println("productDescriptionDto ID : " + productDescriptionDto.getProductDescriptionId());
         ProductDescription productDescription = ProductDescription.builder()
                 .productDescriptionId(productDescriptionDto.getProductDescriptionId())
                 .description(productDescriptionDto.getProductDescription())
                 .modifyDatetime(LocalDateTime.now())
                 .build();
 
+        System.out.println("productDescription : " + productDescription);
         productDescriptionDao.insert(productDescription);
+        System.out.println("productDescription 생성");
 
 
         /*
@@ -83,6 +87,7 @@ public class ProductService {
 
 
         List<ProductDescriptionImg> imgList = new ArrayList<>();
+        //순서를 Mapper에서 만들어 놓을까.
         byte i =1;
 
         for(MultipartFile file : DescriptionImgs){
@@ -126,7 +131,14 @@ public class ProductService {
             imgList.add(productDescriptionImg);
         }
 
+        //img 먼저 생성하고 만드는게 나을지, img를 만들기 전에 생성하는게 좋을 지.
+
+        System.out.println("imgs 저장");
+        imgList.forEach(x->System.out.println(x.getProductDescriptionId()));
         productDescriptionImgDao.insert(imgList);
+
+
+        registerProductAndRepImg(productRegisterDto, productRepImg);
 
         return  productRegisterDto.getName();
     }
@@ -152,6 +164,8 @@ public class ProductService {
          * Product 저장.
          * */
 
+
+
         Product registerProduct = Product.builder()
                 .productId(productRegisterDto.getProductId())
                 .productDescriptionId(productDescriptionDto.getProductDescriptionId())
@@ -161,12 +175,13 @@ public class ProductService {
                 .repImg(repFileCode)
                 .price(productRegisterDto.getPrice())
                 .registerManager(productRegisterDto.getManagerName())
+                .starRating(0F)
                 .isDisplayed(Product.DEFAULT_DISPLAY)
-                .reviewCount(Product.DEFAULT_NUM)
-                .viewCount(Product.DEFAULT_NUM)
-                .starRating(Product.DEFAULT_NUM)//float
+//                .reviewCount(Product.DEFAULT_NUM)
+//                .viewCount(Product.DEFAULT_NUM)
+//                .starRating(Product.DEFAULT_NUM)//float
+//                .salesQuantity(Product.DEFAULT_NUM)
                 .build();
-
 
         productDao.insert(registerProduct);
 
@@ -192,9 +207,5 @@ public class ProductService {
         stockDaoMysql.insert(stocks);
 
     }
-
-
-
-
 
 }

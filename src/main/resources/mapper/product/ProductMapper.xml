@@ -9,9 +9,44 @@
 <!--    </resultMap>-->
 
 
-    <select id="findById" parameterType="String" resultType="String">
+    <select id="findNameById" parameterType="String" resultType="String">
         SELECT name FROM product WHERE product_id = #{productId}
     </select>
+
+    <!--글자수, 공백으로만 되어있는지는 앞에서 검사하기.-->
+    <update id="updateProduct">
+        UPDATE product
+            SET
+            <if test="repImg != null">
+                    rep_img=#{repImg}
+            </if>
+            <if test ="productDescriptionId != null">
+                    product_description_id = #{productDescriptionId}
+            </if>
+            <if test ="categoryId != null">
+                    category_id = #{categoryId}
+            </if>
+            <if test="name !=null">
+                    name != #{name}
+            </if>
+            <if test ="registerManager != null">
+                    register_manager = #{registerManager}
+            </if>
+            <if test ="price != null">
+                    price = #{price}
+            </if>
+            <if test ="isDisplayed != null">
+                    is_displayed  = #{isDisplayed}
+            </if>
+
+
+                    modify_datetime = NOW()
+        WHERE
+            product_id = #{productId}
+
+
+
+    </update>
 
 
 
@@ -25,19 +60,14 @@
                              name,
                              rep_img,
                              price,
-                             is_displayed,
                              create_datetime,
                              modify_datetime,
-                             sales_quantity,
-                             register_manager,
-                             star_rating,
-                             view_count,
-                             review_count)
-        VALUES (#{productId},#{productDescriptionId},#{categoryId},#{brandId}
-               , #{name}, #{repImg}, #{price}, #{isDisplayed}
-               , NOW() , NOW(), #{salesQuantity}
-               , #{registerManager}, #{starRating}, #{viewCount}
-               ,#{reviewCount})
+                             register_manager
+                             )
+        VALUES ( #{productId}, #{productDescriptionId}, #{categoryId}, #{brandId}
+               , #{name}, #{repImg}, #{price}
+               , NOW(), NOW()
+               , #{registerManager} )
 
     </insert>
 

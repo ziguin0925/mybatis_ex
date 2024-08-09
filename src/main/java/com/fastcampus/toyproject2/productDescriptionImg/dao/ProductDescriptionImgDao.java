@@ -12,7 +12,7 @@ public interface ProductDescriptionImgDao {
 
     List<ProductDescriptionImg> findAllByProductDescriptionId(@Param("productDescriptionId") String productDescriptionId) throws Exception;
 
-    int insert(@Param("productDescriptionImgs")List<ProductDescriptionImg> productDescriptionImgs) throws Exception;
+    int insert(List<ProductDescriptionImg> productDescriptionImgs) throws Exception;
 
 //    void saveAll(@Param("ProductDescriptionImgList") List<ProductDescriptionImg> productDescriptionImgs);
 }

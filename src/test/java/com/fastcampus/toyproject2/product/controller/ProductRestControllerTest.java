@@ -84,7 +84,7 @@ class ProductRestControllerTest {
         List<Integer> quantitis = new ArrayList<>();
         quantitis.add(133);
 
-        ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001", "");
+        ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001", "나이키의 반팔 티는 좋은 제품이다.");
         ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
                 .price(25900)
                 .productId("ALLREUES")
@@ -100,16 +100,21 @@ class ProductRestControllerTest {
 
         ResponseEntity<String> result = productRestController.register(productRegisterDto, repImg, null,null);
 
-        assertEquals(HttpStatus.OK,result.getStatusCode());
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
 
         String product = productDaoMysql.findNameById(productRegisterDto.getProductId());
 
         assertTrue(product!=null);
+        System.out.println(productRegisterDto.getColor());
+        System.out.println(productRegisterDto.getSize().get(0));
+        System.out.println(productRegisterDto.getQuantity().get(0));
 
-        StockPk stockPk = new StockPk(productRegisterDto.getProductId(),productRegisterDto.getSize().get(0),productRegisterDto.getSize().get(0) );
-        Stock stock =stockDaoMysql.findById(stockPk);
+        StockPk stockPk = new StockPk(productRegisterDto.getProductId(),productRegisterDto.getSize().get(0),productRegisterDto.getColor().get(0) );
+        List<Stock> stock =stockDaoMysql.findByStockPk(stockPk);
 
-        assertEquals(133, stock.getQuantity());
+        //stock이 없음
+        assertEquals(133, stock.get(0).getQuantity().intValue());
 
         System.out.println(product);
     }
@@ -210,6 +215,7 @@ class ProductRestControllerTest {
 
         List<Integer> quantitis = new ArrayList<>();
         quantitis.add(133);
+
         ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("asdfasdf","상세 설명은 짧고 간단하게.");
         ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
                 .price(25900)

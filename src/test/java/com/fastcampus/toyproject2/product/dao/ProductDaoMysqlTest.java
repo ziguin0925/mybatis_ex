@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -58,6 +60,16 @@ class ProductDaoMysqlTest {
 
         ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001", "");
 
+
+        List<String> sizes = new ArrayList<>();
+        sizes.add("L");
+
+        List<String> colors = new ArrayList<>();
+        colors.add("blue");
+
+        List<Integer> quantitis = new ArrayList<>();
+        quantitis.add(133);
+
         //재고는 생성 안함.
         ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
                 .price(25900)
@@ -67,6 +79,9 @@ class ProductDaoMysqlTest {
                 .categoryId("C14")
                 .managerName("manager9")
                 .name("모두 다 재사용하는 테스트용 의류")
+                .color(colors)
+                .size(sizes)
+                .quantity(quantitis)
                 .build();
 
         createProduct(productRegisterDto);

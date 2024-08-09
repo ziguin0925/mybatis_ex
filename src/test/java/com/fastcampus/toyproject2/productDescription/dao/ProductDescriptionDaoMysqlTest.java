@@ -49,6 +49,7 @@ class ProductDescriptionDaoMysqlTest {
         productDescriptionDao.insert(productDescription);
         ProductDescription productDescription2 =productDescriptionDao.findById("asdf");
         assertNotNull(productDescription2);
+        System.out.println(productDescription2);
     }
 
 
