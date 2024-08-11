@@ -14,6 +14,7 @@ public class BrandService {
 
     private final BrandDaoMysql brandDao;
 
+    @Transactional(readOnly = true)
     public Brand  findById(String id) {
         return brandDao.findById(id);
     }

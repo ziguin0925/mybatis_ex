@@ -44,7 +44,7 @@ public class ProductDescriptionService {
 
         ProductDescription productDescription = ProductDescription.builder()
                 .productDescriptionId(productDescriptionDto.getProductDescriptionId())
-                .description(productDescriptionDto.getProductDescription())
+                .description(productDescriptionDto.getDescription())
                 .modifyDatetime(LocalDateTime.now())
                 .build();
 

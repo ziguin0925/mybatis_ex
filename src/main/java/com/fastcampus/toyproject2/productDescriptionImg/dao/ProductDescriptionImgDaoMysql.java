@@ -2,6 +2,7 @@ package com.fastcampus.toyproject2.productDescriptionImg.dao;
 
 
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImg;
+import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgDetailDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.annotation.MapperScan;
@@ -20,7 +21,7 @@ public class ProductDescriptionImgDaoMysql implements ProductDescriptionImgDao {
 
 
     @Override
-    public List<ProductDescriptionImg> findAllByProductDescriptionId(String productDescriptionId) {
+    public List<ProductDescriptionImgDetailDto> findAllByProductDescriptionId(String productDescriptionId) {
         return sqlSession.selectList(namespace+"findAllByProductDescriptionId", productDescriptionId);
     }
 

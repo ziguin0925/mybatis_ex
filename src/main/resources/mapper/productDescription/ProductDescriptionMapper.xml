@@ -12,6 +12,13 @@
         SELECT * FROM product_description WHERE product_description_id = #{productDescriptionId}
     </select>
 
+    <select id="findByProductId" parameterType="String" resultType="com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto">
+        SELECT product_description_id, description
+            FROM product_description pd
+            WHERE product_description_id = (select product_description_id from product where product_id = #{productId})
+    </select>
+
+
     <insert id="insert" parameterType="com.fastcampus.toyproject2.productDescription.dto.ProductDescription">
         INSERT INTO product_description (product_description_id,
                            description,

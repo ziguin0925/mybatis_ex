@@ -1,6 +1,7 @@
 package com.fastcampus.toyproject2.product.dao;
 
 import com.fastcampus.toyproject2.product.dto.Product;
+import com.fastcampus.toyproject2.product.dto.ProductDetailDto;
 import com.fastcampus.toyproject2.product.dto.ProductRegisterDto;
 import com.fastcampus.toyproject2.productDescription.dao.ProductDescriptionDao;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
@@ -106,6 +107,17 @@ class ProductDaoMysqlTest {
         String deletename =productDao.findNameById("ALLREUES");
 
         assertEquals(null,deletename);
+
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("productId로 DetailDto 찾아오기")
+    void searchProduct1() throws Exception {
+
+        ProductDetailDto productDetailDto = productDao.findProductDetailById("P001");
+
+        System.out.println(productDetailDto);
 
     }
 

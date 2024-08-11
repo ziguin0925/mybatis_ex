@@ -1,20 +1,22 @@
 package com.fastcampus.toyproject2.product.controller;
 
-import com.fastcampus.toyproject2.brand.dto.Brand;
 import com.fastcampus.toyproject2.brand.service.BrandService;
 import com.fastcampus.toyproject2.category.service.CategoryService;
 import com.fastcampus.toyproject2.product.dto.ProductRegisterDto;
+import com.fastcampus.toyproject2.product.dto.ProductUpdateDto;
 import com.fastcampus.toyproject2.product.service.ProductService;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
 import com.fastcampus.toyproject2.productDescription.service.ProductDescriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
+
 
 
 @RestController
@@ -30,46 +32,34 @@ public class ProductRestController {
     private final ProductDescriptionService productDescriptionService;
 
 
+    /*
+    *   상품 등록
+    *   ProductRegisterDto
+    *   상품 표시 상태 - boolean으로 할건지, enumtype으로 할건지 생각.
+    *
+    *   저장 할때마자 findBy로 DB에 잘 저장 되었는지 확인이 필요한가?
+    *    throws Exception이 있는데
+    * */
     @PostMapping(value = {"/register"})
-    public ResponseEntity<String> register(@RequestPart(value = "ProductRegisterDto") ProductRegisterDto productRegisterDto
-            , @RequestPart(value = "RepImg") MultipartFile repImg
-            , @RequestPart(value = "DescriptionImgs", required = false) MultipartFile[] desImgs
-            , @RequestPart(value = "RepresentationImgs", required = false) MultipartFile[] represenImgs
+    public ResponseEntity<?> register(@Validated @RequestPart(value = "ProductRegisterDto") ProductRegisterDto productRegisterDto
+            , @RequestPart(value = "RepImg", required = true) MultipartFile repImg
+            , @RequestPart(value = "DescriptionImgs", required = false) List<MultipartFile> desImgs
+            , @RequestPart(value = "RepresentationImgs", required = false) List<MultipartFile> represenImgs
             /*, Model model */) throws Exception {
 
-        /*
-         * product 필드
-         * 상품 코드, 상품 이름 , 상품 대표 이미지, 상품 가격, 상품 화면 표시, 상품 등록 일시, 상품 변경일시, 판매량, 상품 관리자, 별점, 상품 상세 설명 id, 브랜드 코드, 카테고리 코드
-         *
-         * 받아올 값
-         * 상품 코드, 상품 이름, 상품 대표 이미지, 상품 가격, 상품 관리자, 카테고리 코드, 브랜드 코드, 상품 상세 설명 id.
-         * 상품 상세 설명 이미지, 상품 이미지.
-         *
-         *
-         * 상품 상세 설명 id, 브랜드 코드, 카테고리 코드 미리 생성되어 있어야함.
-         *
-         *
-         * brand, category description id 만  객체 전부 다 받아올지 생각.
-         * 상품만 저장하는거면 id 만 받아와도 상관 없을듯.
-         * */
+
+        //나중에 회원 테이블 구현이 끝나면 회원 조회.
 
 
-        //받아온 brand 가 있는지 확인. - 없으면 등록 불가.
-        Brand brand = brandService.findById(productRegisterDto.getBrandId());
-        if (brand == null) {
-            return new ResponseEntity<>(productRegisterDto.getName() + " 불가(brand없음)", HttpStatus.PARTIAL_CONTENT);
+        if (brandService.findById(productRegisterDto.getBrandId()) == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",productRegisterDto.getName() + " 불가(brand 없음)"));
+
         }
 
-
-
-
-        //받아온 category 가 있는지 확인. - 없으면 등록 불가.
-        String category = categoryService.findById(productRegisterDto.getCategoryId());
-        if (category == null) {
-            return new ResponseEntity<>(productRegisterDto.getName() + " 불가(카테고리 없음)", HttpStatus.BAD_REQUEST);
+        if (categoryService.findById(productRegisterDto.getCategoryId()) == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",productRegisterDto.getName() + " 불가(카테고리 없음)"));
         }
 
-        //repImg, desImgs, represenImgs도 있는지 없는지 확인해봐야함.
 
         String product = "";
 
@@ -81,12 +71,12 @@ public class ProductRestController {
         if (productDescription != null) {
             try {
                 product = productService.registerSave(productRegisterDto, repImg);
-                return new ResponseEntity<>(product + " 완료", HttpStatus.OK);
+                return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",product + " 완료"));
 
             }catch (Exception e) {
                 //현재 서버가 일시적으로 사용이 불가함
                 //일반적으로 유지보수로 인해 중단되거나 과부하가 걸린 서버임
-                return new ResponseEntity<>(productRegisterDto.getName() + " 불가(등록 에러)", HttpStatus.SERVICE_UNAVAILABLE);
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("message",productRegisterDto.getName() + " 불가(등록 에러)"));
             }
 
         }
@@ -99,12 +89,26 @@ public class ProductRestController {
 
         try {
             product = productService.registerSave(productRegisterDto, repImg, desImgs, represenImgs);
-            return new ResponseEntity<>(product + " 완료", HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",product + " 완료"));
 
         } catch (Exception e) {
-            return new ResponseEntity<>(productRegisterDto.getName() + " 불가(등록 에러)", HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("message",productRegisterDto.getName() + " 불가(상세 설명 항목 등록 에러)"));
         }
 
-        //나중에 회원 테이블 구현이 끝나면 회원 조회.
     }
+
+
+    /*
+    *   상품 수정
+    *   이름, 대표 이미지, 카테고리, 가격, 화면 표시유무, 등록자(register_manager), 상세 설명 기존에 있는거로 변경.
+    *   상세 설명 새로 생성은 productDescription에서 처리하기 .
+    * */
+    @PatchMapping(value ={"/update"})
+    public ResponseEntity<?> productupdate(@Validated @RequestPart(value = "ProductUpdateDto") ProductUpdateDto productUpdateDto){
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",productUpdateDto.getName() + "브랜드 수정 완료"));
+    }
+
+
 }
+

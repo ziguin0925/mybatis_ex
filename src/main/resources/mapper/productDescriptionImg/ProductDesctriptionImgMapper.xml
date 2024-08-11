@@ -8,7 +8,7 @@
 <!--        <result column="name" property="userName" jdbcType="VARCHAR" javaType="String"/>-->
 <!--    </resultMap>-->
 
-    <select id="findAllByProductDescriptionId" parameterType="String" resultType="com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImg">
+    <select id="findAllByProductDescriptionId" parameterType="String" resultType="com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgDetailDto">
         SELECT * FROM product_description_img WHERE product_description_id = #{productDescriptionId}
 
     </select>

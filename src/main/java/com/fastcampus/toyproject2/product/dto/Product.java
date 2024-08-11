@@ -1,16 +1,17 @@
 package com.fastcampus.toyproject2.product.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class Product {
+
+
+
     public static String DEFAULT_DISPLAY = "Y";
     public static int DEFAULT_NUM = 0;
 
@@ -31,7 +32,7 @@ public class Product {
 
     private String repImg;
 
-    private int price;
+    private Integer price;
 
     private String isDisplayed;
 

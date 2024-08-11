@@ -3,18 +3,151 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="productMapper">
-<!--    <resultMap id="ProductMap" type="Product">-->
-<!--        <id column="product_id" property="userNo" jdbcType="INTEGER" javaType="int"/>-->
-<!--        <result column="name" property="userName" jdbcType="VARCHAR" javaType="String"/>-->
-<!--    </resultMap>-->
+
+
+    <sql id="search">
+        <where>
+            <if test="brandId != null">
+                p.brand_id = #{brandId}
+            </if>
+            <if test="keyword !=null">
+              AND  p.name LIKE CONCAT('%', #{keyword},'%')
+            </if>
+            <if test="categoryId != null">
+              AND  p.category_id IN (#{categoryId})
+            </if>
+        </where>
+    </sql>
 
 
     <select id="findNameById" parameterType="String" resultType="String">
         SELECT name FROM product WHERE product_id = #{productId}
     </select>
 
+
+    <select id="findProductDetailDtoById" parameterType="String" resultType="com.fastcampus.toyproject2.product.dto.ProductDetailDto">
+        SELECT
+        p.product_id
+        , p.name
+        , p.brand_id
+        , b.name as brandName
+        , p.price
+        , p.rep_img
+        , p.category_id
+        , p.sales_quantity
+        , p.like_count
+        , p.review_count
+        , p.view_count
+        , p.star_rating
+        , p.register_manager
+            FROM product p
+            INNER JOIN brand b
+            ON p.brand_id = b.brand_id
+        WHERE p.product_id = #{productId}
+    </select>
+
+<!-- 커서 기반  -->
+    <select id="cursorPaging" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.ProductListDto">
+        SELECT p.product_id as productId
+        , p.name as productName
+        , p.price as price
+        , p.rep_img as repImg
+        , p.star_rating as starRating
+        , b.brand_id as brandId
+        , b.name as brandName
+        FROM product p
+        INNER JOIN brand b
+        ON p.brand_id = b.brand_id
+        <where>
+            <if test="key != null">
+                p.product_id <![CDATA[<]]> #{key}
+            </if>
+            <include refid="search"/>
+        </where>
+        Order By
+        <choose>
+            <when test="byDate != null">
+                p.create_datetime ${byDate}
+            </when>
+            <when test="starRate != null">
+                p.star_rating ${starRate}
+            </when>
+            <when test="sales != null">
+                p.sales_quantity ${sales}
+            </when>
+            <when test="price != null">
+                p.price ${price}
+            </when>
+            <otherwise>
+                p.product_id DESC
+            </otherwise>
+        </choose>
+        limit #{size};
+    </select>
+
+
+    <!-- 페이지 기반 -->
+    <select id="pagePaging" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.ProductListDto">
+         SELECT p.product_id as productId
+                , p.name as productName
+                , p.price as price
+                , p.rep_img as repImg
+                , p.star_rating as starRating
+                , b.brand_id as brandId
+                , b.name as brandName
+        FROM product p
+            INNER JOIN brand b
+            ON p.brand_id = b.brand_id
+            <include refid="search"/>
+
+        <choose>
+            <when test="byDate != null">
+                Order By p.create_datetime ${byDate}
+            </when>
+            <when test="starRate != null">
+                Order By p.star_rating ${starRate}
+            </when>
+            <when test="sales != null">
+                Order By p.sales_quantity ${sales}
+            </when>
+            <when test="price">
+                Order By p.price ${price}
+            </when>
+            <otherwise>
+                Order By p.product_id DESC
+            </otherwise>
+        </choose>
+         limit ${size}
+         offset ${offset}
+    </select>
+
+<!--  브랜드 해당 조건에 해당하는 상품 수.  -->
+    <select id="countProduct" parameterType="hashMap" resultType="Integer">
+        SELECT COUNT(*)
+            FROM product p
+            INNER JOIN brand b
+            ON p.brand_id = b.brand_id
+            <include refid="search"/>
+    </select>
+
+
+
+    <select id="findProductDtoById" parameterType="String" resultType="com.fastcampus.toyproject2.product.dto.ProductDetailDto">
+        SELECT name
+        , price
+        , register_manager
+        , rep_img
+        , sales_quantity
+        , star_rating
+        , view_count
+        , like_count
+        , review_count
+            FROM product WHERE product_id = #{productId} AND is_displayed = 'Y'
+    </select>
+
+
     <!--글자수, 공백으로만 되어있는지는 앞에서 검사하기.-->
-    <update id="updateProduct">
+    <update id="updateProduct" parameterType="com.fastcampus.toyproject2.product.dto.ProductUpdateDto">
         UPDATE product
             SET
             <if test="repImg != null">
@@ -68,6 +201,90 @@
                , #{name}, #{repImg}, #{price}
                , NOW(), NOW()
                , #{registerManager} )
+
+    </insert>
+
+
+<!-- mapper 안에 절대 "- -" 로 주석처리 하지 말것. -->
+    <insert id="insertTest" parameterType="hashMap">
+
+        INSERT INTO product_description (
+         product_description_id
+        , description
+        , modify_datetime
+        )
+        VALUES(
+        #{ProductDescription.productDescriptionId}
+        ,#{ProductDescription.description}
+        , NOW()
+        )
+        ;
+
+
+        INSERT  INTO product (product_id,
+        product_description_id,
+        category_id,
+        brand_id,
+        name,
+        rep_img,
+        price,
+        create_datetime,
+        modify_datetime,
+        register_manager
+        )
+        VALUES ( #{Product.productId}, #{Product.productDescriptionId},
+                #{Product.categoryId}
+        , #{Product.brandId}
+        , #{Product.name}, #{Product.repImg}, #{Product.price}
+        , NOW(), NOW()
+        , #{Product.registerManager})
+        ;
+
+        INSERT  INTO stock (
+        product_id
+        ,size
+        ,color
+        ,quantity
+        ,create_datetime)
+        VALUES
+        <foreach collection="stockList" item="Stock" separator=",">
+            (
+            #{Stock.productId}
+            , #{Stock.size}
+            , #{Stock.color}
+            , #{Stock.quantity}
+            ,  NOW()
+            )
+        </foreach>
+        ;
+
+        INSERT  INTO product_description_img(
+        product_description_id
+        , name
+        , order_num
+        , path
+        , is_used
+        , kind_of
+        , size
+        , create_datetime
+        , modify_datetime
+        ) VALUES
+        <foreach collection="imgList" item="ProductDescriptionImg" separator=",">
+            (
+            #{ProductDescriptionImg.productDescriptionId}
+            , #{ProductDescriptionImg.name}
+            , #{ProductDescriptionImg.orderNum}
+            , #{ProductDescriptionImg.path}
+            , #{ProductDescriptionImg.isUsed}
+            , #{ProductDescriptionImg.kindOf}
+            , #{ProductDescriptionImg.size}
+            ,  NOW()
+            ,  NOW()
+            )
+        </foreach>
+
+
+
 
     </insert>
 

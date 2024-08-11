@@ -3,10 +3,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="brandMapper">
-<!--    <resultMap id="ProductMap" type="Product">-->
-<!--        <id column="product_id" property="userNo" jdbcType="INTEGER" javaType="int"/>-->
-<!--        <result column="name" property="userName" jdbcType="VARCHAR" javaType="String"/>-->
-<!--    </resultMap>-->
 
     <select id="findById" parameterType="String" resultType="com.fastcampus.toyproject2.brand.dto.Brand">
         SELECT * FROM brand WHERE brand_id = #{brandId}

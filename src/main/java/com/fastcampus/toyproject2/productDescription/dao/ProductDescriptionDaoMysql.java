@@ -2,12 +2,11 @@ package com.fastcampus.toyproject2.productDescription.dao;
 
 
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
+import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -33,6 +32,11 @@ public class ProductDescriptionDaoMysql implements ProductDescriptionDao {
     @Override
     public int delete(String productDescriptionId) throws Exception {
         return sqlSession.delete(namespace+"delete", productDescriptionId);
+    }
+
+    @Override
+    public ProductDescriptionDto findByProductId(String productId) throws Exception {
+        return sqlSession.selectOne(namespace+"findByProductId", productId);
     }
 
 
