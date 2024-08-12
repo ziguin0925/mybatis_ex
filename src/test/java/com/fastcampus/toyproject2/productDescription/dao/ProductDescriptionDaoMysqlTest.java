@@ -1,6 +1,7 @@
 package com.fastcampus.toyproject2.productDescription.dao;
 
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
+import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
 import com.fastcampus.toyproject2.productDescriptionImg.dao.ProductDescriptionImgDaoMysql;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
@@ -21,7 +22,7 @@ class ProductDescriptionDaoMysqlTest {
     @Order(1)
     @DisplayName("상세설명 있는 경우")
     void getProductDescriptionIsNotNull() throws Exception {
-        ProductDescription productDescription =productDescriptionDao.findById("ADIDAS0000001");
+        ProductDescriptionDto productDescription =productDescriptionDao.findById("ADIDAS0000001");
 
         assertNotNull(productDescription);
 
@@ -34,7 +35,7 @@ class ProductDescriptionDaoMysqlTest {
     @Order(2)
     @DisplayName("상세설명 없는 경우")
     void getProductDescriptionIsNull() throws Exception {
-        ProductDescription productDescription =productDescriptionDao.findById("aaaa");
+        ProductDescriptionDto productDescription =productDescriptionDao.findById("aaaa");
 
         assertNull(productDescription);
     }
@@ -47,7 +48,7 @@ class ProductDescriptionDaoMysqlTest {
     void insertProductDescription() throws Exception {
         ProductDescription productDescription =new ProductDescription("asdf","상세 설명을 만듦",null);
         productDescriptionDao.insert(productDescription);
-        ProductDescription productDescription2 =productDescriptionDao.findById("asdf");
+        ProductDescriptionDto productDescription2 =productDescriptionDao.findById("asdf");
         assertNotNull(productDescription2);
         System.out.println(productDescription2);
     }
@@ -58,7 +59,7 @@ class ProductDescriptionDaoMysqlTest {
     @DisplayName("상세 설명 삭제")
     void deleteProductDescription() throws Exception {
         productDescriptionDao.delete("asdf");
-        ProductDescription productDescription2 =productDescriptionDao.findById("asdf");
+        ProductDescriptionDto productDescription2 =productDescriptionDao.findById("asdf");
         assertNull(productDescription2);
     }
 }

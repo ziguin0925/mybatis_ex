@@ -4,11 +4,11 @@
 
 <mapper namespace="brandMapper">
 
-    <select id="findById" parameterType="String" resultType="com.fastcampus.toyproject2.brand.dto.Brand">
+    <select id="findById" parameterType="String" resultType="com.fastcampus.toyproject2.brand.dto.BrandDto">
         SELECT * FROM brand WHERE brand_id = #{brandId}
     </select>
 
-    <insert id="save" parameterType="com.fastcampus.toyproject2.brand.dto.Brand">
+    <insert id="insertBrand" parameterType="com.fastcampus.toyproject2.brand.dto.BrandDto">
         INSERT INTO brand (brand_id,
                              name,
                              img,
@@ -25,5 +25,20 @@
                )
 
     </insert>
+
+    <update id="updateBrand" parameterType="com.fastcampus.toyproject2.brand.dto.BrandUpdateDto">
+        UPDATE brand
+        <set>
+            <if test="name != null">
+                name = #{name}
+            </if>
+            <if test="img != null">
+                img = #{img}
+            </if>
+        </set>
+            WHERE brand_id = #{brandId}
+    </update>
+
+
 
 </mapper>

@@ -8,22 +8,6 @@
 <!--        <result column="name" property="userName" jdbcType="VARCHAR" javaType="String"/>-->
 <!--    </resultMap>-->
 
-    <!-- 나중에 동적 쿼리로 만들기  -->
-    <select id="selectByStockPk" parameterType="com.fastcampus.toyproject2.stock.dto.StockPk" resultType="com.fastcampus.toyproject2.stock.dto.Stock">
-        SELECT * FROM Stock
-        <where>
-            <if test="productId != null">
-                product_id = #{productId}
-            </if>
-            <if test="size != null">
-                AND size = #{size}
-            </if>
-            <if test="color != null">
-                AND color = #{color}
-            </if>
-        </where>
-    </select>
-
     <insert id="insert" parameterType="java.util.List">
         INSERT INTO Stock (product_id,
                              size,
@@ -40,9 +24,31 @@
             ,  NOW()
             )
         </foreach>
-
-
     </insert>
+
+    <select id="selectByStockPk" parameterType="com.fastcampus.toyproject2.stock.dto.StockPk" resultType="com.fastcampus.toyproject2.stock.dto.Stock">
+        SELECT * FROM Stock
+        <where>
+            <if test="productId != null">
+                product_id = #{productId}
+            </if>
+            <if test="size != null">
+                AND size = #{size}
+            </if>
+            <if test="color != null">
+                AND color = #{color}
+            </if>
+        </where>
+    </select>
+
+
+    <update id="updateByStock" parameterType="com.fastcampus.toyproject2.stock.dto.Stock">
+        UPDATE  Stock SET quantity = #{quantity}, create_datetime = NOW()
+            WHERE product_id = #{productId}
+                AND size = #{size}
+                AND color = #{color}
+    </update>
+
 
     <delete id="deleteByStockPk" parameterType="com.fastcampus.toyproject2.stock.dto.StockPk">
         DELETE FROM stock
@@ -58,6 +64,7 @@
             </if>
         </where>
     </delete>
+
     <delete id="deleteByProductId" parameterType="String">
         DELETE FROM stock WHERE product_id = #{productId}
     </delete>

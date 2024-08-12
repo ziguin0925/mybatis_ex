@@ -8,6 +8,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 @RequiredArgsConstructor
 @Repository
@@ -19,7 +21,7 @@ public class ProductDescriptionDaoMysql implements ProductDescriptionDao {
     private final String namespace = "productDescriptionMapper.";
 
     @Override
-    public ProductDescription findById(String productDescriptionId) throws Exception{
+    public ProductDescriptionDto findById(String productDescriptionId) throws Exception{
         return sqlSession.selectOne(namespace+"findById", productDescriptionId);
     }
 
@@ -37,6 +39,16 @@ public class ProductDescriptionDaoMysql implements ProductDescriptionDao {
     @Override
     public ProductDescriptionDto findByProductId(String productId) throws Exception {
         return sqlSession.selectOne(namespace+"findByProductId", productId);
+    }
+
+    @Override
+    public List<ProductDescriptionDto> findByCategoryId(String categoryId) throws Exception {
+        return sqlSession.selectList(namespace + "findByCategoryId", categoryId);
+    }
+
+    @Override
+    public int update(ProductDescriptionDto productDescriptionDto) throws Exception {
+        return sqlSession.update(namespace+"updateDescription", productDescriptionDto);
     }
 
 

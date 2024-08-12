@@ -13,6 +13,10 @@
 
     </select>
 
+    <select id="findById" parameterType="int">
+        SELECT * FROM product_description_img WHERE product_description_img_id = #{productDescriptionImgId}
+    </select>
+
 
     <insert id="insert" parameterType="java.util.List">
         INSERT INTO product_description_img(
@@ -40,5 +44,13 @@
             )
         </foreach>
     </insert>
+
+
+    <delete id="deleteAllByProductDescriprionId" parameterType="String">
+        DELETE FROM product_description_img WHERE product_description_id = #{productDescriptionId}
+    </delete>
+
+
+
 
 </mapper>

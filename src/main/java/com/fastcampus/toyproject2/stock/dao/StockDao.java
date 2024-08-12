@@ -11,10 +11,17 @@ import java.util.Map;
 @Mapper
 public interface StockDao {
 
-    List<Stock> findByStockPk(@Param("StockPk") StockPk stockPk )throws Exception;
-
     int insert(@Param("Stock") List<Stock> stock) throws Exception;
 
+    List<Stock> findByStockPk(@Param("StockPk") StockPk stockPk )throws Exception;
+
+    int update(@Param("Stock") Stock stock) throws Exception;
+
+
     int deleteByStockPk(@Param("StockPk") StockPk stockPk)throws Exception;
+
+
+
+
 
 }

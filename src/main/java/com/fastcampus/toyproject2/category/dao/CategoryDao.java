@@ -8,5 +8,8 @@ public interface CategoryDao {
 
     String findById(@Param("categoryId")  String categoryId) throws Exception;
 
+    int deleteByCategoryId(@Param("categoryId") String categoryId) throws  Exception;
+
+
 
 }

@@ -110,4 +110,26 @@ class StockDaoMysqlTest {
         }
     }
 
+
+    //java.lang.AbstractMethodError: Receiver class net.sf.log4jdbc.sql.jdbcapi.ResultSetSpy does not define or inherit an implementation of the resolved method 'abstract java.lang.Object getObject(java.lang.String, java.lang.Class)' of interface java.sql.ResultSet.
+    //logback 파일을 모두 OFF 로 만들어주면 정상 작동됨.
+    @Test
+    @Order(7)
+    @DisplayName("상품 재고 수정")
+    void updateProductStock() throws Exception {
+
+        Stock stock=Stock.builder()
+                .size("L")
+                .color("R")
+                .productId("P001")
+                .quantity(1992839)
+                .build();
+        System.out.println(stockDao.update(stock));
+
+        StockPk stockPk=StockPk.IdAndSizeAndColor("P001","L","R");
+        assertTrue(stockDao.findByStockPk(stockPk).get(0).getQuantity() == 1992839);
+
+
+    }
+
 }

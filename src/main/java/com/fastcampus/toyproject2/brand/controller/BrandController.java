@@ -1,7 +1,6 @@
 package com.fastcampus.toyproject2.brand.controller;
 
 
-import com.fastcampus.toyproject2.brand.service.BrandService;
 import com.fastcampus.toyproject2.product.dto.pagination.PageInfo;
 import com.fastcampus.toyproject2.product.dto.pagination.ProductPageDto;
 import com.fastcampus.toyproject2.product.service.ProductService;
@@ -20,6 +19,9 @@ public class BrandController {
     private final ProductService productService;
 
 
+    /*
+    *
+    * */
     @GetMapping(value ={ "/{brandCode}/products/list"})
     public String brandpage(
             @PathVariable(value = "brandCode") String brandCode
@@ -32,7 +34,7 @@ public class BrandController {
         model.addAttribute("productsList", productService.findPageList(pageInfo));
         model.addAttribute("pageInfo", pageInfo);
 
-        return "brand/products";
+        return "brand/productsList";
     }
 
 

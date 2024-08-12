@@ -29,11 +29,20 @@ public class StockDaoMysql implements StockDao{
         return sqlSession.selectList(namespace+"selectByStockPk", stockPk);
     }
 
+    @Override
+    public int update(Stock stock) throws Exception {
+        if(stock.getProductId()==null || stock.getColor()==null || stock.getSize()==null){
+            throw new InvalidPropertiesFormatException("Id, color, size는 필수 값입니다. 지정 하지 않았습니다.");
+        }
+        return sqlSession.update(namespace+"updateByStock", stock);
+    }
+
 
     @Override
     public int insert(List<Stock> stock) throws Exception{
         return sqlSession.insert(namespace+"insert",stock);
     }
+
 
     @Override
     public int deleteByStockPk(StockPk stockPk) throws Exception {

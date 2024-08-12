@@ -6,6 +6,7 @@ import com.fastcampus.toyproject2.product.dto.ProductRegisterDto;
 import com.fastcampus.toyproject2.product.dto.ProductUpdateDto;
 import com.fastcampus.toyproject2.product.service.ProductService;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
+import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
 import com.fastcampus.toyproject2.productDescription.service.ProductDescriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -66,7 +67,7 @@ public class ProductRestController {
 
         //사진 저장했는데 브랜드나 카테고리를 제대로 안받아 온거면 안됨, 맨 마지막.
         //product_description_id 가 있는지 확인 - 없으면 product_description과 product_description_img 둘다 생성해야함.
-        ProductDescription productDescription = productDescriptionService.findById(productRegisterDto.getProductDescriptionDto().getProductDescriptionId());
+        ProductDescriptionDto productDescription = productDescriptionService.findById(productRegisterDto.getProductDescriptionDto().getProductDescriptionId());
 
         if (productDescription != null) {
             try {

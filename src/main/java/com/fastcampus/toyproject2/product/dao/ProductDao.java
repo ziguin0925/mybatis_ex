@@ -12,11 +12,11 @@ import java.util.List;
 @Mapper
 public interface ProductDao{
 
-    String findNameById(@Param("productId") String productId)throws Exception;
-
     int insert(@Param("product")Product product) throws Exception;
+    int insertTest(HashMap<String, Object> testMap ) throws Exception;
 
-    void deleteByProductId(@Param("productId") String productId) throws Exception;
+
+    String findNameById(@Param("productId") String productId)throws Exception;
 
     ProductDetailDto findProductDetailById(@Param("productId") String productId) throws Exception;
 
@@ -26,7 +26,7 @@ public interface ProductDao{
 
     int countProduct(HashMap<String, Object> map) throws Exception;
 
-    int insertTest(HashMap<String, Object> testMap ) throws Exception;
 
+    void deleteByProductId(@Param("productId") String productId) throws Exception;
 
 }

@@ -109,7 +109,7 @@ class ProductServiceTest {
 
         long curLong = System.currentTimeMillis();
 
-        String result =productService.registerSave(productRegisterDto, repImg, desImages, repImages);
+        String result =productService.registerSavetest(productRegisterDto, repImg, desImages, repImages);
 
         long endLong = System.currentTimeMillis();
 

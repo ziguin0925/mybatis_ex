@@ -30,5 +30,15 @@ public class ProductDescriptionImgDaoMysql implements ProductDescriptionImgDao {
         return sqlSession.insert(namespace+"insert", productDescriptionImgs);
     }
 
+    @Override
+    public int deleteByProductDesciprionId(String productDescriptionId) throws Exception {
+        return sqlSession.update(namespace+"deleteAllByProductDesciprionId", productDescriptionId);
+    }
+
+    @Override
+    public int deleteById(String productDescriptionImgId) throws Exception {
+        return sqlSession.delete(namespace + "findById", productDescriptionImgId);
+    }
+
 
 }

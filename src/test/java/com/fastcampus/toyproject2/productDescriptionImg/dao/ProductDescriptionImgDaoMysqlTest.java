@@ -18,7 +18,19 @@ class ProductDescriptionImgDaoMysqlTest {
     @Test
     @Order(1)
     @DisplayName("조회")
-    void findBy() {
+    void findBy() throws Exception {
+
+        String productDescriptionId = "";
+        productDescriptionImgDao.findAllByProductDescriptionId(productDescriptionId);
+
+    }
+
+    @Test
+    @Order(2)
+    @DisplayName("삭제")
+    void delete() throws Exception {
+        String productDescriptionId = "  ";
+        productDescriptionImgDao.deleteByProductDesciprionId(productDescriptionId);
     }
 
 }

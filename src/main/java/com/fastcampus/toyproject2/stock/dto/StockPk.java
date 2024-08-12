@@ -5,7 +5,9 @@ import lombok.*;
 @Getter
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
+@Setter
 public class StockPk {
 
     public static StockPk onlyId(String productId){

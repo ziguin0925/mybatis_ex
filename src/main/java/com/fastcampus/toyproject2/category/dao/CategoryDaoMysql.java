@@ -19,4 +19,9 @@ public class CategoryDaoMysql implements CategoryDao {
     public String findById(String categoryId) throws Exception {
         return sqlSession.selectOne(namespace+"findById", categoryId);
     }
+
+    @Override
+    public int deleteByCategoryId(String categoryId) throws Exception {
+        return sqlSession.delete(namespace + "deleteByCategoryId", categoryId);
+    }
 }

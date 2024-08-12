@@ -32,7 +32,7 @@ public class ProductDescriptionService {
     private String imgLocation;
 
 
-    public ProductDescription findById(String productDescriptionId) throws Exception {
+    public ProductDescriptionDto findById(String productDescriptionId) throws Exception {
         return productDescriptionDao.findById(productDescriptionId);
     }
 
