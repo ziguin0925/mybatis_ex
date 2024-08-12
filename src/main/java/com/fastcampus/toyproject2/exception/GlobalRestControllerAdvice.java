@@ -16,6 +16,7 @@ import java.util.Map;
 public class GlobalRestControllerAdvice {
 
     //@Valid 애너테이션으로 받은거.
+    //ExceptionDto 사용해서 반환하도록. -- 사용자에게 예외 시간을 보여줄 필요가 있나?
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> processValidationError(MethodArgumentNotValidException exception) {
         BindingResult bindingResult = exception.getBindingResult();

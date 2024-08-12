@@ -68,7 +68,7 @@ public class ProductService {
 
     /*
     *       상품 등록(상세 설명, 상세설명 img 를 생성하는 경우)
-    *
+    *       이거 안쓰고 밑에꺼 쓰기. - 다중 쿼리로 db연결 한번 만.
     * */
     @Transactional
     public String registerSave(ProductRegisterDto productRegisterDto
@@ -80,7 +80,7 @@ public class ProductService {
         ProductDescriptionDto productDescriptionDto = productRegisterDto.getProductDescriptionDto();
 
         /*
-        * ProductDescription 저장
+        * ProductDescription 객체 저장
         * */
 
         ProductDescription productDescription = ProductDescription.builder()
@@ -89,9 +89,7 @@ public class ProductService {
                 .modifyDatetime(LocalDateTime.now())
                 .build();
 
-        System.out.println("productDescription : " + productDescription);
         productDescriptionDao.insert(productDescription);
-        System.out.println("productDescription 생성");
 
 
         /*
@@ -104,7 +102,6 @@ public class ProductService {
         byte i =1;
 
         for(MultipartFile file : DescriptionImgs){
-            System.out.println("이미지 저장 시작");
 
             String filename = file.getOriginalFilename();
 
@@ -148,7 +145,6 @@ public class ProductService {
 
         //img 먼저 생성하고 만드는게 나을지, img를 만들기 전에 생성하는게 좋을 지.
 
-        System.out.println("imgs 저장");
         imgList.forEach(x->System.out.println(x.getProductDescriptionId()));
         productDescriptionImgDao.insert(imgList);
 
@@ -166,134 +162,50 @@ public class ProductService {
             , List<MultipartFile> DescriptionImgs
             , List<MultipartFile> productImgs) throws Exception{
 
-        ProductDescriptionDto productDescriptionDto = productRegisterDto.getProductDescriptionDto();
 
         /*
          * ProductDescription 객체 생성.
          * */
 
-        ProductDescription productDescription = ProductDescription.builder()
-                .productDescriptionId(productDescriptionDto.getProductDescriptionId())
-                .description(productDescriptionDto.getDescription())
-                .modifyDatetime(LocalDateTime.now())
-                .build();
-//        productDescriptionDao.insert(productDescription);
+        ProductDescription productDescription = ProductRegisterDto.toProductDescription(productRegisterDto);
 
         /*
         * 대표 사진 저장.
         *
         * */
 
-        String repFilename =productRepImg.getOriginalFilename();
-
-        String repFileCode = fileService.uploadFile(imgRepLocation, repFilename, productRepImg.getBytes());
-        System.out.println("저장 완료");
-
+        String repFileCode = fileService.uploadRepImg(productRepImg);
 
 
         /*
          * Product 저장.
          * */
 
+        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto, repFileCode);
 
 
-        Product registerProduct = Product.builder()
-                .productId(productRegisterDto.getProductId())
-                .productDescriptionId(productDescriptionDto.getProductDescriptionId())
-                .categoryId(productRegisterDto.getCategoryId())
-                .brandId(productRegisterDto.getBrandId())
-                .name(productRegisterDto.getName())
-                .repImg(repFileCode)
-                .price(productRegisterDto.getPrice())
-                .registerManager(productRegisterDto.getManagerName())
-                .starRating(0F)
-                .isDisplayed(Product.DEFAULT_DISPLAY)
-//                .reviewCount(Product.DEFAULT_NUM)
-//                .viewCount(Product.DEFAULT_NUM)
-//                .starRating(Product.DEFAULT_NUM)//float
-//                .salesQuantity(Product.DEFAULT_NUM)
-                .build();
         /*
         * 재고 리스트 생성.
         * */
 
 
-        List<Stock> stocks = new ArrayList<>();
-
-        for(int i=0; i<productRegisterDto.getColor().size();i++){
-            Stock stock = Stock.builder()
-                    .productId(registerProduct.getProductId())
-                    .color(productRegisterDto.getColor().get(i))
-                    .size(productRegisterDto.getSize().get(i))
-                    .quantity(productRegisterDto.getQuantity().get(i))
-                    .build();
-
-            stocks.add(stock);
-
-        }
-
-
-
+        List<Stock> stocks = ProductRegisterDto.toStockList(productRegisterDto);
 
         /*
          * ProductDescriptionImg 객체 생성
+         *
+         * 이 부분은 좀 생각해보기.
          * */
 
+        List<ProductDescriptionImg> imgList = fileService.toImageList(DescriptionImgs, productImgs, productDescription.getProductDescriptionId());
 
-        List<ProductDescriptionImg> imgList = new ArrayList<>();
-        //순서를 Mapper에서 만들어 놓을까.
-        byte i =1;
+        HashMap<String, Object> registerMap = new HashMap<>();
+        registerMap.put("ProductDescription",productDescription);
+        registerMap.put("stockList",stocks);
+        registerMap.put("imgList",imgList);
+        registerMap.put("Product", registerProduct);
 
-        for(MultipartFile file : DescriptionImgs){
-            System.out.println("이미지 저장 시작");
-
-            String filename = file.getOriginalFilename();
-
-            String fileCode = fileService.uploadFile(imgLocation, filename, file.getBytes());
-
-            //이런 부분 클래스(ProductDescriptionImg) 안에서 정의해도 되는가?
-            ProductDescriptionImg productDescriptionImg
-                    = ProductDescriptionImg.builder()
-                    .productDescriptionId(productDescription.getProductDescriptionId())
-                    .name(filename)
-                    .path(imgLocation+fileCode)
-                    .orderNum(i++)
-                    .size(file.getSize())
-                    .kindOf(ProductDescriptionImg.DESCRIPTION)
-                    .isUsed(ProductDescriptionImg.DEFAULT_USE)
-                    .build();
-
-            imgList.add(productDescriptionImg);
-        }
-
-        i=1;
-
-        for(MultipartFile file : productImgs){
-            System.out.println("이미지  표시 저장 시작");
-
-            String filename = file.getOriginalFilename();
-            String fileCode = fileService.uploadFile(imgLocation, filename, file.getBytes());
-
-            ProductDescriptionImg productDescriptionImg
-                    = ProductDescriptionImg.builder()
-                    .productDescriptionId(productDescription.getProductDescriptionId())
-                    .name(filename)
-                    .path(imgLocation+fileCode)
-                    .orderNum(i++)
-                    .size(file.getSize())
-                    .kindOf(ProductDescriptionImg.REPRESENTATION)
-                    .isUsed(ProductDescriptionImg.DEFAULT_USE)
-                    .build();
-            imgList.add(productDescriptionImg);
-        }
-
-        HashMap<String, Object> testMap = new HashMap<>();
-        testMap.put("ProductDescription",productDescription);
-        testMap.put("stockList",stocks);
-        testMap.put("imgList",imgList);
-        testMap.put("Product", registerProduct);
-
-        productDao.insertTest(testMap);
+        productDao.insertTest(registerMap);
 
         return productRegisterDto.getName();
 
@@ -301,6 +213,8 @@ public class ProductService {
 
     /*
     *       상품 상세 정보
+    *       한번에 가져올 수 있는지 생각
+    *       -> List로 가져오게 될 것 같은데.
     *
     * */
 

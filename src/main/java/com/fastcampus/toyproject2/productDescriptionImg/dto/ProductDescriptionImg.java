@@ -4,8 +4,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -51,4 +54,12 @@ public class ProductDescriptionImg {
         this.createDatetime = createDatetime;
         this.modifyDatetime = modifyDatetime;
     }
+
+//    public static List<ProductDescriptionImg> toImgList(
+//            List<MultipartFile> desImgs
+//            , List<MultipartFile> repImgs
+//            , String productDescriptionId) {
+//
+//
+//    }
 }

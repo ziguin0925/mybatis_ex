@@ -1,12 +1,15 @@
 package com.fastcampus.toyproject2.product.dto;
 
+import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
+import com.fastcampus.toyproject2.stock.dto.Stock;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,5 +78,46 @@ public class ProductRegisterDto {
         this.size = size;
         this.color = color;
         this.quantity = quantity;
+    }
+
+
+    public static ProductDescription toProductDescription(ProductRegisterDto productRegisterDto){
+        return ProductDescription.builder()
+                .productDescriptionId(productRegisterDto.getProductDescriptionDto().getProductDescriptionId())
+                .description(productRegisterDto.getProductDescriptionDto().getDescription())
+                .modifyDatetime(LocalDateTime.now())
+                .build();
+    }
+
+    public static Product toProduct(ProductRegisterDto productRegisterDto , String repFileCode){
+        return Product.builder()
+                .productId(productRegisterDto.getProductId())
+                .productDescriptionId(productRegisterDto.getProductDescriptionDto().getProductDescriptionId())
+                .categoryId(productRegisterDto.getCategoryId())
+                .brandId(productRegisterDto.getBrandId())
+                .name(productRegisterDto.getName())
+                .repImg(repFileCode)
+                .price(productRegisterDto.getPrice())
+                .registerManager(productRegisterDto.getManagerName())
+                .starRating(0F)
+                .isDisplayed(Product.DEFAULT_DISPLAY)
+                .build();
+
+    }
+    public static List<Stock> toStockList(ProductRegisterDto productRegisterDto){
+        List<Stock> stocks = new ArrayList<>();
+
+        for(int i=0; i<productRegisterDto.getColor().size();i++){
+            Stock stock = Stock.builder()
+                    .productId(productRegisterDto.getProductId())
+                    .color(productRegisterDto.getColor().get(i))
+                    .size(productRegisterDto.getSize().get(i))
+                    .quantity(productRegisterDto.getQuantity().get(i))
+                    .build();
+
+            stocks.add(stock);
+
+        }
+        return stocks;
     }
 }
