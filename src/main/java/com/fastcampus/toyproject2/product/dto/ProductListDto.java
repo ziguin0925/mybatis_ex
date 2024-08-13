@@ -12,7 +12,7 @@ public class ProductListDto {
 
     private String productId;
     private String productName;
-    private String price;
+    private int price;
     private String repImg;
     private float starRating;
     private String brandId;

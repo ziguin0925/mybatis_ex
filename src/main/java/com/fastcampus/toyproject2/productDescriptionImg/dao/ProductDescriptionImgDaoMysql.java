@@ -19,16 +19,17 @@ public class ProductDescriptionImgDaoMysql implements ProductDescriptionImgDao {
     private final SqlSession sqlSession;
     private final String namespace = "productDescriptionImgMapper.";
 
+    @Override
+    public int insert(List<ProductDescriptionImg> productDescriptionImgs) throws Exception {
+        return sqlSession.insert(namespace+"insert", productDescriptionImgs);
+    }
+
 
     @Override
     public List<ProductDescriptionImgDetailDto> findAllByProductDescriptionId(String productDescriptionId) {
         return sqlSession.selectList(namespace+"findAllByProductDescriptionId", productDescriptionId);
     }
 
-    @Override
-    public int insert(List<ProductDescriptionImg> productDescriptionImgs) throws Exception {
-        return sqlSession.insert(namespace+"insert", productDescriptionImgs);
-    }
 
     @Override
     public int deleteByProductDesciprionId(String productDescriptionId) throws Exception {

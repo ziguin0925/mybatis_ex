@@ -8,37 +8,32 @@
         SELECT * FROM brand WHERE brand_id = #{brandId}
     </select>
 
-    <insert id="insertBrand" parameterType="com.fastcampus.toyproject2.brand.dto.BrandDto">
-        INSERT INTO brand (brand_id,
-                             name,
-                             img,
-                           product_num,
-                           create_datetime,
-                           update_datetime)
+    <insert id="insertBrand" parameterType="com.fastcampus.toyproject2.brand.dto.BrandCreateDto">
+        INSERT INTO brand (brand_id
+                           , name
+                           , img
+        )
         VALUES (
                 #{brandId}
             , #{name}
             , #{img}
-            , #{ProductNum}
-            , NOW()
-            , NOW()
                )
 
     </insert>
 
+
+<!-- 나중에 브랜드 이미지 리스트 등록할지 고민. -->
     <update id="updateBrand" parameterType="com.fastcampus.toyproject2.brand.dto.BrandUpdateDto">
         UPDATE brand
         <set>
-            <if test="name != null">
-                name = #{name}
-            </if>
-            <if test="img != null">
-                img = #{img}
-            </if>
+            <if test="name != null"> name = #{name} , </if>
         </set>
             WHERE brand_id = #{brandId}
     </update>
 
+    <delete id="deleteById" parameterType="String">
+        DELETE FROM brand WHERE brand_id =#{brand_id}
+    </delete>
 
 
 </mapper>

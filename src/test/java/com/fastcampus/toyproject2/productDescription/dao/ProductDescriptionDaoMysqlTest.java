@@ -8,11 +8,13 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
+@Transactional
 class ProductDescriptionDaoMysqlTest {
 
     @Autowired
@@ -36,7 +38,6 @@ class ProductDescriptionDaoMysqlTest {
     @DisplayName("상세설명 없는 경우")
     void getProductDescriptionIsNull() throws Exception {
         ProductDescriptionDto productDescription =productDescriptionDao.findById("aaaa");
-
         assertNull(productDescription);
     }
 
@@ -48,8 +49,9 @@ class ProductDescriptionDaoMysqlTest {
     void insertProductDescription() throws Exception {
         ProductDescription productDescription =new ProductDescription("asdf","상세 설명을 만듦",null);
         productDescriptionDao.insert(productDescription);
-        ProductDescriptionDto productDescription2 =productDescriptionDao.findById("asdf");
-        assertNotNull(productDescription2);
+        ProductDescriptionDto productDescription2 =productDescriptionDao.findById(productDescription.getProductDescriptionId());
+
+        assertTrue(productDescription2.getDescription().equals(productDescription.getDescription()));
         System.out.println(productDescription2);
     }
 
@@ -58,8 +60,40 @@ class ProductDescriptionDaoMysqlTest {
     @Order(4)
     @DisplayName("상세 설명 삭제")
     void deleteProductDescription() throws Exception {
-        productDescriptionDao.delete("asdf");
-        ProductDescriptionDto productDescription2 =productDescriptionDao.findById("asdf");
-        assertNull(productDescription2);
+        ProductDescription productDescription =new ProductDescription("asdf","상세 설명을 만듦",null);
+        productDescriptionDao.insert(productDescription);
+        ProductDescriptionDto productDescription2 =productDescriptionDao.findById(productDescription.getProductDescriptionId());
+
+        assertTrue(productDescription2.getDescription().equals(productDescription.getDescription()));
+        System.out.println(productDescription2);
+
+
+        productDescriptionDao.delete(productDescription.getProductDescriptionId());
+        ProductDescriptionDto productDescriptionNull =productDescriptionDao.findById(productDescription.getProductDescriptionId());
+
+        assertNull(productDescriptionNull);
     }
+
+    @Test
+    @Order(5)
+    @DisplayName("상세설명 수정")
+    void updateProductDescription() throws Exception {
+        ProductDescription productDescription =new ProductDescription("asdf","상세 설명을 만듦",null);
+        productDescriptionDao.insert(productDescription);
+        ProductDescriptionDto productDescription2 =productDescriptionDao.findById(productDescription.getProductDescriptionId());
+
+        assertTrue(productDescription2.getDescription().equals(productDescription.getDescription()));
+        System.out.println(productDescription2);
+
+        productDescription2.setDescription("상세 설명 수정");
+
+        productDescriptionDao.update(productDescription2);
+
+        ProductDescriptionDto productDescriptionUpdate =productDescriptionDao.findById(productDescription.getProductDescriptionId());
+
+
+        assertTrue(productDescriptionUpdate.getDescription().equals(productDescription2.getDescription()));
+    }
+
+
 }

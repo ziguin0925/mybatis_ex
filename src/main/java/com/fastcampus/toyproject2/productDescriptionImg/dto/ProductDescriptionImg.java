@@ -36,13 +36,10 @@ public class ProductDescriptionImg {
 
     private Long size;
 
-    private LocalDateTime createDatetime;
-
-    private LocalDateTime modifyDatetime;
 
 
     @Builder
-    public ProductDescriptionImg(Long productDescriptionImgId, String productDescriptionId, String name, byte orderNum, String path, String isUsed, String kindOf, Long size, LocalDateTime createDatetime, LocalDateTime modifyDatetime) {
+    public ProductDescriptionImg(Long productDescriptionImgId, String productDescriptionId, String name, byte orderNum, String path, String isUsed, String kindOf, Long size) {
         this.productDescriptionImgId = productDescriptionImgId;
         this.productDescriptionId = productDescriptionId;
         this.name = name;
@@ -51,8 +48,6 @@ public class ProductDescriptionImg {
         this.isUsed = isUsed;
         this.kindOf = kindOf;
         this.size = size;
-        this.createDatetime = createDatetime;
-        this.modifyDatetime = modifyDatetime;
     }
 
 //    public static List<ProductDescriptionImg> toImgList(

@@ -1,5 +1,8 @@
 package com.fastcampus.toyproject2.product.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,5 +12,23 @@ import lombok.ToString;
 @ToString
 public class ProductUpdateDto {
 
-    private String Name;
+    private String productId;
+
+    @Size(min =3 , max =25, message = "3글자 이상, 25자 미만 이어야 합니다.")
+    @NotNull(message = "3글자 이상, 25자 미만 이어야 합니다.")
+    private String name;
+
+    private String categoryId;
+
+    private String productDescriptionId;
+
+    private String registerManager;
+
+    private String repImg;
+
+    @Positive
+    private Integer price;
+
+    private String isDisplayed;
+
 }

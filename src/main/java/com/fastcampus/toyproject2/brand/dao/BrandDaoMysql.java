@@ -1,5 +1,6 @@
 package com.fastcampus.toyproject2.brand.dao;
 
+import com.fastcampus.toyproject2.brand.dto.BrandCreateDto;
 import com.fastcampus.toyproject2.brand.dto.BrandDto;
 import com.fastcampus.toyproject2.brand.dto.BrandUpdateDto;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,12 @@ public class BrandDaoMysql implements BrandDao{
     private String namespace ="brandMapper.";
 
     @Override
-    public BrandDto findById(String brandId) {
+    public int insert(BrandCreateDto brand) throws Exception {
+        return  sqlSession.insert(namespace+"insertBrand", brand);
+    }
 
+    @Override
+    public BrandDto findById(String brandId) {
         return sqlSession.selectOne(namespace+"findById", brandId);
     }
 
@@ -28,9 +33,8 @@ public class BrandDaoMysql implements BrandDao{
     }
 
     @Override
-    public int insert(BrandDto brand) throws Exception {
-        return  sqlSession.insert(namespace+"insertBrand", brand);
+    public int delete(String brandId) throws Exception {
+        return sqlSession.delete(namespace+"deleteById", brandId);
     }
-
 
 }

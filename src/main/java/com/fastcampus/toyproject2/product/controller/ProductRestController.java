@@ -8,6 +8,9 @@ import com.fastcampus.toyproject2.product.service.ProductService;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
 import com.fastcampus.toyproject2.productDescription.service.ProductDescriptionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +24,9 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/admin/product")
 @RequiredArgsConstructor
+@Tag(name ="Product API", description ="상품 관련 API")
 public class ProductRestController {
     private final ProductService productService;
 
@@ -41,8 +45,9 @@ public class ProductRestController {
     *   저장 할때마자 findBy로 DB에 잘 저장 되었는지 확인이 필요한가?
     *    throws Exception이 있는데
     * */
-    @PostMapping(value = {"/register"})
-    public ResponseEntity<?> register(@Validated @RequestPart(value = "ProductRegisterDto") ProductRegisterDto productRegisterDto
+    @Operation(summary = "상품 등록", description = "상품 등록 Dto, 상품 대표 이미지, 상품 설명 이미지 , 상품 이미지를 매개변수로 받아온다.")
+    @PostMapping(value = {"/{productId}"})
+    public ResponseEntity<?> register(@Valid @RequestPart(value = "ProductRegisterDto") ProductRegisterDto productRegisterDto
             , @RequestPart(value = "RepImg", required = true) MultipartFile repImg
             , @RequestPart(value = "DescriptionImgs", required = false) List<MultipartFile> desImgs
             , @RequestPart(value = "RepresentationImgs", required = false) List<MultipartFile> represenImgs
@@ -104,10 +109,24 @@ public class ProductRestController {
     *   이름, 대표 이미지, 카테고리, 가격, 화면 표시유무, 등록자(register_manager), 상세 설명 기존에 있는거로 변경.
     *   상세 설명 새로 생성은 productDescription에서 처리하기 .
     * */
-    @PatchMapping(value ={"/update"})
-    public ResponseEntity<?> productupdate(@Validated @RequestPart(value = "ProductUpdateDto") ProductUpdateDto productUpdateDto){
+    @Operation(summary="상품 수정", description = "상품을 수정할 때 상세 설명, 상세 설명 이미지, 상품 이미지들을 수정할 때에는 다른 Controller에서 처리할 수 있도록 다른 페이지로 넘어가도록 처리.")
+    @PatchMapping(value ={"/{productId}"})
+    public ResponseEntity<?> productupdate(@PathVariable(name = "productId") String productId
+            , @Validated @RequestPart(value = "ProductUpdateDto") ProductUpdateDto productUpdateDto){
 
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",productUpdateDto.getName() + "브랜드 수정 완료"));
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",productId + "상품 수정 완료"));
+    }
+
+
+    @Operation(summary="상품 삭제", description = "productId를 통한 상품 삭제")
+    @DeleteMapping(value = "/{productId}")
+    public ResponseEntity<?> productdelete(@PathVariable("productId") String productId) throws Exception {
+
+        productService.deleteProduct(productId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",productId+ "상품 삭제 완료"));
     }
 
 

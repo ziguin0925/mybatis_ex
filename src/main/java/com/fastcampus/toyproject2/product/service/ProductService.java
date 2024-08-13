@@ -278,6 +278,19 @@ public class ProductService {
     }
 
 
+    /*
+    *       상품 삭제
+    *
+    * */
+    public void deleteProduct(String productId) throws Exception {
+        productDao.deleteByProductId(productId);
+    }
+
+    public void updateProduct(ProductUpdateDto productUpdateDto) throws Exception {
+
+        productDao.updateProduct(productUpdateDto);
+
+    }
 
     /*
     *       상품 등록시 상품과 상품 대표 이미지 저장.

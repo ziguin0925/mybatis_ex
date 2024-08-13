@@ -9,7 +9,7 @@
 <!--    </resultMap>-->
 
     <select id="findAllByProductDescriptionId" parameterType="String" resultType="com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgDetailDto">
-        SELECT * FROM product_description_img WHERE product_description_id = #{productDescriptionId}
+        SELECT name, path, kind_of FROM product_description_img WHERE product_description_id = #{productDescriptionId}
 
     </select>
 
@@ -27,8 +27,6 @@
         , is_used
         , kind_of
         , size
-        , create_datetime
-        , modify_datetime
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
@@ -39,14 +37,12 @@
             , #{item.isUsed}
             , #{item.kindOf}
             , #{item.size}
-            ,  NOW()
-            ,  NOW()
             )
         </foreach>
     </insert>
 
 
-    <delete id="deleteAllByProductDescriprionId" parameterType="String">
+    <delete id="deleteAllByProductDesciprionId" parameterType="String">
         DELETE FROM product_description_img WHERE product_description_id = #{productDescriptionId}
     </delete>
 

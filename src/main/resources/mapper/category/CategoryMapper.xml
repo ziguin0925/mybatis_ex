@@ -8,8 +8,8 @@
 <!--        <result column="name" property="userName" jdbcType="VARCHAR" javaType="String"/>-->
 <!--    </resultMap>-->
 
-    <select id="findById" parameterType="String" resultType="String">
-        SELECT category_id FROM category WHERE category_id = #{categoryId}
+    <select id="findNameById" parameterType="String" resultType="String">
+        SELECT category_name FROM category WHERE category_id = #{categoryId}
     </select>
 
     <insert id="insertCategory" parameterType="com.fastcampus.toyproject2.category.dto.Category">
@@ -24,11 +24,18 @@
 
     </insert>
 
+    <update id="updateCategory" parameterType="com.fastcampus.toyproject2.category.dto.Category">
+        UPDATE category
+        <set>
+            <if test = "categoryName != null"> category_name =#{categoryName} , </if>
+            <if test = "parentCategoryId!= null"> parent_category_id =#{parentCategoryId} , </if>
+        </set>
+            WHERE category_id = #{categoryId}
+    </update>
+
     <delete id="deleteByCategoryId" parameterType="String">
         DELETE FROM category WHERE category_id = #{categoryId}
     </delete>
-
-
 
 
 </mapper>

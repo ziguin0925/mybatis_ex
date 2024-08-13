@@ -5,10 +5,10 @@
             <pattern>${CONSOLE_LOG_PATTERN}</pattern>
         </encoder>
     </appender>
-
-    <logger name="jdbc" level="ALL"/>
+<!-- DEBUG(sql 쿼리 확인 가능), ALL, OFF, FATAL 등등 -->
+    <logger name="jdbc" level="OFF"/>
     <logger name="jdbc.sqlonly" level="OFF"/>
-    <logger name="jdbc.sqltiming" level="DEBUG"/>
+    <logger name="jdbc.sqltiming" level="OFF"/>
     <logger name="jdbc.audit" level="OFF"/>
     <logger name="jdbc.resultset" level="OFF"/>
     <logger name="jdbc.resultsettable" level="OFF"/>

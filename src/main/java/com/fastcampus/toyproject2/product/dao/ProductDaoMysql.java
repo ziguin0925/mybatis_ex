@@ -3,11 +3,13 @@ package com.fastcampus.toyproject2.product.dao;
 import com.fastcampus.toyproject2.product.dto.Product;
 import com.fastcampus.toyproject2.product.dto.ProductDetailDto;
 import com.fastcampus.toyproject2.product.dto.ProductListDto;
+import com.fastcampus.toyproject2.product.dto.ProductUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.stereotype.Repository;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -56,6 +58,11 @@ public class ProductDaoMysql implements ProductDao {
     @Override
     public int countProduct(HashMap<String, Object> countMap) throws Exception {
         return sqlSession.selectOne(namespace + "countProduct", countMap);
+    }
+
+    @Override
+    public int updateProduct(ProductUpdateDto productUpdateDto) throws Exception {
+        return sqlSession.update(namespace+"updateProduct", productUpdateDto);
     }
 
     @Override

@@ -19,15 +19,21 @@
             FROM product_description pd
             WHERE product_description_id = (select product_description_id from product where product_id = #{productId})
     </select>
-    
+
+    <!--  상품 수정시 같은 카테고리에 있는 상세 설명 보여주기 위해서.(재사용)  -->
     <select id="findByCategoryId" parameterType="String" resultType="com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto">
         SELECT product_description_id, description
             FROM product_description pd
             WHERE  product_descipription_id = (SELECT product_description id FROM product WHERE category_id = #{categoryId})
     </select>
-    
+<!--  나중에 상품 상세에  내용 더 추가할지 생각(공급사, 공장, 택배사, 위치 등등)  -->
     <update id="updateDescription" parameterType="com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto">
-        UPDATE product_description SET description = #{description} WHERE product_discription = #{productDescriptionId}
+        UPDATE product_description
+            <set>
+                <if test="description != null"> description = #{description} , </if>
+                    modify_datetime = NOW()
+            </set>
+            WHERE product_description_id = #{productDescriptionId}
     </update>
             
 

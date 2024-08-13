@@ -149,31 +149,18 @@
     <!--글자수, 공백으로만 되어있는지는 앞에서 검사하기.-->
     <update id="updateProduct" parameterType="com.fastcampus.toyproject2.product.dto.ProductUpdateDto">
         UPDATE product
-            SET
-            <if test="repImg != null">
-                    rep_img=#{repImg}
-            </if>
-            <if test ="productDescriptionId != null">
-                    product_description_id = #{productDescriptionId}
-            </if>
-            <if test ="categoryId != null">
-                    category_id = #{categoryId}
-            </if>
-            <if test="name !=null">
-                    name != #{name}
-            </if>
-            <if test ="registerManager != null">
-                    register_manager = #{registerManager}
-            </if>
-            <if test ="price != null">
-                    price = #{price}
-            </if>
-            <if test ="isDisplayed != null">
-                    is_displayed  = #{isDisplayed}
-            </if>
-
-
-                    modify_datetime = NOW()
+            <set>
+                <if test="repImg != null">
+                        rep_img=#{repImg}
+                </if>
+                <if test ="productDescriptionId != null"> product_description_id = #{productDescriptionId}, </if>
+                <if test ="categoryId != null"> category_id = #{categoryId} , </if>
+                <if test="name !=null"> name = #{name} , </if>
+                <if test ="registerManager != null"> register_manager = #{registerManager} , </if>
+                <if test ="price != null"> price = #{price} , </if>
+                <if test ="isDisplayed != null"> is_displayed  = #{isDisplayed} , </if>
+                        modify_datetime = NOW()
+            </set>
         WHERE
             product_id = #{productId}
 

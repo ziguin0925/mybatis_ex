@@ -30,7 +30,7 @@ public class GlobalRestControllerAdvice {
                     .append(fieldError.getRejectedValue());
         }
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",builder.toString()));
+        return ResponseEntity.badRequest().body(Map.of("message",builder.toString()));
     }
 
 }

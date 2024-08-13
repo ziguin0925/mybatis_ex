@@ -49,7 +49,7 @@ public class ProductRegisterDto {
 
     @Positive
     @NotNull(message = "Product price is not defined")
-    private Integer price;
+    private int price;
 
     @Size(min=2, max =20, message = "2글자 이상, 20글자 이하여야 합니다.")
     @NotBlank(message = "Product manager name is not defined")

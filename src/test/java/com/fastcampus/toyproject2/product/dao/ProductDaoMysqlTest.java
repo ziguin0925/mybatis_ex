@@ -3,6 +3,7 @@ package com.fastcampus.toyproject2.product.dao;
 import com.fastcampus.toyproject2.product.dto.Product;
 import com.fastcampus.toyproject2.product.dto.ProductDetailDto;
 import com.fastcampus.toyproject2.product.dto.ProductRegisterDto;
+import com.fastcampus.toyproject2.product.dto.ProductUpdateDto;
 import com.fastcampus.toyproject2.productDescription.dao.ProductDescriptionDao;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
 import com.fastcampus.toyproject2.util.FileService;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 class ProductDaoMysqlTest {
@@ -39,6 +41,7 @@ class ProductDaoMysqlTest {
     @Qualifier("productDescriptionDao")
     @Autowired
     private ProductDescriptionDao productDescriptionDao;
+
 
     @Test
     @Order(1)
@@ -119,6 +122,27 @@ class ProductDaoMysqlTest {
 
         System.out.println(productDetailDto);
 
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("제품 수정")
+    void updateProduct1() throws Exception {
+
+        ProductUpdateDto productUpdateDto1 = new ProductUpdateDto();
+
+        productUpdateDto1.setProductId("CREATE_DESCRIPTION");
+        productUpdateDto1.setName("상품 이름 수정");
+
+        productDao.updateProduct(productUpdateDto1);
+        assertTrue(productDao.findNameById("CREATE_DESCRIPTION").equals("상품 이름 수정"));
+
+        ProductUpdateDto productUpdateDto2 = new ProductUpdateDto();
+        productUpdateDto2.setProductId("CREATE_DESCRIPTION");
+        productUpdateDto2.setPrice(1423);
+        productUpdateDto2.setName("상품 가격, 이름, 카테고리 수정");
+        productDao.updateProduct(productUpdateDto2);
+        assertTrue(productDao.findNameById("CREATE_DESCRIPTION").equals("상품 가격, 이름, 카테고리 수정"));
     }
 
 

@@ -32,7 +32,7 @@ public class Product {
 
     private String repImg;
 
-    private Integer price;
+    private int price;
 
     private String isDisplayed;
 

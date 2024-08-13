@@ -19,12 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 class ProductRestControllerTest {
 
     @Autowired
@@ -137,7 +140,7 @@ class ProductRestControllerTest {
         MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
 
         //when
-        ResultActions resultActions = mockMvc.perform(multipart("/product/register")
+        ResultActions resultActions = mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
 //                        .content(content)
 //                        .contentType(MediaType.APPLICATION_JSON)
                                 .file(repImg)
@@ -211,7 +214,7 @@ class ProductRestControllerTest {
         MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
 
         //when
-        ResultActions resultActions =mockMvc.perform(multipart("/product/register")
+        ResultActions resultActions =mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
                                 .file(repImg)
                                 .file(registerDtoContent)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -265,7 +268,7 @@ class ProductRestControllerTest {
         MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
 
 
-        ResultActions resultActions = mockMvc.perform(multipart("/product/register")
+        ResultActions resultActions = mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
                         .file(repImg)
                         .file(registerDtoContent)
                         .accept(MediaType.APPLICATION_JSON)
@@ -321,7 +324,7 @@ class ProductRestControllerTest {
         List<MockMultipartFile> repImages = create2Imgs(2,"rep","RepresentationImgs");
 
 
-        MockMultipartHttpServletRequestBuilder reqBuilder = MockMvcRequestBuilders.multipart("/product/register");
+        MockMultipartHttpServletRequestBuilder reqBuilder = MockMvcRequestBuilders.multipart("/admin/product/"+productRegisterDto.getProductId());
 
         for (MockMultipartFile file : desImages) {
             reqBuilder.file(file);
@@ -357,6 +360,7 @@ class ProductRestControllerTest {
 
     //null, "", 25자 이상
     //공백 10개 이상은 생각해보기
+    //404가뜸.
     @Test
     @Order(5)
     @DisplayName("상품 ID 검증")
@@ -372,16 +376,16 @@ class ProductRestControllerTest {
         List<Integer> quantitis = new ArrayList<>();
         quantitis.add(133);
 
-        //25자 이상 검증
+        //25자 이상 검증, "", " "
         ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001","");
         ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
                 .price(25900)
-                .productId("NOTCATEGORYasdasdasdasdasdasdasdasdasdasd")
+                .productId("Over25sdaassdfasdfsdasdasdasdfasd")
                 .brandId("A00000000002")
                 .productDescriptionDto(productDescriptionDto)
-                .categoryId("C99")
+                .categoryId("C04")
                 .managerName("manager11")
-                .name("카테고리 없는 테스트용 의류")
+                .name("상품 이름 25자 이상")
                 .color(colors)
                 .size(sizes)
                 .quantity(quantitis)
@@ -390,7 +394,7 @@ class ProductRestControllerTest {
         MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
 
 
-        ResultActions resultActions1 = mockMvc.perform(multipart("/product/register")
+        ResultActions resultActions1 = mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
                         .file(repImg)
                         .file(registerDtoContent)
                         .accept(MediaType.APPLICATION_JSON)
@@ -406,12 +410,11 @@ class ProductRestControllerTest {
 
 
 
-        //null, "" 검증
-        productRegisterDto.setProductId("");
+        //null
+        productRegisterDto.setProductId(null);
         MockMultipartFile registerDtoContent2 = dtoToMultiPartFile(productRegisterDto);
 
-
-        ResultActions resultActions2 = mockMvc.perform(multipart("/product/register")
+        ResultActions resultActions2 = mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
                         .file(repImg)
                         .file(registerDtoContent2)
                         .accept(MediaType.APPLICATION_JSON)

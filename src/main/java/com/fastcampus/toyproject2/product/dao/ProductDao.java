@@ -3,6 +3,7 @@ package com.fastcampus.toyproject2.product.dao;
 import com.fastcampus.toyproject2.product.dto.Product;
 import com.fastcampus.toyproject2.product.dto.ProductDetailDto;
 import com.fastcampus.toyproject2.product.dto.ProductListDto;
+import com.fastcampus.toyproject2.product.dto.ProductUpdateDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,6 +28,11 @@ public interface ProductDao{
     int countProduct(HashMap<String, Object> map) throws Exception;
 
 
+    int updateProduct(@Param("product")ProductUpdateDto productUpdateDto) throws Exception;
+
+
     void deleteByProductId(@Param("productId") String productId) throws Exception;
+
+
 
 }
