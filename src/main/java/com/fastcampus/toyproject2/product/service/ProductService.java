@@ -70,94 +70,94 @@ public class ProductService {
     *       상품 등록(상세 설명, 상세설명 img 를 생성하는 경우)
     *       이거 안쓰고 밑에꺼 쓰기. - 다중 쿼리로 db연결 한번 만.
     * */
-    @Transactional
-    public String registerSave(ProductRegisterDto productRegisterDto
-            , MultipartFile productRepImg
-            , List<MultipartFile> DescriptionImgs
-            , List<MultipartFile> productImgs) throws Exception {
-
-
-        ProductDescriptionDto productDescriptionDto = productRegisterDto.getProductDescriptionDto();
-
-        /*
-        * ProductDescription 객체 저장
-        * */
-
-        ProductDescription productDescription = ProductDescription.builder()
-                .productDescriptionId(productDescriptionDto.getProductDescriptionId())
-                .description(productDescriptionDto.getDescription())
-                .modifyDatetime(LocalDateTime.now())
-                .build();
-
-        productDescriptionDao.insert(productDescription);
-
-
-        /*
-         * ProductDescriptionImg 저장
-         * */
-
-
-        List<ProductDescriptionImg> imgList = new ArrayList<>();
-        //순서를 Mapper에서 만들어 놓을까.
-        byte i =1;
-
-        for(MultipartFile file : DescriptionImgs){
-
-            String filename = file.getOriginalFilename();
-
-            String fileCode = fileService.uploadFile(imgLocation, filename, file.getBytes());
-
-            //이런 부분 클래스(ProductDescriptionImg) 안에서 정의해도 되는가?
-            ProductDescriptionImg productDescriptionImg
-                    = ProductDescriptionImg.builder()
-                    .productDescriptionId(productDescription.getProductDescriptionId())
-                    .name(filename)
-                    .path(imgLocation+fileCode)
-                    .orderNum(i++)
-                    .size(file.getSize())
-                    .kindOf(ProductDescriptionImg.DESCRIPTION)
-                    .isUsed(ProductDescriptionImg.DEFAULT_USE)
-                    .build();
-
-            imgList.add(productDescriptionImg);
-        }
-
-        i=1;
-
-        for(MultipartFile file : productImgs){
-            System.out.println("이미지  표시 저장 시작");
-
-            String filename = file.getOriginalFilename();
-            String fileCode = fileService.uploadFile(imgLocation, filename, file.getBytes());
-
-            ProductDescriptionImg productDescriptionImg
-                    = ProductDescriptionImg.builder()
-                    .productDescriptionId(productDescription.getProductDescriptionId())
-                    .name(filename)
-                    .path(imgLocation+fileCode)
-                    .orderNum(i++)
-                    .size(file.getSize())
-                    .kindOf(ProductDescriptionImg.REPRESENTATION)
-                    .isUsed(ProductDescriptionImg.DEFAULT_USE)
-                    .build();
-            imgList.add(productDescriptionImg);
-        }
-
-        //img 먼저 생성하고 만드는게 나을지, img를 만들기 전에 생성하는게 좋을 지.
-
-        imgList.forEach(x->System.out.println(x.getProductDescriptionId()));
-        productDescriptionImgDao.insert(imgList);
-
-
-        registerProductAndRepImg(productRegisterDto, productRepImg);
-
-        return  productRegisterDto.getName();
-    }
+//    @Transactional
+//    public String registerSave(ProductRegisterDto productRegisterDto
+//            , MultipartFile productRepImg
+//            , List<MultipartFile> DescriptionImgs
+//            , List<MultipartFile> productImgs) throws Exception {
+//
+//
+//        ProductDescriptionDto productDescriptionDto = productRegisterDto.getProductDescriptionDto();
+//
+//        /*
+//        * ProductDescription 객체 저장
+//        * */
+//
+//        ProductDescription productDescription = ProductDescription.builder()
+//                .productDescriptionId(productDescriptionDto.getProductDescriptionId())
+//                .description(productDescriptionDto.getDescription())
+//                .modifyDatetime(LocalDateTime.now())
+//                .build();
+//
+//        productDescriptionDao.insert(productDescription);
+//
+//
+//        /*
+//         * ProductDescriptionImg 저장
+//         * */
+//
+//
+//        List<ProductDescriptionImg> imgList = new ArrayList<>();
+//        //순서를 Mapper에서 만들어 놓을까.
+//        byte i =1;
+//
+//        for(MultipartFile file : DescriptionImgs){
+//
+//            String filename = file.getOriginalFilename();
+//
+//            String fileCode = fileService.uploadFile(imgLocation, filename, file.getBytes());
+//
+//            //이런 부분 클래스(ProductDescriptionImg) 안에서 정의해도 되는가?
+//            ProductDescriptionImg productDescriptionImg
+//                    = ProductDescriptionImg.builder()
+//                    .productDescriptionId(productDescription.getProductDescriptionId())
+//                    .name(filename)
+//                    .path(imgLocation+fileCode)
+//                    .orderNum(i++)
+//                    .size(file.getSize())
+//                    .kindOf(ProductDescriptionImg.DESCRIPTION)
+//                    .isUsed(ProductDescriptionImg.DEFAULT_USE)
+//                    .build();
+//
+//            imgList.add(productDescriptionImg);
+//        }
+//
+//        i=1;
+//
+//        for(MultipartFile file : productImgs){
+//            System.out.println("이미지  표시 저장 시작");
+//
+//            String filename = file.getOriginalFilename();
+//            String fileCode = fileService.uploadFile(imgLocation, filename, file.getBytes());
+//
+//            ProductDescriptionImg productDescriptionImg
+//                    = ProductDescriptionImg.builder()
+//                    .productDescriptionId(productDescription.getProductDescriptionId())
+//                    .name(filename)
+//                    .path(imgLocation+fileCode)
+//                    .orderNum(i++)
+//                    .size(file.getSize())
+//                    .kindOf(ProductDescriptionImg.REPRESENTATION)
+//                    .isUsed(ProductDescriptionImg.DEFAULT_USE)
+//                    .build();
+//            imgList.add(productDescriptionImg);
+//        }
+//
+//        //img 먼저 생성하고 만드는게 나을지, img를 만들기 전에 생성하는게 좋을 지.
+//
+//        imgList.forEach(x->System.out.println(x.getProductDescriptionId()));
+//        productDescriptionImgDao.insert(imgList);
+//
+//
+//        registerProductAndRepImg(productRegisterDto, productRepImg);
+//
+//        return  productRegisterDto.getName();
+//    }
 
 
     //한번 연결로 다중 인서트 작업test.
     @Transactional
-    public String registerSavetest(ProductRegisterDto productRegisterDto
+    public String registerSave(ProductRegisterDto productRegisterDto
             , MultipartFile productRepImg
             , List<MultipartFile> DescriptionImgs
             , List<MultipartFile> productImgs) throws Exception{
@@ -223,6 +223,8 @@ public class ProductService {
         //product dao에서 한번에 리스트로 불러올지
         //다른 dao 사용해서 img는 리스트로 나머지는 단일로 불러올지 시험.
         ProductDetailDto productDetailDto= productDao.findProductDetailById(productId);
+        if(productDetailDto ==null) return null;
+
         ProductDescriptionDto productDescriptionDto= productDescriptionDao.findByProductId(productId);
         productDetailDto.setProductDescription(productDescriptionDto);
         List<ProductDescriptionImgDetailDto> imgList = productDescriptionImgDao.findAllByProductDescriptionId(productDescriptionDto.getProductDescriptionId());
@@ -249,18 +251,12 @@ public class ProductService {
     /*
     *       커서 기반 상품 페이징
     *
-    *
-    *   별점 - key : starRate , value : DESC, ASC
-    *    키워드 - key: keyword , value : "문자열" -> (키워드는 페이지방식으로 ?)
-    *    날짜순 - key : byDate , value : DESC, ASC
-    *    판매량순 - key : sales , value : DESC, ASC
-    *    가격순 -  key : price , value : DESC, ASC
-    *    카테고리 - key : category , value : category_id
-    *    가격대 정해서 볼수도 있도록.
     * */
     @Transactional(readOnly = true)
     public List<ProductListDto> findCursorList(HashMap<String, Object> map) throws Exception {
         //Map으로 해서 들고오던지 Dto로 해서 들고오던지 하기.
+
+
         return productDao.findCursorList(map);
     }
 

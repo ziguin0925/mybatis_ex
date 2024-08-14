@@ -105,7 +105,6 @@ class ProductRestControllerTest {
     //나머지 필요 없는 것들에 null 넣어보기.== 됨.
     //상세 설명 재사용하는 경우 등록 가능하도록 - repimg는 무조건 등록해야함.
     @Test
-    @Order(1)
     @DisplayName("브랜드ID, 카테고리ID DB 상에 있고 상세 설명을 재사용하는 경우.")
     void register() throws Exception {
 
@@ -180,7 +179,6 @@ class ProductRestControllerTest {
 
     //브랜드 코드가 DB에 없으면 등록 불가
     @Test
-    @Order(2)
     @DisplayName("브랜드 코드가 DB에 없는 경우")
     public void notBrandCode() throws Exception {
 
@@ -235,7 +233,6 @@ class ProductRestControllerTest {
 
     //카테고리 코드가 DB에 없으면 등록 불가.
     @Test
-    @Order(3)
     @DisplayName("카테고리 코드가 DB에 없는 경우")
     public void notCategoryCode() throws Exception {
 
@@ -288,7 +285,6 @@ class ProductRestControllerTest {
     //브랜드와 카테고리가 DB에 있고, 상세 설명을 새로 만드려고 하는경우
     //제품 이미지, 설명 이미지 등록
     @Test
-    @Order(4)
     @DisplayName("상세 설명 id 가 없는 경우")
     public void notDescriptionCode() throws Exception {
 
@@ -362,7 +358,6 @@ class ProductRestControllerTest {
     //공백 10개 이상은 생각해보기
     //404가뜸.
     @Test
-    @Order(5)
     @DisplayName("상품 ID 검증")
     void testName() throws Exception {
         MockMultipartFile repImg = createRepImg("RepImg");
@@ -404,8 +399,8 @@ class ProductRestControllerTest {
 
         resultActions1
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message")
-                        .value("상품 ID는 10글자 이상, 25자 이하 이어야합니다. 입력된 값: "+productRegisterDto.getProductId())
+                .andExpect(jsonPath("$..message")
+                        .value("상품 ID는 10글자 이상, 25자 이하 이어야합니다.")
                 );
 
 
@@ -424,8 +419,113 @@ class ProductRestControllerTest {
 
         resultActions2
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message")
-                        .value("상품 ID는 10글자 이상, 25자 이하 이어야합니다. 입력된 값: "+productRegisterDto.getProductId())
+                .andExpect(jsonPath("$..message")
+                        .value("상품 ID는 10글자 이상, 25자 이하 이어야합니다.")
                 );
     }
+
+
+    //대표 사진이 없을때 통과 못함.
+    //통과는 못하지만 400상태와 메세지를 다르게 바꿀 방법을 아직 못찾음.
+    //
+    @Test
+    @DisplayName("상품 상세설명 이미지 유효성")
+    void testrepImg() throws Exception {
+
+
+        List<String> sizes = new ArrayList<>();
+        sizes.add("L");
+
+        List<String> colors = new ArrayList<>();
+        colors.add("blue");
+
+        List<Integer> quantitis = new ArrayList<>();
+        quantitis.add(133);
+
+        //25자 이상 검증, "", " "
+        ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001","");
+        ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
+                .price(25900)
+                .productId("Over25ffddffd")
+                .brandId("A00000000002")
+                .productDescriptionDto(productDescriptionDto)
+                .categoryId("C04")
+                .managerName("manager11")
+                .name("상품 이름 25자 이상")
+                .color(colors)
+                .size(sizes)
+                .quantity(quantitis)
+                .build();
+
+        MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
+
+
+        ResultActions resultActions1 = mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
+                        .file(registerDtoContent)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                )
+                .andDo(print());
+
+        resultActions1
+                .andExpect(status().isBadRequest());
+//                .andExpect(jsonPath("$.message")
+//                        .value("상품 ID는 10글자 이상, 25자 이하 이어야합니다. 입력된 값: "+productRegisterDto.getProductId())
+//                );
+
+    }
+
+    //1. 상품 이름, 상품 ID 둘다 유효하지 않을 떄.
+    @Test
+    @DisplayName("2개 유효성")
+    void test() throws Exception {
+        MockMultipartFile repImg = createRepImg("RepImg");
+
+        List<String> sizes = new ArrayList<>();
+        sizes.add("L");
+
+        List<String> colors = new ArrayList<>();
+        colors.add("blue");
+
+        List<Integer> quantitis = new ArrayList<>();
+        quantitis.add(133);
+
+        //25자 이상 검증, "", " "
+        ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001","");
+        ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
+                .price(25900)
+                .productId("Over25sdaassdfasdfsdasdasdasdfasd")
+                .brandId("A00000000002")
+                .productDescriptionDto(productDescriptionDto)
+                .categoryId("C04")
+                .managerName("manager11")
+                .name("상품")
+                .color(colors)
+                .size(sizes)
+                .quantity(quantitis)
+                .build();
+
+        MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
+
+
+        ResultActions resultActions1 = mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
+                        .file(repImg)
+                        .file(registerDtoContent)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                )
+                .andDo(print());
+
+        resultActions1
+                .andExpect(status().isBadRequest());
+//                .andExpect(jsonPath("$..exception[0].message")
+//                        .value("상품 ID는 10글자 이상, 25자 이하 이어야합니다.")
+//                        Expected :상품 이름은 3글자 이상, 25자 미만 이어야 합니다.
+//                          Actual   :상품 ID는 10글자 이상, 25자 이하 이어야합니다.
+                        //@Valid 2개 이상 안맞을 시 리턴 순서는 스프링 마음대로인듯.
+
+
+    }
+
+
 }

@@ -5,11 +5,18 @@ import com.fastcampus.toyproject2.brand.dao.BrandDaoMysql;
 import com.fastcampus.toyproject2.brand.dto.BrandCreateDto;
 import com.fastcampus.toyproject2.brand.dto.BrandDto;
 import com.fastcampus.toyproject2.brand.dto.BrandUpdateDto;
+import com.fastcampus.toyproject2.product.dao.ProductDaoMysql;
+import com.fastcampus.toyproject2.product.dto.ProductListDto;
+import com.fastcampus.toyproject2.product.dto.pagination.PageInfo;
 import com.fastcampus.toyproject2.util.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -18,6 +25,7 @@ public class BrandService {
 
     private final BrandDaoMysql brandDao;
     private final FileService fileService;
+    private final ProductDaoMysql productDao;
 
     @Transactional(readOnly = true)
     public BrandDto findById(String id) {
@@ -41,6 +49,18 @@ public class BrandService {
         // 브랜드 이미지를 여러개로 할 경우 필요할듯.
 
         return brandDao.update(brandUpdateDto);
+    }
+
+    /*
+     *       페이지 기반 상품 페이징
+     *
+     * */
+    @Transactional(readOnly = true)
+    public List<ProductListDto> findBrandPageList(PageInfo pageInfo) throws Exception {
+
+        HashMap<String ,Object> pageMap = PageInfo.toHashMap(pageInfo);
+        pageInfo.productCountCal(productDao.countProduct(pageMap));
+        return productDao.findPageList(pageMap);
     }
 
 

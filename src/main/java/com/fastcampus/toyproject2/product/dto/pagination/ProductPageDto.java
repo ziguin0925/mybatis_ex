@@ -25,16 +25,14 @@ public class ProductPageDto {
     //되는지 먼저 보고 orderName = p.create_datetime, p.star_rating등으로 바꿔서 넣기.
 
     /* pagePaging
-    * <when test ="orderName != null">
-            ${orderName}  ${orderBy}
+    * <when test ="orderName == new ">
+            create_datetime DESC
     * </when>
-    * orderName Name 과 orderBy는 여기서 static 변수로 값 넣어주기.
+    * sortName = new(신상 순), sales(판매량 순), ranking(별점 순)...
     *
     * */
-    private String orderName;
+    private String sortCode;
 
-    //DESC, ASC
-    private String orderBy;
 
 
     public ProductPageDto() {

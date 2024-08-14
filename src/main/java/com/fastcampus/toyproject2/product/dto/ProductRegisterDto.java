@@ -32,8 +32,8 @@ public class ProductRegisterDto {
     private String productId;
 
     //몇글자 이상으로 받을지 생각
-    @Size(min =3 , max =25, message = "3글자 이상, 25자 미만 이어야 합니다.")
-    @NotNull(message = "3글자 이상, 25자 미만 이어야 합니다.")
+    @Size(min =3 , max =25, message = "상품 이름은 3글자 이상, 25자 미만 이어야 합니다.")
+    @NotNull(message = "상품 이름은 3글자 이상, 25자 미만 이어야 합니다.")
     private String name;
 
     //해당 브랜드가 있는지 확인.
@@ -51,7 +51,7 @@ public class ProductRegisterDto {
     @NotNull(message = "Product price is not defined")
     private int price;
 
-    @Size(min=2, max =20, message = "2글자 이상, 20글자 이하여야 합니다.")
+    @Size(min=2, max =20, message = "상품 등록자 이름은 2글자 이상, 20글자 이하여야 합니다.")
     @NotBlank(message = "Product manager name is not defined")
     private String managerName;
 

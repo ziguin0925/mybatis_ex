@@ -9,7 +9,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.stereotype.Repository;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,8 +32,8 @@ public class ProductDaoMysql implements ProductDao {
     }
 
     @Override
-    public void deleteByProductId(String productId) throws Exception {
-        sqlSession.delete(namespace + "deleteByProductId", productId);
+    public int deleteByProductId(String productId) throws Exception {
+        return sqlSession.delete(namespace + "deleteByProductId", productId);
     }
 
     @Override

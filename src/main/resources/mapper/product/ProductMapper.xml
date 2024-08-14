@@ -66,17 +66,17 @@
         </where>
         Order By
         <choose>
-            <when test="byDate != null">
-                p.create_datetime ${byDate}
+            <when test="sortCode eq 'NEW'.toString()">
+                p.create_datetime DESC
             </when>
-            <when test="starRate != null">
-                p.star_rating ${starRate}
+            <when test="sortCode eq 'RANKING'.toString()">
+                p.star_rating DESC
             </when>
-            <when test="sales != null">
-                p.sales_quantity ${sales}
+            <when test="sortCode eq 'SALES'.toString()">
+                p.sales_quantity DESC
             </when>
-            <when test="price != null">
-                p.price ${price}
+            <when test="sortCode eq 'CHEAP'.toString()">
+                p.price ASC
             </when>
             <otherwise>
                 p.product_id DESC
@@ -101,17 +101,17 @@
             <include refid="search"/>
 
         <choose>
-            <when test="byDate != null">
-                Order By p.create_datetime ${byDate}
+            <when test="sortCode eq 'NEW'.toString()">
+                Order By p.create_datetime DESC
             </when>
-            <when test="starRate != null">
-                Order By p.star_rating ${starRate}
+            <when test="sortCode eq 'RANKING'.toString()">
+                Order By p.star_rating DESC
             </when>
-            <when test="sales != null">
-                Order By p.sales_quantity ${sales}
+            <when test="sortCode eq 'SALES'.toString()">
+                Order By p.sales_quantity DESC
             </when>
-            <when test="price">
-                Order By p.price ${price}
+            <when test="sortCode eq 'CHEAP'.toString()">
+                Order By p.price ASC
             </when>
             <otherwise>
                 Order By p.product_id DESC

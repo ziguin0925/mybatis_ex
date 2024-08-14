@@ -79,7 +79,7 @@ public class PageInfo {
         hashMap.put("brandId",pageInfo.getPaging().getBrandId());
         hashMap.put("categoryId",pageInfo.getPaging().getCategoryId());
         //DESC, ASC를 그대로 가져오는게 좋은지 서버에서 DESC, ASC로 변환하는게 좋은지.
-        hashMap.put(pageInfo.getPaging().getOrderName(), pageInfo.getPaging().getOrderBy());
+        hashMap.put("sortCode", pageInfo.getPaging().getSortCode());
 
 
         return hashMap;

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -23,6 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
 class ProductServiceTest {
     @Autowired
     private ProductService productService;
@@ -109,7 +111,7 @@ class ProductServiceTest {
 
         long curLong = System.currentTimeMillis();
 
-        String result =productService.registerSavetest(productRegisterDto, repImg, desImages, repImages);
+        String result =productService.registerSave(productRegisterDto, repImg, desImages, repImages);
 
         long endLong = System.currentTimeMillis();
 
@@ -136,31 +138,33 @@ class ProductServiceTest {
 
 
     }
-    //별점 - key : starRate , value : DESC, ASC
-    //키워드 - key: keyword , value : "문자열" -> (키워드는 페이지방식으로 ?)
-    //날짜순 - key : byDate , value : DESC, ASC
-    //판매량순 - key : sales , value : DESC, ASC
-    //가격순 -  key : price , value : DESC, ASC
-    //카테고리 - key : category , value : category_id
-    //가격대 정해서 볼수도 있도록.
+
+
+
+    // orderby 절 여러개 들어올경우 예외처리하기.
     @Test
     @Order(4)
-    @DisplayName("cursor페이지")
+    @DisplayName("cursor 일반 상품 페이지")
     void cursorPage() throws Exception {
         HashMap<String, Object> map = new HashMap<>();
         map.put("size", 2);
         map.put("byDate", "DESC");
-        map.put("key", "P004");
+//        map.put("key", "P004");
+        System.out.println("날짜 기반");
+
         productService.findCursorList(map).forEach(System.out::println);
+
+        System.out.println("판매량 기반");
         map.remove("byDate");
         map.put("sales","DESC");
         productService.findCursorList(map).forEach(System.out::println);
     }
 
 
+    // orderby 절 여러개 들어올경우 예외처리하기.
     @Test
     @Order(5)
-    @DisplayName("page 페이지")
+    @DisplayName("page 브랜드 상품 페이지")
     void pagePage() throws Exception{
 
         ProductPageDto productPageDto = new ProductPageDto();
@@ -170,10 +174,9 @@ class ProductServiceTest {
         productPageDto.setBrandId("A00000000002");
         productPageDto.setCategoryId("C17");
 
-        //byDate, starRate, sales, price
-        productPageDto.setOrderName("starRate");
 
-        productPageDto.setOrderBy("DESC");
+        //무신사 - data-sort-code = LOW_PRICE(낮은 가격순), REVIEW(리뷰 순), NEW(새로운 순) ...
+        productPageDto.setSortCode("RANKING");
 
 
         PageInfo pageInfo = new PageInfo();
@@ -186,7 +189,7 @@ class ProductServiceTest {
 
     @Test
     @Order(6)
-    @DisplayName("상품 상세 설명 사져오기")
+    @DisplayName("상품 상세 설명 가져오기")
     void detailPage() throws Exception{
         long curLong = System.currentTimeMillis();
         ProductDetailDto productDetailDto = productService.findProductDetailById("P001");
@@ -196,9 +199,21 @@ class ProductServiceTest {
         System.out.println(seconds);
 
         System.out.println(productDetailDto);
+
+        assertTrue(productDetailDto.getProductId().equals("P001"));
     }
 
 
+    @Test
+    @Order(7)
+    @DisplayName("서비스 상품 삭제")
+    void deleteProduct() throws Exception {
+        productService.deleteProduct("P001");
+        ProductDetailDto productDetailDto= productService.findProductDetailById("P001");
+
+        assertTrue(productDetailDto.getProductId() == null);
+
+    }
 
 
 

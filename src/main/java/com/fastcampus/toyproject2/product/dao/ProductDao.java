@@ -31,7 +31,7 @@ public interface ProductDao{
     int updateProduct(@Param("product")ProductUpdateDto productUpdateDto) throws Exception;
 
 
-    void deleteByProductId(@Param("productId") String productId) throws Exception;
+    int deleteByProductId(@Param("productId") String productId) throws Exception;
 
 
 

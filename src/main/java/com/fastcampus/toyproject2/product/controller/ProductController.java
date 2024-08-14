@@ -16,9 +16,6 @@ public class ProductController {
 
     private final ProductService productService;
 
-    private static int pageSIZE = 2;
-    private static int totalRecord = 0;
-    public static int totalPage = 0;
 
 
     //페이지마다 컨트롤러가 하나씩 있는게 아님. (랭킹, 세일, 이벤트 등등 숫자로 구분)
@@ -29,11 +26,14 @@ public class ProductController {
     @GetMapping("/{pageNumber}")
     public String mainpage(@PathVariable int pageNumber, Model model){
         if(pageNumber== Page.RANKINGPAGE){
-
-        }else if(pageNumber == Page.SALESPAGE){
-
+            /*
+            * 어느정도 정보 주기.
+            * */
+            return "main/ranking";
+        }else if(pageNumber == Page.NEWPAGE){
+            return "main/new";
         }
-        return"/main";
+        return"main";
 
     }
 
@@ -50,6 +50,9 @@ public class ProductController {
 
         return "/product/productDetail";
     }
+
+
+
 
 
 

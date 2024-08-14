@@ -18,13 +18,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
 
 @RestController
-@RequestMapping("/admin/product")
+@RequestMapping("/product")
 @RequiredArgsConstructor
 @Tag(name ="Product API", description ="상품 관련 API")
 public class ProductRestController {
@@ -36,6 +37,13 @@ public class ProductRestController {
 
     private final ProductDescriptionService productDescriptionService;
 
+    @ExceptionHandler(AssertionError.class)
+    public ResponseEntity<?> IllegalArgumentException(AssertionError exception){
+
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",exception.getMessage()+"오류발생"));
+    }
 
     /*
     *   상품 등록
@@ -46,7 +54,7 @@ public class ProductRestController {
     *    throws Exception이 있는데
     * */
     @Operation(summary = "상품 등록", description = "상품 등록 Dto, 상품 대표 이미지, 상품 설명 이미지 , 상품 이미지를 매개변수로 받아온다.")
-    @PostMapping(value = {"/{productId}"})
+    @PostMapping(value = {"/admin/{productId}"})
     public ResponseEntity<?> register(@Valid @RequestPart(value = "ProductRegisterDto") ProductRegisterDto productRegisterDto
             , @RequestPart(value = "RepImg", required = true) MultipartFile repImg
             , @RequestPart(value = "DescriptionImgs", required = false) List<MultipartFile> desImgs
@@ -56,7 +64,7 @@ public class ProductRestController {
 
         //나중에 회원 테이블 구현이 끝나면 회원 조회.
 
-
+        //이거 여기다가 하는게 맞나.
         if (brandService.findById(productRegisterDto.getBrandId()) == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",productRegisterDto.getName() + " 불가(brand 없음)"));
 
@@ -110,7 +118,7 @@ public class ProductRestController {
     *   상세 설명 새로 생성은 productDescription에서 처리하기 .
     * */
     @Operation(summary="상품 수정", description = "상품을 수정할 때 상세 설명, 상세 설명 이미지, 상품 이미지들을 수정할 때에는 다른 Controller에서 처리할 수 있도록 다른 페이지로 넘어가도록 처리.")
-    @PatchMapping(value ={"/{productId}"})
+    @PatchMapping(value ={"/admin/{productId}"})
     public ResponseEntity<?> productupdate(@PathVariable(name = "productId") String productId
             , @Validated @RequestPart(value = "ProductUpdateDto") ProductUpdateDto productUpdateDto){
 
@@ -129,6 +137,18 @@ public class ProductRestController {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",productId+ "상품 삭제 완료"));
     }
 
+
+
+    @Operation(summary = "상품 리스트", description ="상품 리스트 커서기반 불러오기 \n\n" +
+            "key(product_id), sortCode(정렬 기준), category(where절), keyword(where절), size 반환해 줘야 다음 게시물 가져다줌.")
+    @GetMapping(value ="/list")
+    public ResponseEntity<?> productCursorList(@RequestParam HashMap<String, Object> cursorMap) throws Exception {
+        //cursorMap.get("key")가 null 이면 mapper에서 정렬된 데이터의 맨 첫번째부터 데이터 가져옴.
+
+        List cursorList = productService.findCursorList(cursorMap);
+
+        return ResponseEntity.status(HttpStatus.OK).body(cursorList);
+    }
 
     /*
     *       상품 좋아요.

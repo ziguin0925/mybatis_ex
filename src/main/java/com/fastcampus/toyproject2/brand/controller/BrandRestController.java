@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -29,8 +30,8 @@ public class BrandRestController {
     * 브랜드 등록 처리
     * */
     @Operation(summary = "브랜드 등록", description = "브랜드 등록하는 api")
-    @PostMapping("/register")
-    public ResponseEntity<?> brandRegister( @Validated @RequestPart(value = "Brand") BrandCreateDto brand
+    @PostMapping("/admin")
+    public ResponseEntity<?> brandRegister(@Validated @RequestPart(value = "Brand") BrandCreateDto brand
             , @RequestPart(required = true) MultipartFile brandImg ) throws Exception {
 
         brandService.createBrand(brand, brandImg);
@@ -41,8 +42,9 @@ public class BrandRestController {
 
     //register와 update의 차이가 별로 없음...
 
-    @Operation(summary = "브랜드 내용 수정", description = "브랜드 등록과 브랜드 수정에서 받는 파라미터의 차이가 거의 없음.\n합칠지 따로 둘지 고민.")
-    @PatchMapping("/update")
+    @Operation(summary = "브랜드 내용 수정", description = "브랜드 등록과 브랜드 수정에서 받는 파라미터의 차이가 거의 없음.\n\n" +
+            "합칠지 따로 둘지 고민.")
+    @PatchMapping("/admin")
     public ResponseEntity<?> brandUpdate(@Validated @RequestPart(value = "Brand")BrandUpdateDto brandUpdateDto
             , @RequestPart(required = false) MultipartFile brandImg) throws Exception {
 
@@ -50,6 +52,7 @@ public class BrandRestController {
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",brandUpdateDto.getName() + "브랜드 수정 완료"));
     }
+
 
 
 
