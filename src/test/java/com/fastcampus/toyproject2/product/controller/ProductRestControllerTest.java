@@ -4,7 +4,6 @@ import com.fastcampus.toyproject2.product.dao.ProductDaoMysql;
 import com.fastcampus.toyproject2.product.dto.ProductRegisterDto;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
 import com.fastcampus.toyproject2.productDescriptionImg.dao.ProductDescriptionImgDaoMysql;
-import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImg;
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgDetailDto;
 import com.fastcampus.toyproject2.stock.dao.StockDaoMysql;
 import com.fastcampus.toyproject2.stock.dto.Stock;
@@ -12,18 +11,15 @@ import com.fastcampus.toyproject2.stock.dto.StockPk;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springdoc.core.service.RequestBodyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,8 +52,6 @@ class ProductRestControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
-    private RequestBodyService requestBodyBuilder;
 
 
     private MockMultipartFile createMockMultipartFile(String filename, String parameterName) throws IOException {
@@ -139,7 +133,7 @@ class ProductRestControllerTest {
         MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
 
         //when
-        ResultActions resultActions = mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
+        ResultActions resultActions = mockMvc.perform(multipart("/product/admin/"+productRegisterDto.getProductId())
 //                        .content(content)
 //                        .contentType(MediaType.APPLICATION_JSON)
                                 .file(repImg)
@@ -212,7 +206,7 @@ class ProductRestControllerTest {
         MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
 
         //when
-        ResultActions resultActions =mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
+        ResultActions resultActions =mockMvc.perform(multipart("/product/admin/"+productRegisterDto.getProductId())
                                 .file(repImg)
                                 .file(registerDtoContent)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -265,7 +259,7 @@ class ProductRestControllerTest {
         MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
 
 
-        ResultActions resultActions = mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
+        ResultActions resultActions = mockMvc.perform(multipart("/product/admin/"+productRegisterDto.getProductId())
                         .file(repImg)
                         .file(registerDtoContent)
                         .accept(MediaType.APPLICATION_JSON)
@@ -285,7 +279,7 @@ class ProductRestControllerTest {
     //브랜드와 카테고리가 DB에 있고, 상세 설명을 새로 만드려고 하는경우
     //제품 이미지, 설명 이미지 등록
     @Test
-    @DisplayName("상세 설명 id 가 없는 경우")
+    @DisplayName("상세 설명도 새로 만들기 (상세 설명 id가 없는 경우)")
     public void notDescriptionCode() throws Exception {
 
         //given
@@ -320,7 +314,7 @@ class ProductRestControllerTest {
         List<MockMultipartFile> repImages = create2Imgs(2,"rep","RepresentationImgs");
 
 
-        MockMultipartHttpServletRequestBuilder reqBuilder = MockMvcRequestBuilders.multipart("/admin/product/"+productRegisterDto.getProductId());
+        MockMultipartHttpServletRequestBuilder reqBuilder = MockMvcRequestBuilders.multipart("/product/admin/"+productRegisterDto.getProductId());
 
         for (MockMultipartFile file : desImages) {
             reqBuilder.file(file);
@@ -354,9 +348,78 @@ class ProductRestControllerTest {
     }
 
 
+
+    @Test
+    @DisplayName("재고 여러개 들어가는지 확인")
+    void stockList() throws Exception {
+        //given
+        MockMultipartFile repImg = createRepImg("RepImg");
+
+        List<String> sizes = new ArrayList<>();
+        sizes.add("L");
+        sizes.add("M");
+
+        List<String> colors = new ArrayList<>();
+        colors.add("blue");
+        colors.add("red");
+
+        List<Integer> quantitis = new ArrayList<>();
+        quantitis.add(133);
+        quantitis.add(123);
+
+        ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("asdfasdf", "상세 설명은 짧고 간단하게.");
+        ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
+                .price(25900)
+                .productId("CREATE_DESCRIPTION")
+                .brandId("A00000000002")
+                .productDescriptionDto(productDescriptionDto)
+                .categoryId("C08")
+                .managerName("manager10")
+                .name("상세 설명 만드는 테스트용 의류")
+                .color(colors)
+                .size(sizes)
+                .quantity(quantitis)
+                .build();
+
+        MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
+
+        List<MockMultipartFile> desImages = create2Imgs(2,"des","DescriptionImgs");
+        List<MockMultipartFile> repImages = create2Imgs(2,"rep","RepresentationImgs");
+
+
+        MockMultipartHttpServletRequestBuilder reqBuilder = MockMvcRequestBuilders.multipart("/product/admin/"+productRegisterDto.getProductId());
+
+        for (MockMultipartFile file : desImages) {
+            reqBuilder.file(file);
+        }
+        for (MockMultipartFile file : repImages) {
+            reqBuilder.file(file);
+        }
+
+
+        ResultActions resultActions = mockMvc.perform(reqBuilder
+                        .file(registerDtoContent)
+                        .file(repImg)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value(productRegisterDto.getName() + " 완료"));
+
+        List<Stock> stocks = stockDaoMysql.findByStockPk(StockPk.onlyId("CREATE_DESCRIPTION"));
+        assertTrue(stocks.size()==2);
+        for (Stock stock : stocks) {
+            assertTrue(stock.getProductId().equals(productRegisterDto.getProductId()));
+        }
+        stocks.forEach(System.out::println);
+    }
+
+
     //null, "", 25자 이상
     //공백 10개 이상은 생각해보기
-    //404가뜸.
     @Test
     @DisplayName("상품 ID 검증")
     void testName() throws Exception {
@@ -389,7 +452,7 @@ class ProductRestControllerTest {
         MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
 
 
-        ResultActions resultActions1 = mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
+        ResultActions resultActions1 = mockMvc.perform(multipart("/product/admin/"+productRegisterDto.getProductId())
                         .file(repImg)
                         .file(registerDtoContent)
                         .accept(MediaType.APPLICATION_JSON)
@@ -409,7 +472,7 @@ class ProductRestControllerTest {
         productRegisterDto.setProductId(null);
         MockMultipartFile registerDtoContent2 = dtoToMultiPartFile(productRegisterDto);
 
-        ResultActions resultActions2 = mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
+        ResultActions resultActions2 = mockMvc.perform(multipart("/product/admin/"+productRegisterDto.getProductId())
                         .file(repImg)
                         .file(registerDtoContent2)
                         .accept(MediaType.APPLICATION_JSON)
@@ -426,8 +489,7 @@ class ProductRestControllerTest {
 
 
     //대표 사진이 없을때 통과 못함.
-    //통과는 못하지만 400상태와 메세지를 다르게 바꿀 방법을 아직 못찾음.
-    //
+    //통과는 못하지만 400상태와 메세지를 다르게 바꿀 방법을 찾기
     @Test
     @DisplayName("상품 상세설명 이미지 유효성")
     void testrepImg() throws Exception {
@@ -460,7 +522,7 @@ class ProductRestControllerTest {
         MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
 
 
-        ResultActions resultActions1 = mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
+        ResultActions resultActions1 = mockMvc.perform(multipart("/product/admin/"+productRegisterDto.getProductId())
                         .file(registerDtoContent)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
@@ -491,6 +553,7 @@ class ProductRestControllerTest {
         quantitis.add(133);
 
         //25자 이상 검증, "", " "
+        //상품 ID를 서버에서 정할지 유저가 보내주게 할지. - 유저가 보내준다면 중복 상품 id가 있는지 확인 하는 로직 짜기.
         ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001","");
         ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
                 .price(25900)
@@ -508,7 +571,7 @@ class ProductRestControllerTest {
         MockMultipartFile registerDtoContent = dtoToMultiPartFile(productRegisterDto);
 
 
-        ResultActions resultActions1 = mockMvc.perform(multipart("/admin/product/"+productRegisterDto.getProductId())
+        ResultActions resultActions1 = mockMvc.perform(multipart("/product/admin/"+productRegisterDto.getProductId())
                         .file(repImg)
                         .file(registerDtoContent)
                         .accept(MediaType.APPLICATION_JSON)

@@ -235,26 +235,11 @@ class ProductDaoMysqlTest {
 
         MultipartFile repFile = createRepImg();
 
-        String repFilename =repFile.getOriginalFilename();
-        String repFileCode = fileService.uploadFile(imgRepLocation, repFilename, repFile.getBytes());
+        String repFileCode = fileService.uploadFile(imgRepLocation, repFile);
 
-        Product registerProduct = Product.builder()
-                .productId(productRegisterDto.getProductId())
-                .productDescriptionId(productDescriptionDto.getProductDescriptionId())
-                .categoryId(productRegisterDto.getCategoryId())
-                .brandId(productRegisterDto.getBrandId())
-                .name(productRegisterDto.getName())
-                .repImg(repFileCode)
-                .price(productRegisterDto.getPrice())
-                .registerManager(productRegisterDto.getManagerName())
-                .isDisplayed(Product.DEFAULT_DISPLAY)
-                .reviewCount(Product.DEFAULT_NUM)
-                .viewCount(Product.DEFAULT_NUM)
-                .starRating(0F)//float
-                .build();
+        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto, repFileCode);
 
-
-        productDao.insert(registerProduct);
+        productDao.insertTest(registerProduct);
     }
 
 

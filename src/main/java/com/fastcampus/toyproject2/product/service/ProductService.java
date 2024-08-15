@@ -1,8 +1,11 @@
 package com.fastcampus.toyproject2.product.service;
 
+import com.fastcampus.toyproject2.exception.exceptionDto.customExceptionClass.DuplicateProductDescriptionIdException;
+import com.fastcampus.toyproject2.exception.exceptionDto.customExceptionClass.DuplicateProductIdException;
 import com.fastcampus.toyproject2.product.dao.ProductDaoMysql;
 import com.fastcampus.toyproject2.product.dto.*;
 import com.fastcampus.toyproject2.product.dto.pagination.PageInfo;
+import com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto;
 import com.fastcampus.toyproject2.productDescription.dao.ProductDescriptionDaoMysql;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
@@ -14,13 +17,14 @@ import com.fastcampus.toyproject2.stock.dao.StockDaoMysql;
 import com.fastcampus.toyproject2.stock.dto.Stock;
 import com.fastcampus.toyproject2.util.FileService;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.View;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,12 +59,13 @@ public class ProductService {
     public String registerSave(ProductRegisterDto productRegisterDto
             , MultipartFile productRepImg) throws Exception {
 
+        HashMap<String, Object> registerMap = registerProductAndRepImg(productRegisterDto, productRepImg);
 
-        System.out.println(productRegisterDto);
-
-        registerProductAndRepImg(productRegisterDto, productRepImg);
-
-
+        try {
+            productDao.insert(registerMap);
+        }catch (DuplicateKeyException e) {
+            throw new DuplicateProductIdException(productRegisterDto.getProductId()+"는 이미 있는 Id 입니다.");
+        }
 
         return productRegisterDto.getName();
     }
@@ -162,50 +167,54 @@ public class ProductService {
             , List<MultipartFile> DescriptionImgs
             , List<MultipartFile> productImgs) throws Exception{
 
+        //null이면 새로 생성 하는거. readonly 못 할까 controller 에서 descriptionService로 읽어야하나.
+        ProductDescriptionDto productDescriptionCheck = productDescriptionDao.findById(productRegisterDto.getProductDescriptionDto().getProductDescriptionId());
 
         /*
-         * ProductDescription 객체 생성.
+         * Product 객체 생성, 대표 사진 저장, stockList 객체 생성 후 Map에 넣기.
          * */
-
-        ProductDescription productDescription = ProductRegisterDto.toProductDescription(productRegisterDto);
-
-        /*
-        * 대표 사진 저장.
-        *
-        * */
-
-        String repFileCode = fileService.uploadRepImg(productRepImg);
+        HashMap<String, Object> registerMap = registerProductAndRepImg(productRegisterDto, productRepImg);
 
 
-        /*
-         * Product 저장.
-         * */
 
-        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto, repFileCode);
+        //상세 설명을 만드는 경우
+        //요청 json이 어떻게 오는지 확인해봐야할듯... DescriptionImgs 있는데 텅 비었다면 isEmpty로 해도 될거같은데.
+        if(productDescriptionCheck == null && DescriptionImgs!=null && productImgs!=null){
+            /*
+             * ProductDescription 객체 생성.
+             * */
+
+            ProductDescription productDescription = ProductRegisterDto.toProductDescription(productRegisterDto);
+
+            /*
+             * ProductDescriptionImg 저장 및 객체 생성
+             *
+             * 이 부분은 좀 생각해보기. - DB 저장 에러시 삭제.
+             * */
+
+            List<ProductDescriptionImg> imgList = fileService.toImageList(DescriptionImgs, productImgs, productDescription.getProductDescriptionId());
+
+            registerMap.put("ProductDescription",productDescription);
+            registerMap.put("imgList",imgList);
+        }
 
 
-        /*
-        * 재고 리스트 생성.
-        * */
+
+        try{
+            productDao.insert(registerMap);
+        }catch (IllegalAccessException e){
 
 
-        List<Stock> stocks = ProductRegisterDto.toStockList(productRegisterDto);
+            //이부분 에러 처리 더 하기.
 
-        /*
-         * ProductDescriptionImg 객체 생성
-         *
-         * 이 부분은 좀 생각해보기.
-         * */
 
-        List<ProductDescriptionImg> imgList = fileService.toImageList(DescriptionImgs, productImgs, productDescription.getProductDescriptionId());
-
-        HashMap<String, Object> registerMap = new HashMap<>();
-        registerMap.put("ProductDescription",productDescription);
-        registerMap.put("stockList",stocks);
-        registerMap.put("imgList",imgList);
-        registerMap.put("Product", registerProduct);
-
-        productDao.insertTest(registerMap);
+            System.out.println(e.getMessage());
+        } catch (DuplicateKeyException e){
+            if(e.getMessage().contains("product_description.PRIMARY")){
+                throw new DuplicateProductDescriptionIdException(productDescriptionCheck.getProductDescriptionId()+"는 이미 있는 Id 입니다.");
+            }
+            throw new DuplicateProductIdException(productRegisterDto.getProductId()+"는 이미 있는 Id 입니다.");
+        }
 
         return productRegisterDto.getName();
 
@@ -222,8 +231,16 @@ public class ProductService {
     public ProductDetailDto findProductDetailById(String productId) throws Exception {
         //product dao에서 한번에 리스트로 불러올지
         //다른 dao 사용해서 img는 리스트로 나머지는 단일로 불러올지 시험.
-        ProductDetailDto productDetailDto= productDao.findProductDetailById(productId);
-        if(productDetailDto ==null) return null;
+        ProductDetailDto productDetailDto = null;
+        try {
+            productDetailDto = productDao.findProductDetailById(productId);
+        }catch (Exception e ){
+            System.out.println(e.getMessage());
+        }
+        if(productDetailDto==null){
+            throw new NotFoundException("해당 품목을 찾을 수 없습니다.");
+        }
+
 
         ProductDescriptionDto productDescriptionDto= productDescriptionDao.findByProductId(productId);
         productDetailDto.setProductDescription(productDescriptionDto);
@@ -251,11 +268,25 @@ public class ProductService {
     /*
     *       커서 기반 상품 페이징
     *
+    *       나중에 동적 sortCode를 동적 쿼리로 처리할 지 Service 단에서 처리할 지 생각해보기.
+    *
     * */
     @Transactional(readOnly = true)
-    public List<ProductListDto> findCursorList(HashMap<String, Object> map) throws Exception {
+    public List<ProductCursorPageDto> findCursorList(HashMap<String, Object> map) throws Exception {
         //Map으로 해서 들고오던지 Dto로 해서 들고오던지 하기.
 
+        //나중에 하드코딩 지우기 -> DTO로 만들어서 DTO 내부에서 처리하든지.
+        if(map.get("sortCode").equals("RANKING")) {
+            return productDao.findCursorPageListOrderByRank(map);
+        }else if(map.get("sortCode").equals("SALES")){
+            return productDao.findCursorPageListOrderBySales(map);
+        }else if(map.get("sortCode").equals("HIGHPRICE")){
+            return productDao.findCursorPageListByHighPrice(map);
+        }else if(map.get("sortCode").equals("LOWPRICE")){
+            return productDao.findCursorPageListByLowPrice(map);
+        }else if(map.get("sortCode").equals("LATEST")){
+            return productDao.findCursorPageListByLastest(map);
+        }
 
         return productDao.findCursorList(map);
     }
@@ -266,7 +297,7 @@ public class ProductService {
     *
     * */
     @Transactional(readOnly = true)
-    public List<ProductListDto> findPageList(PageInfo pageInfo) throws Exception {
+    public List<ProductPageDto> findPageList(PageInfo pageInfo) throws Exception {
 
         HashMap<String ,Object> pageMap = PageInfo.toHashMap(pageInfo);
         pageInfo.productCountCal(productDao.countProduct(pageMap));
@@ -278,13 +309,32 @@ public class ProductService {
     *       상품 삭제
     *
     * */
-    public void deleteProduct(String productId) throws Exception {
-        productDao.deleteByProductId(productId);
+    public int deleteProduct(String productId) throws Exception {
+
+        int deleteNum = 0;
+
+        try {
+            deleteNum = productDao.deleteByProductId(productId);
+        }catch (Exception e ){
+            System.out.println(e.getMessage());
+        }
+        if(deleteNum==0){
+            throw new NotFoundException("삭제하려는 상품이 존재하지 않습니다.");
+        }
+
+        return deleteNum;
     }
 
-    public void updateProduct(ProductUpdateDto productUpdateDto) throws Exception {
-
-        productDao.updateProduct(productUpdateDto);
+    public void updateProduct(ProductUpdateDto productUpdateDto) throws NotFoundException {
+        int i=0;
+        try {
+            i =productDao.updateProduct(productUpdateDto);
+        }catch (Exception e ){
+                System.out.println(e.getMessage());
+        }
+        if(i==0){
+            throw new NotFoundException("수정 물품이 존재하지 않습니다.");
+        }
 
     }
 
@@ -293,68 +343,31 @@ public class ProductService {
     *
     *
     * */
-    private void registerProductAndRepImg(ProductRegisterDto productRegisterDto
+    private HashMap<String, Object> registerProductAndRepImg(ProductRegisterDto productRegisterDto
             , MultipartFile productRepImg) throws Exception {
 
-
-        ProductDescriptionDto productDescriptionDto = productRegisterDto.getProductDescriptionDto();
+        HashMap<String, Object> registerMap = new HashMap<>();
 
         /*
         * 대표 사진 저장.
         * */
-
-        String repFilename =productRepImg.getOriginalFilename();
-
-        String repFileCode = fileService.uploadFile(imgRepLocation, repFilename, productRepImg.getBytes());
-        System.out.println("저장 완료");
-
+        String repFileCode = fileService.uploadRepImg(productRepImg);
 
 
         /*
-         * Product 저장.
+         * Product 객체 생성.
          * */
 
-
-
-        Product registerProduct = Product.builder()
-                .productId(productRegisterDto.getProductId())
-                .productDescriptionId(productDescriptionDto.getProductDescriptionId())
-                .categoryId(productRegisterDto.getCategoryId())
-                .brandId(productRegisterDto.getBrandId())
-                .name(productRegisterDto.getName())
-                .repImg(repFileCode)
-                .price(productRegisterDto.getPrice())
-                .registerManager(productRegisterDto.getManagerName())
-                .starRating(0F)
-                .isDisplayed(Product.DEFAULT_DISPLAY)
-//                .reviewCount(Product.DEFAULT_NUM)
-//                .viewCount(Product.DEFAULT_NUM)
-//                .starRating(Product.DEFAULT_NUM)//float
-//                .salesQuantity(Product.DEFAULT_NUM)
-                .build();
-
-        productDao.insert(registerProduct);
-
-
+        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto, repFileCode);
         /*
          * Stock 저장
          * */
+        List<Stock> stocks = ProductRegisterDto.toStockList(productRegisterDto);
 
-        List<Stock> stocks = new ArrayList<>();
+        registerMap.put("Product",registerProduct);
+        registerMap.put("stockList",stocks);
+        return registerMap;
 
-        for(int i=0; i<productRegisterDto.getColor().size();i++){
-            Stock stock = Stock.builder()
-                    .productId(registerProduct.getProductId())
-                    .color(productRegisterDto.getColor().get(i))
-                    .size(productRegisterDto.getSize().get(i))
-                    .quantity(productRegisterDto.getQuantity().get(i))
-                    .build();
-
-            stocks.add(stock);
-
-        }
-
-        stockDaoMysql.insert(stocks);
 
     }
 

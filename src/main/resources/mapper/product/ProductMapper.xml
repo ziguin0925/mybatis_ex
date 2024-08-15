@@ -16,6 +16,7 @@
             <if test="categoryId != null">
               AND  p.category_id IN (#{categoryId})
             </if>
+            AND p.product_status != 'NOTAVAIL'
         </where>
     </sql>
 
@@ -32,6 +33,7 @@
         , p.brand_id
         , b.name as brandName
         , p.price
+        , p.event_price
         , p.rep_img
         , p.category_id
         , p.sales_quantity
@@ -40,14 +42,16 @@
         , p.view_count
         , p.star_rating
         , p.register_manager
+        , p.product_status
             FROM product p
             INNER JOIN brand b
             ON p.brand_id = b.brand_id
-        WHERE p.product_id = #{productId}
+        WHERE p.product_id = #{productId} AND p.product_status !='NOTAVAIL'
+
     </select>
 
 <!-- 커서 기반  -->
-    <select id="cursorPaging" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.ProductListDto">
+    <select id="cursorPaging" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.ProductPageDto">
         SELECT p.product_id as productId
         , p.name as productName
         , p.price as price
@@ -55,39 +59,160 @@
         , p.star_rating as starRating
         , b.brand_id as brandId
         , b.name as brandName
+        , p.sales_quantity as salesQuantity
         FROM product p
         INNER JOIN brand b
         ON p.brand_id = b.brand_id
         <where>
-            <if test="key != null">
-                p.product_id <![CDATA[<]]> #{key}
+            <if test="cursorProductId != null">
+                p.product id<![CDATA[ < ]]> #{cursorProductId}
             </if>
-            <include refid="search"/>
+            <if test ="keyword != null">
+                AND p.name LIKE CONCAT('%', #{keyword},'%')
+            </if>
         </where>
-        Order By
-        <choose>
-            <when test="sortCode eq 'NEW'.toString()">
-                p.create_datetime DESC
-            </when>
-            <when test="sortCode eq 'RANKING'.toString()">
-                p.star_rating DESC
-            </when>
-            <when test="sortCode eq 'SALES'.toString()">
-                p.sales_quantity DESC
-            </when>
-            <when test="sortCode eq 'CHEAP'.toString()">
-                p.price ASC
-            </when>
-            <otherwise>
-                p.product_id DESC
-            </otherwise>
-        </choose>
-        limit #{size};
+        Order By p.product_id DESC
+        limit #{size}
+    </select>
+
+    <select id="cursorRankingPage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto">
+        SELECT p.product_id as productId
+             , p.name as productName
+             , p.price as price
+             , p.rep_img as repImg
+             , p.star_rating as starRating
+             , b.brand_id as brandId
+             , b.name as brandName
+             , p.sales_quantity as salesQuantity
+        FROM product p
+                 INNER JOIN brand b
+                            ON p.brand_id = b.brand_id
+        <where>
+            <if test ="cursorProductId != null">
+                ((p.star_rating <![CDATA[ < ]]> (select star_rating from product where product_id = #{cursorProductId}))
+                OR (p.star_rating =  (select star_rating from product where product_id =#{cursorProductId}) AND product_id <![CDATA[ < ]]> #{cursorProductId}))
+            </if>
+            <if test ="keyword != null">
+                AND p.name LIKE CONCAT('%', #{keyword},'%')
+            </if>
+        </where>
+        ORDER BY star_rating desc, product_id desc
+        limit #{size}
+
+    </select>
+
+    <select id="cursorSalesQuantityPage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto">
+        SELECT p.product_id as productId
+        , p.name as productName
+        , p.price as price
+        , p.rep_img as repImg
+        , p.star_rating as starRating
+        , b.brand_id as brandId
+        , b.name as brandName
+        , p.sales_quantity as salesQuantity
+        FROM product p
+        INNER JOIN brand b
+        ON p.brand_id = b.brand_id
+        <where>
+            <if test ="cursorProductId != null">
+                ((p.sales_quantity <![CDATA[ < ]]> (select sales_quantity from product where product_id = #{cursorProductId}))
+                OR (p.sales_quantity =  (select sales_quantity from product where product_id =#{cursorProductId}) AND product_id <![CDATA[ < ]]> #{cursorProductId}))
+            </if>
+            <if test ="keyword != null">
+                AND p.name LIKE CONCAT('%', #{keyword},'%')
+            </if>
+        </where>
+        ORDER BY p.sales_quantity desc, p.product_id desc
+        limit #{size}
+
     </select>
 
 
+    <!--    create index priceASC_productASC on product(price ASC, product_id ASC);-->
+
+    <select id="cursorHighPricePage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto">
+        SELECT p.product_id as productId
+        , p.name as productName
+        , p.price as price
+        , p.rep_img as repImg
+        , p.star_rating as starRating
+        , b.brand_id as brandId
+        , b.name as brandName
+        , p.sales_quantity as salesQuantity
+        FROM product p
+        INNER JOIN brand b
+        ON p.brand_id = b.brand_id
+        <where>
+            <if test ="cursorProductId != null">
+                ((price  <![CDATA[ < ]]>  (select price from product where product_id = #{cursorProductId}))
+                OR (price = (select price from product where product_id =#{cursorProductId}) AND product_id  <![CDATA[ < ]]> #{cursorProductId}))
+            </if>
+            <if test ="keyword != null">
+                AND p.name LIKE CONCAT('%', #{keyword},'%')
+            </if>
+        </where>
+        ORDER BY price desc, product_id desc
+        limit #{size}
+    </select>
+
+    <!--  부등호 방향 바뀜  낮은 가격 순 -->
+
+    <select id="cursorLowPricePage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto">
+        SELECT p.product_id as productId
+        , p.name as productName
+        , p.price as price
+        , p.rep_img as repImg
+        , p.star_rating as starRating
+        , b.brand_id as brandId
+        , b.name as brandName
+        , p.sales_quantity as salesQuantity
+        FROM product p
+        INNER JOIN brand b
+        ON p.brand_id = b.brand_id
+        <where>
+            <if test ="cursorProductId != null">
+                ((price  <![CDATA[ > ]]> (select price from product where product_id =#{cursorProductId}))
+                OR (price = (select price from product where product_id =#{cursorProductId}) AND product_id  <![CDATA[ > ]]> #{cursorProductId}))
+            </if>
+            <if test ="keyword != null">
+                    AND  p.name LIKE CONCAT('%', #{keyword},'%')
+            </if>
+        </where>
+        ORDER BY price asc, product_id asc
+        limit #{size}
+
+    </select>
+
+<!--  earliest(오래된 순)은 가격에서 한것과 같이 해주기.  -->
+
+    <select id="cursorLatestPage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto">
+        SELECT p.product_id as productId
+        , p.name as productName
+        , p.price as price
+        , p.rep_img as repImg
+        , p.star_rating as starRating
+        , b.brand_id as brandId
+        , b.name as brandName
+        , p.sales_quantity as salesQuantity
+        , CONCAT(LPAD(DATE_FORMAT(create_datetime, '%Y%m%d%H%i%s') , 14, '0'), LPAD(product_id, 18, '0')) as 'cursor'
+        FROM product p
+        INNER JOIN brand b
+        ON p.brand_id = b.brand_id
+        <if test ="cursor != null">
+            WHERE CONCAT(LPAD(DATE_FORMAT(create_datetime, '%Y%m%d%H%i%s') , 14, '0'), LPAD(product_id, 18, '0'))
+            <![CDATA[ < ]]>
+            (SELECT CONCAT(LPAD(DATE_FORMAT(create_datetime, '%Y%m%d%H%i%s') , 8, '0'), LPAD(product_id, 18, '0')) FROM product WHERE product_id = #{product_id})
+        </if>
+        ORDER BY create_datetime desc, product_id desc
+        limit #{size}
+    </select>
+
+
+
+
+
     <!-- 페이지 기반 -->
-    <select id="pagePaging" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.ProductListDto">
+    <select id="pagePaging" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.ProductPageDto">
          SELECT p.product_id as productId
                 , p.name as productName
                 , p.price as price
@@ -102,20 +227,20 @@
 
         <choose>
             <when test="sortCode eq 'NEW'.toString()">
-                Order By p.create_datetime DESC
+                Order By p.create_datetime DESC , p.product_id DESC
             </when>
             <when test="sortCode eq 'RANKING'.toString()">
-                Order By p.star_rating DESC
+                Order By p.star_rating DESC, p.product_id DESC
             </when>
             <when test="sortCode eq 'SALES'.toString()">
-                Order By p.sales_quantity DESC
+                Order By p.sales_quantity DESC, p.product_id DESC
             </when>
             <when test="sortCode eq 'CHEAP'.toString()">
-                Order By p.price ASC
+                Order By p.price ASC, p.product_id DESC
             </when>
-            <otherwise>
-                Order By p.product_id DESC
-            </otherwise>
+                <otherwise>
+                    Order By p.product_id DESC
+                </otherwise>
         </choose>
          limit ${size}
          offset ${offset}
@@ -132,20 +257,6 @@
 
 
 
-    <select id="findProductDtoById" parameterType="String" resultType="com.fastcampus.toyproject2.product.dto.ProductDetailDto">
-        SELECT name
-        , price
-        , register_manager
-        , rep_img
-        , sales_quantity
-        , star_rating
-        , view_count
-        , like_count
-        , review_count
-            FROM product WHERE product_id = #{productId} AND is_displayed = 'Y'
-    </select>
-
-
     <!--글자수, 공백으로만 되어있는지는 앞에서 검사하기.-->
     <update id="updateProduct" parameterType="com.fastcampus.toyproject2.product.dto.ProductUpdateDto">
         UPDATE product
@@ -158,7 +269,7 @@
                 <if test="name !=null"> name = #{name} , </if>
                 <if test ="registerManager != null"> register_manager = #{registerManager} , </if>
                 <if test ="price != null"> price = #{price} , </if>
-                <if test ="isDisplayed != null"> is_displayed  = #{isDisplayed} , </if>
+                <if test ="productStatus != null"> product_status  = #{productStatus} , </if>
                         modify_datetime = NOW()
             </set>
         WHERE
@@ -194,47 +305,50 @@
 
 <!-- mapper 안에 절대 "- -" 로 주석처리 하지 말것. -->
     <insert id="insertTest" parameterType="hashMap">
+        <if test="ProductDescription != null">
+            INSERT INTO product_description (
+                 product_description_id
+                , description
+                , modify_datetime
+                )
+                VALUES(
+                    #{ProductDescription.productDescriptionId}
+                    ,#{ProductDescription.description}
+                    , NOW()
+                )
+            ;
+        </if>
 
-        INSERT INTO product_description (
-         product_description_id
-        , description
-        , modify_datetime
-        )
-        VALUES(
-        #{ProductDescription.productDescriptionId}
-        ,#{ProductDescription.description}
-        , NOW()
-        )
-        ;
-
-
-        INSERT  INTO product (product_id,
-        product_description_id,
-        category_id,
-        brand_id,
-        name,
-        rep_img,
-        price,
-        create_datetime,
-        modify_datetime,
-        register_manager
-        )
-        VALUES ( #{Product.productId}, #{Product.productDescriptionId},
+        INSERT  INTO product (
+            product_id
+            , product_description_id
+            , category_id
+            , brand_id
+            , name
+            , rep_img
+            , price
+            , create_datetime
+            , modify_datetime
+            , register_manager
+            )
+            VALUES ( #{Product.productId}, #{Product.productDescriptionId},
                 #{Product.categoryId}
-        , #{Product.brandId}
-        , #{Product.name}, #{Product.repImg}, #{Product.price}
-        , NOW(), NOW()
-        , #{Product.registerManager})
+                , #{Product.brandId}
+                , #{Product.name}, #{Product.repImg}, #{Product.price}
+                , NOW(), NOW()
+                , #{Product.registerManager})
         ;
+
 
         INSERT  INTO stock (
-        product_id
-        ,size
-        ,color
-        ,quantity
-        ,create_datetime)
+            product_id
+            , size
+            , color
+            , quantity
+            , create_datetime
+        )
         VALUES
-        <foreach collection="stockList" item="Stock" separator=",">
+            <foreach collection="stockList" item="Stock" separator=",">
             (
             #{Stock.productId}
             , #{Stock.size}
@@ -242,33 +356,36 @@
             , #{Stock.quantity}
             ,  NOW()
             )
-        </foreach>
+            </foreach>
         ;
 
-        INSERT  INTO product_description_img(
-        product_description_id
-        , name
-        , order_num
-        , path
-        , is_used
-        , kind_of
-        , size
-        , create_datetime
-        , modify_datetime
-        ) VALUES
-        <foreach collection="imgList" item="ProductDescriptionImg" separator=",">
-            (
-            #{ProductDescriptionImg.productDescriptionId}
-            , #{ProductDescriptionImg.name}
-            , #{ProductDescriptionImg.orderNum}
-            , #{ProductDescriptionImg.path}
-            , #{ProductDescriptionImg.isUsed}
-            , #{ProductDescriptionImg.kindOf}
-            , #{ProductDescriptionImg.size}
-            ,  NOW()
-            ,  NOW()
+        <if test="imgList != null">
+            INSERT  INTO product_description_img(
+                product_description_id
+                , name
+                , order_num
+                , path
+                , is_used
+                , kind_of
+                , size
+                , create_datetime
+                , modify_datetime
             )
-        </foreach>
+            VALUES
+            <foreach collection="imgList" item="ProductDescriptionImg" separator=",">
+                (
+                #{ProductDescriptionImg.productDescriptionId}
+                , #{ProductDescriptionImg.name}
+                , #{ProductDescriptionImg.orderNum}
+                , #{ProductDescriptionImg.path}
+                , #{ProductDescriptionImg.isUsed}
+                , #{ProductDescriptionImg.kindOf}
+                , #{ProductDescriptionImg.size}
+                ,  NOW()
+                ,  NOW()
+                )
+            </foreach>
+        </if>
 
 
 

@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -22,22 +23,42 @@ public class FileService {
     @Value(("${productRepImgLocation}"))
     private String imgRepLocation;
 
+    public String checkExtention(String extention) {
+
+        String originalFileExtension;
+
+        if(extention.contains("image/jpeg")){
+            originalFileExtension = ".jpg";
+        }
+        else if(extention.contains("image/png")){
+            originalFileExtension = ".png";
+        }
+        else if(extention.contains("image/gif")){
+            originalFileExtension = ".gif";
+        }else{
+            throw new RuntimeException("사진 파일 확장자가 올바르지 않습니다.");
+        }
+
+        return originalFileExtension;
+    }
 
 
-    public String uploadFile(String uploadPath, String originalFileName, byte[] fileData) throws IOException {
+    public String uploadFile(String uploadPath, MultipartFile file) throws IOException {
+
+        file.getOriginalFilename();
         UUID uuid = UUID.randomUUID();
-        String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        String extension = checkExtention(Objects.requireNonNull(file.getContentType()));
         String fileCode = uuid + extension;
         String fileUploadFullUrl = uploadPath +"/"+ fileCode;
         FileOutputStream fos = new FileOutputStream(fileUploadFullUrl);
-        fos.write(fileData);
+        fos.write(file.getBytes());
         fos.close();
         return fileCode;
     }
 
     public String uploadRepImg(MultipartFile productRepImg) throws IOException {
 
-        return uploadFile(imgRepLocation, productRepImg.getOriginalFilename(), productRepImg.getBytes());
+        return uploadFile(imgRepLocation, productRepImg);
 
 
     }
@@ -63,7 +84,7 @@ public class FileService {
 
             String filename = file.getOriginalFilename();
 
-            String fileCode = uploadFile(imgLocation, filename, file.getBytes());
+            String fileCode = uploadFile(imgLocation, file);
 
             //이런 부분 클래스(ProductDescriptionImg) 안에서 정의해도 되는가?
             ProductDescriptionImg productDescriptionImg
@@ -86,7 +107,7 @@ public class FileService {
             System.out.println("이미지  표시 저장 시작");
 
             String filename = file.getOriginalFilename();
-            String fileCode = uploadFile(imgLocation, filename, file.getBytes());
+            String fileCode = uploadFile(imgLocation, file);
 
             ProductDescriptionImg productDescriptionImg
                     = ProductDescriptionImg.builder()
@@ -104,6 +125,7 @@ public class FileService {
         return imgList;
 
     }
+
 
 
 }

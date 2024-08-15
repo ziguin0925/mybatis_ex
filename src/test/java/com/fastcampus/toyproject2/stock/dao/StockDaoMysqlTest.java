@@ -20,9 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class StockDaoMysqlTest {
     @Autowired
     StockDaoMysql stockDao;
-    @Qualifier("forceAutoProxyCreatorToUseClassProxying")
-    @Autowired
-    private BeanFactoryPostProcessor forceAutoProxyCreatorToUseClassProxying;
 
     @Test
     @Order(1)

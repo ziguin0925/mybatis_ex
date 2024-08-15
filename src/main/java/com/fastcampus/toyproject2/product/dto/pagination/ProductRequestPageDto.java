@@ -8,10 +8,11 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class ProductPageDto {
+public class ProductRequestPageDto {
 
     //요청 받은 페이지 번호
     private int pageNum;
+
     private int countPerPage;
 
     private String brandId;
@@ -35,7 +36,7 @@ public class ProductPageDto {
 
 
 
-    public ProductPageDto() {
+    public ProductRequestPageDto() {
         this.pageNum = 1;
         this.countPerPage = 10;
     }

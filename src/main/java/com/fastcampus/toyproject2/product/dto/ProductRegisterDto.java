@@ -100,7 +100,7 @@ public class ProductRegisterDto {
                 .price(productRegisterDto.getPrice())
                 .registerManager(productRegisterDto.getManagerName())
                 .starRating(0F)
-                .isDisplayed(Product.DEFAULT_DISPLAY)
+                .productStatus(Product.DEFAULT_STATUS)
                 .build();
 
     }

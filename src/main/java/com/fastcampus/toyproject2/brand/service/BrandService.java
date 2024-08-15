@@ -6,7 +6,7 @@ import com.fastcampus.toyproject2.brand.dto.BrandCreateDto;
 import com.fastcampus.toyproject2.brand.dto.BrandDto;
 import com.fastcampus.toyproject2.brand.dto.BrandUpdateDto;
 import com.fastcampus.toyproject2.product.dao.ProductDaoMysql;
-import com.fastcampus.toyproject2.product.dto.ProductListDto;
+import com.fastcampus.toyproject2.product.dto.ProductPageDto;
 import com.fastcampus.toyproject2.product.dto.pagination.PageInfo;
 import com.fastcampus.toyproject2.util.FileService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional
@@ -56,7 +55,7 @@ public class BrandService {
      *
      * */
     @Transactional(readOnly = true)
-    public List<ProductListDto> findBrandPageList(PageInfo pageInfo) throws Exception {
+    public List<ProductPageDto> findBrandPageList(PageInfo pageInfo) throws Exception {
 
         HashMap<String ,Object> pageMap = PageInfo.toHashMap(pageInfo);
         pageInfo.productCountCal(productDao.countProduct(pageMap));

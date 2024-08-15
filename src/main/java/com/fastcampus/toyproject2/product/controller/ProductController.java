@@ -44,10 +44,14 @@ public class ProductController {
     *   상품 코드를 숫자로 할지 생각.
     * */
     @GetMapping("/{productId}")
-    public String productDetailPage(@PathVariable String productId, Model model) throws Exception {
-
-        model.addAttribute("productDetail", productService.findProductDetailById(productId));
-
+    public String productDetailPage(@PathVariable String productId, Model model) {
+            try {
+                model.addAttribute("productDetail", productService.findProductDetailById(productId));
+            }catch (Exception e){
+                e.printStackTrace();
+                //해당 상품을 못찾으므로 error페이지를 띄워주거나 error 메세지를 클라이언트에게 띄우기.
+                return "error";
+            }
         return "/product/productDetail";
     }
 

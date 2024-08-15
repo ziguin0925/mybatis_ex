@@ -20,10 +20,12 @@ public class ProductDetailDto {
     private String brandId;
     private String brandName;
     private int price;
+    private int eventPrice;
     private ProductDescriptionDto productDescription;
     private String repImg;
     private String categoryId;
     private String categoryName;
+    private String productStatus;
 
     private List<String> parentCategoryIds;
     private List<String> parentCategoryNames;
@@ -39,8 +41,11 @@ public class ProductDetailDto {
     //review_content
 
     private int likeCount;
-    private float starRating;
+    private int starRating;
     private int reviewCount;
     private int viewCount;
+
+
+
 
 }

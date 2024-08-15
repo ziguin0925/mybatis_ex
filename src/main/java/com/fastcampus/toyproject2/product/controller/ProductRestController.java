@@ -5,13 +5,12 @@ import com.fastcampus.toyproject2.category.service.CategoryService;
 import com.fastcampus.toyproject2.product.dto.ProductRegisterDto;
 import com.fastcampus.toyproject2.product.dto.ProductUpdateDto;
 import com.fastcampus.toyproject2.product.service.ProductService;
-import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
-import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
 import com.fastcampus.toyproject2.productDescription.service.ProductDescriptionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -59,7 +58,7 @@ public class ProductRestController {
             , @RequestPart(value = "RepImg", required = true) MultipartFile repImg
             , @RequestPart(value = "DescriptionImgs", required = false) List<MultipartFile> desImgs
             , @RequestPart(value = "RepresentationImgs", required = false) List<MultipartFile> represenImgs
-            /*, Model model */) throws Exception {
+            /*, Model model */) {
 
 
         //나중에 회원 테이블 구현이 끝나면 회원 조회.
@@ -80,20 +79,8 @@ public class ProductRestController {
 
         //사진 저장했는데 브랜드나 카테고리를 제대로 안받아 온거면 안됨, 맨 마지막.
         //product_description_id 가 있는지 확인 - 없으면 product_description과 product_description_img 둘다 생성해야함.
-        ProductDescriptionDto productDescription = productDescriptionService.findById(productRegisterDto.getProductDescriptionDto().getProductDescriptionId());
 
-        if (productDescription != null) {
-            try {
-                product = productService.registerSave(productRegisterDto, repImg);
-                return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",product + " 완료"));
 
-            }catch (Exception e) {
-                //현재 서버가 일시적으로 사용이 불가함
-                //일반적으로 유지보수로 인해 중단되거나 과부하가 걸린 서버임
-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("message",productRegisterDto.getName() + " 불가(등록 에러)"));
-            }
-
-        }
         /*
                 상세 설명 만들기.
                 변수를 한번에 담기.
@@ -106,7 +93,7 @@ public class ProductRestController {
             return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",product + " 완료"));
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("message",productRegisterDto.getName() + " 불가(상세 설명 항목 등록 에러)"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",e.getMessage()));
         }
 
     }
@@ -116,23 +103,43 @@ public class ProductRestController {
     *   상품 수정
     *   이름, 대표 이미지, 카테고리, 가격, 화면 표시유무, 등록자(register_manager), 상세 설명 기존에 있는거로 변경.
     *   상세 설명 새로 생성은 productDescription에서 처리하기 .
+    *
+    *   상품 수정페이지에서 수정시에
+    *   1.
+    *       상품 수정시에 프론트에서 기존 내용과 바뀐게 있으면 바뀐 내용 Dto에 넣어주고, 기존내용과 바뀐게 없으면 null로 넣어주기. - 전체 내용에 대한 request 버튼을 두기
+    *   2.
+    *       하나씩만 변경 request가 가도록 - 하나씩 request 버튼을 두기.
     * */
     @Operation(summary="상품 수정", description = "상품을 수정할 때 상세 설명, 상세 설명 이미지, 상품 이미지들을 수정할 때에는 다른 Controller에서 처리할 수 있도록 다른 페이지로 넘어가도록 처리.")
     @PatchMapping(value ={"/admin/{productId}"})
     public ResponseEntity<?> productupdate(@PathVariable(name = "productId") String productId
-            , @Validated @RequestPart(value = "ProductUpdateDto") ProductUpdateDto productUpdateDto){
+            , @Validated @RequestPart(value = "ProductUpdateDto") ProductUpdateDto productUpdateDto)  {
+                //해당 상품이 존재하는지 확인?
 
-
+                try {
+                        productService.updateProduct(productUpdateDto);
+                }catch ( NotFoundException e ) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",e.getMessage()));
+                }
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",productId + "상품 수정 완료"));
     }
 
 
+
+
     @Operation(summary="상품 삭제", description = "productId를 통한 상품 삭제")
     @DeleteMapping(value = "/{productId}")
-    public ResponseEntity<?> productdelete(@PathVariable("productId") String productId) throws Exception {
+    public ResponseEntity<?> productdelete(@PathVariable("productId") String productId)  {
+        try {
+            productService.deleteProduct(productId);
+        }catch (NotFoundException e){
 
-        productService.deleteProduct(productId);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",e.getMessage()));
+
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message",e.getMessage()));
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",productId+ "상품 삭제 완료"));
     }
@@ -140,13 +147,16 @@ public class ProductRestController {
 
 
     @Operation(summary = "상품 리스트", description ="상품 리스트 커서기반 불러오기 \n\n" +
-            "key(product_id), sortCode(정렬 기준), category(where절), keyword(where절), size 반환해 줘야 다음 게시물 가져다줌.")
+            "cursor(cursor), sortCode(정렬 기준), category(where절), keyword(where절), size 반환해 줘야 다음 게시물 가져다줌.")
     @GetMapping(value ="/list")
     public ResponseEntity<?> productCursorList(@RequestParam HashMap<String, Object> cursorMap) throws Exception {
         //cursorMap.get("key")가 null 이면 mapper에서 정렬된 데이터의 맨 첫번째부터 데이터 가져옴.
+        //GetMapping 은 RequestBody 사용 불가? - 사용가능 하다하는 곳도 있고 못하다 하는 곳도 있고...
+        // http 에서 Get으로 body 전송이 안좋다는 얘기도...
 
         List cursorList = productService.findCursorList(cursorMap);
 
+        //List안에 내용이 null이면 더이상 안보여 주도록 프론트에서 설정하기.
         return ResponseEntity.status(HttpStatus.OK).body(cursorList);
     }
 

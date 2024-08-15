@@ -38,61 +38,10 @@ public class ProductDescriptionService {
 
 
     public void save(ProductDescriptionDto productDescriptionDto
-            , MultipartFile productRepImg
-            , MultipartFile[] DescriptionImgs
-            , MultipartFile[] productImgs) throws Exception {
+            , List<MultipartFile> DescriptionImgs
+            , List<MultipartFile> productImgs) throws Exception {
 
-        ProductDescription productDescription = ProductDescription.builder()
-                .productDescriptionId(productDescriptionDto.getProductDescriptionId())
-                .description(productDescriptionDto.getDescription())
-                .modifyDatetime(LocalDateTime.now())
-                .build();
-
-        productDescriptionDao.insert(productDescription);
-
-
-        List<ProductDescriptionImg> imgList = new ArrayList<>();
-        byte i =1;
-
-        for(MultipartFile file : DescriptionImgs){
-
-            String filename = file.getOriginalFilename();
-
-            String fileCode = fileService.uploadFile(imgLocation, filename, file.getBytes());
-
-            ProductDescriptionImg productDescriptionImg
-                    = ProductDescriptionImg.builder()
-                    .productDescriptionId(productDescription.getProductDescriptionId())
-                    .name(filename)
-                    .path(imgLocation+fileCode)
-                    .orderNum(i++)
-                    .size(file.getSize())
-                    .kindOf(ProductDescriptionImg.DESCRIPTION)
-                    .isUsed(ProductDescriptionImg.DEFAULT_USE)
-                    .build();
-
-            imgList.add(productDescriptionImg);
-        }
-
-        i=1;
-
-        for(MultipartFile file : productImgs){
-
-            String filename = file.getOriginalFilename();
-            String fileCode = fileService.uploadFile(imgLocation, filename, file.getBytes());
-
-            ProductDescriptionImg productDescriptionImg
-                    = ProductDescriptionImg.builder()
-                    .productDescriptionId(productDescription.getProductDescriptionId())
-                    .name(filename)
-                    .path(imgLocation+fileCode)
-                    .orderNum(i++)
-                    .size(file.getSize())
-                    .kindOf(ProductDescriptionImg.REPRESENTATION)
-                    .isUsed(ProductDescriptionImg.DEFAULT_USE)
-                    .build();
-            imgList.add(productDescriptionImg);
-        }
+         List <ProductDescriptionImg> imgList = fileService.toImageList(DescriptionImgs, productImgs, productDescriptionDto.getProductDescriptionId());
 
         productDescriptionImgDao.insert(imgList);
     }

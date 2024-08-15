@@ -11,7 +11,7 @@ import java.util.HashMap;
 @ToString
 public class PageInfo {
 
-    private ProductPageDto paging;
+    private ProductRequestPageDto paging;
     private int productTotalCount;
     private int endPage;
     private int beginPage;
