@@ -20,6 +20,8 @@ public class BrandController {
 
 
     /*
+    *   브랜드
+    *
     *
     * */
     @GetMapping(value ={ "/{brandCode}/products/list"})
@@ -40,6 +42,9 @@ public class BrandController {
 
     @GetMapping("/register")
     public String brandRegisterpage(Model model) {
+        //브랜드 등록 창은 정말 아무런 정보가 안담겨도 괜찮을까
+
+
         return "brand/register";
     }
 

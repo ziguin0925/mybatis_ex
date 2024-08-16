@@ -194,15 +194,18 @@
         , b.brand_id as brandId
         , b.name as brandName
         , p.sales_quantity as salesQuantity
-        , CONCAT(LPAD(DATE_FORMAT(create_datetime, '%Y%m%d%H%i%s') , 14, '0'), LPAD(product_id, 18, '0')) as 'cursor'
         FROM product p
         INNER JOIN brand b
         ON p.brand_id = b.brand_id
-        <if test ="cursor != null">
-            WHERE CONCAT(LPAD(DATE_FORMAT(create_datetime, '%Y%m%d%H%i%s') , 14, '0'), LPAD(product_id, 18, '0'))
-            <![CDATA[ < ]]>
-            (SELECT CONCAT(LPAD(DATE_FORMAT(create_datetime, '%Y%m%d%H%i%s') , 8, '0'), LPAD(product_id, 18, '0')) FROM product WHERE product_id = #{product_id})
-        </if>
+            <where>
+                <if test ="cursorProductId != null">
+                    ((p.create_datetime  <![CDATA[ < ]]>  (select create_datetime from product where product_id = #{cursorProductId}))
+                    OR (p.create_datetime = (select create_datetime from product where product_id =#{cursorProductId}) AND product_id  <![CDATA[ < ]]> #{cursorProductId}))
+                </if>
+                <if test ="keyword != null">
+                    AND  p.name LIKE CONCAT('%', #{keyword},'%')
+                </if>
+            </where>
         ORDER BY create_datetime desc, product_id desc
         limit #{size}
     </select>

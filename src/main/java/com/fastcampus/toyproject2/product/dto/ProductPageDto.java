@@ -14,7 +14,7 @@ public class ProductPageDto {
     private String productName;
     private int price;
     private String repImg;
-    private float starRating;
+    private int starRating;
     private String brandId;
     private String brandName;
 

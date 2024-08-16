@@ -30,8 +30,6 @@ class ProductServiceTest {
     @Autowired
     private ProductService productService;
 
-    @Autowired
-    private ProductDao productDao;
 
     @Test
     @DisplayName("서비스로 상품 등록 - 클라이언트가 상세 설명을 재사용하는 경우")
@@ -131,26 +129,33 @@ class ProductServiceTest {
         System.out.println(seconds);
 
 //        assertTrue(productService.findProductDetailById("CREATE_DESCRIPTION").getName().equals(productRegisterDto.getName()));
-    }
+        }
 
     @Test
     @DisplayName("DetailDto 찾아오기")
     void searchProduct1() throws Exception {
         String requestProductId = "P001";
 
+
         //null일 경우 controller 예외 처리 해주기. -> 잘못된 접근
         ProductDetailDto productDetailDto  = productService.findProductDetailById(requestProductId);
 
+        //다음에는 상품을 등록하고 DetailDto 찾아오기. - 더 세세하게 test할 수 있도록.
+
         System.out.println(productDetailDto);
 
+
+
         assertTrue(productDetailDto.getProductId().equals(requestProductId));
+
+
 
     }
 
     @Test
     @DisplayName("product_id가 없는경우")
     void searchProductIsNull() throws Exception {
-        String requestProductId = "agsdfsadg";
+        String requestProductId = "agsdfsadg";//데이터 베이스에서 보고 넣기.
 
         //null일 경우 controller 예외 처리 해주기. -> 잘못된 접근
         ProductDetailDto productDetailDto = null;
@@ -502,6 +507,8 @@ class ProductServiceTest {
 
     }
 
+    // 생성 날짜도 같이 넣을까.
+/*
     @Test
     @DisplayName("cursor 상품 페이지  - 최신 순 ")
     void cursorPage5() throws Exception {
@@ -518,10 +525,10 @@ class ProductServiceTest {
             Long comp = Long.parseLong(list.get(list.size()-1).getCursor().substring(0,14));
 
             for(int i =0 ; i<list.size()-1; i++){
-                assertTrue(Long.parseLong(list.get(i).getCursor().substring(0,14))>=Long.parseLong(list.get(i+1).getCursor().substring(0,14)));
+                assertTrue(list.get(i).get);
             }
             ProductCursorPageDto dto =list.get(list.size()-1);
-            map.put("cursor",dto.getProductId());
+            map.put("cursorProductId",dto.getProductId());
 
             list = productService.findCursorList(map);
 
@@ -535,17 +542,121 @@ class ProductServiceTest {
 
         }
     }
+*/
+
+    @Test
+    @DisplayName("삽입 후 테스트")
+    void cursorPageInsertAndTest() throws Exception {
+        MultipartFile repImg = createRepImg();
+        List<String> sizes = new ArrayList<>();
+        sizes.add("L");
+        sizes.add("M");
+
+        List<String> colors = new ArrayList<>();
+        colors.add("blue");
+        colors.add("red");
+
+        List<Integer> quantitis = new ArrayList<>();
+        quantitis.add(133);
+        quantitis.add(134);
+
+        ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001", "나이키의 반팔 티는 좋은 제품이다.");
+        ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
+                .price(25900)
+                .productId("qwreqwetqwer")
+                .brandId("A00000000002")
+                .productDescriptionDto(productDescriptionDto)
+                .categoryId("C14")
+                .managerName("manager9")
+                .name("모두 다 재사용하는 테스트용 의류")
+                .color(colors)
+                .size(sizes)
+                .quantity(quantitis)
+                .build();
+
+        List<MultipartFile> desImgs = new ArrayList<>();
+        List<MultipartFile> represenImgs = new ArrayList<>();
+
+        String product = productService.registerSave(productRegisterDto, repImg, desImgs, represenImgs);
+
+        ProductDetailDto productDetailDto  = productService.findProductDetailById(productRegisterDto.getProductId());
+
+        System.out.println(productDetailDto);
+
+        assertTrue(productDetailDto.getProductId().equals(productRegisterDto.getProductId()));
+
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("size", 4);
+        map.put("sortCode", "HIGHPRICE");
+        map.put("keyword", "블라우스");
+        System.out.println("가격 높은순 기반");
+
+        List<ProductCursorPageDto> list = productService.findCursorList(map);
+        System.out.println("처음 확인");
+        list.forEach(System.out::println);
+        while(true) {
+            int comp = list.get(list.size()-1).getPrice();
+
+            for(int i =0 ; i<list.size()-1; i++){
+                if(list.size()!= (int) map.get("size") ) {
+                    assertTrue(list.get(i).getPrice()>=list.get(i+1).getPrice());
+                }
+                assertTrue(list.get(i).getProductName().contains(map.get("keyword").toString()));
+            }
+            ProductCursorPageDto dto =list.get(list.size()-1);
+            map.put("cursorProductId",dto.getProductId());
+            map.put("cursorPrice",dto.getPrice());
+
+            list = productService.findCursorList(map);
+            if(list.isEmpty()) {
+                break;
+            }
+            assertTrue(comp>=list.get(0).getPrice());
+            list.forEach(System.out::println);
+        }
+    }
+
+    @Test
+    @DisplayName("page 브랜드 상품 페이지 - 기본")
+    void pagePage() throws Exception {
+        ProductRequestPageDto productRequestPageDto = new ProductRequestPageDto();
+        //요청 페이지 4
+        productRequestPageDto.setPageNum(4);
+        //한 장당 페이지
+        productRequestPageDto.setCountPerPage(2);
+        //현재 나이키
+        productRequestPageDto.setBrandId("A00000000002");
+
+
+
+        //무신사 - data-sort-code = LOW_PRICE(낮은 가격순), REVIEW(리뷰 순), NEW(새로운 순) ...
+        productRequestPageDto.setSortCode("LOW_PRICE");
+
+
+        PageInfo pageInfo = new PageInfo();
+        pageInfo.setPaging(productRequestPageDto);
+
+        productService.findPageList(pageInfo).forEach(System.out::println);
+        System.out.println(pageInfo);
+
+        assertTrue(pageInfo.getEndPage() ==5);
+        assertTrue(pageInfo.isNext()==true);
+
+    }
 
     // orderby 절 여러개 들어올경우 예외처리하기.
     @Test
-    @DisplayName("page 브랜드 상품 페이지")
-    void pagePage() throws Exception{
+    @DisplayName("page 브랜드 상품 페이지 - 카테고리 지정")
+    void pagePageCategory() throws Exception{
 
         ProductRequestPageDto productRequestPageDto = new ProductRequestPageDto();
         productRequestPageDto.setPageNum(4);
         productRequestPageDto.setCountPerPage(2);
         //현재 나이키
         productRequestPageDto.setBrandId("A00000000002");
+
+        //카테고리는 반팔
         productRequestPageDto.setCategoryId("C17");
 
 
@@ -591,14 +702,13 @@ class ProductServiceTest {
     @Test
     @DisplayName("서비스 상품 삭제")
     void deleteProduct() throws Exception {
+        //상품 삭제시 다른 매니저가 삭제할 수 도 있으므로 해당 상품의 registerManager 만 삭제할수 있도록 하기.
         productService.deleteProduct("P001");
         try{
             productService.findProductDetailById("P001");
         }catch (NotFoundException e){
             assertTrue(e.getMessage().equals("해당 품목을 찾을 수 없습니다."));
         }
-
-
     }
 
     @Test
@@ -618,6 +728,9 @@ class ProductServiceTest {
     @Test
     @DisplayName("상품 수정")
     void  updateProduct() throws Exception {
+
+        //수정 같은 경우도 registermanager만 수정할 수 있도록.
+
         ProductUpdateDto productUpdateDto = new ProductUpdateDto();
         productUpdateDto.setProductId("P001");
         productUpdateDto.setProductStatus("EVENT");
@@ -655,7 +768,13 @@ class ProductServiceTest {
 
     }
 
-
+    /*
+    * 상품 상세 페이지에 들어갔을 때 조회수를 바로 올리는게 맞는지. 상품에 조회수를 두는게 좋은가?
+    *       -> 무신사 조회수 있네...
+    *  들어가자 마자 바로 올리는게 좋은지? 들어가서 몇초후에 조회수가 올라가게 하는것이 좋은지
+    * -> 몇초후에 조회수가 올라가게 하는게 좋은가?
+    *
+    * */
 
 
 

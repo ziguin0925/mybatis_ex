@@ -53,13 +53,10 @@ class ProductDaoMysqlTest {
     @Test
     @Order(1)
     @DisplayName("Dao Test")
-    public void getProductDao() {
+    public void getProductDao() throws Exception {
 
-        try {
-            System.out.println(productDao.findNameById("P001"));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
+        assertTrue(productDao.findNameById("P001").equals("나이키 남성 빨강 티셔츠"));
     }
 
 
@@ -69,35 +66,20 @@ class ProductDaoMysqlTest {
     @DisplayName("상품 생성1")
     public void createProduct1() throws Exception {
 
-        ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001", "");
-
-
-        List<String> sizes = new ArrayList<>();
-        sizes.add("L");
-
-        List<String> colors = new ArrayList<>();
-        colors.add("blue");
-
-        List<Integer> quantitis = new ArrayList<>();
-        quantitis.add(133);
-
-        //재고는 생성 안함.
-        ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
-                .price(25900)
-                .productId("ALLREUES")
-                .brandId("A00000000002")
-                .productDescriptionDto(productDescriptionDto)
-                .categoryId("C14")
-                .managerName("manager9")
-                .name("모두 다 재사용하는 테스트용 의류")
-                .color(colors)
-                .size(sizes)
-                .quantity(quantitis)
+        Product product = Product.builder()
+                .productId("asdf")
+                .price(1234)
+                .productDescriptionId("NIKE000000001")
+                .name("ALLREUES")
+                .repImg("Asdfasdf")
+                .brandId("A00000000001")
+                .categoryId("C01")
+                .registerManager("asdf")
                 .build();
 
-        createProduct(productRegisterDto);
+        productDao.insertTest(product);
 
-        assertTrue(productRegisterDto.getName().equals(productDao.findNameById("ALLREUES")));
+        assertTrue(product.getName().equals(productDao.findNameById(product.getProductId())));
 
 
 
@@ -111,50 +93,28 @@ class ProductDaoMysqlTest {
     @DisplayName("상품 id로 삭제")
     void deleteProduct1() throws Exception {
 
-        ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001", "");
 
-
-        List<String> sizes = new ArrayList<>();
-        sizes.add("L");
-
-        List<String> colors = new ArrayList<>();
-        colors.add("blue");
-
-        List<Integer> quantitis = new ArrayList<>();
-        quantitis.add(133);
-
-        //재고는 생성 안함.
-        ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
-                .price(25900)
-                .productId("ALLREUES")
-                .brandId("A00000000002")
-                .productDescriptionDto(productDescriptionDto)
-                .categoryId("C14")
-                .managerName("manager9")
-                .name("모두 다 재사용하는 테스트용 의류")
-                .color(colors)
-                .size(sizes)
-                .quantity(quantitis)
+        Product product = Product.builder()
+                .productId("asdf")
+                .price(1234)
+                .productDescriptionId("NIKE000000001")
+                .name("ALLREUES")
+                .repImg("Asdfasdf")
+                .brandId("A00000000001")
+                .categoryId("C01")
+                .registerManager("asdf")
                 .build();
 
-        createProduct(productRegisterDto);
+        productDao.insertTest(product);
 
-        assertTrue(productRegisterDto.getName().equals(productDao.findNameById("ALLREUES")));
-
-
+        assertTrue(product.getName().equals(productDao.findNameById(product.getProductId())));
 
 
-        int i =productDao.deleteByProductId(productRegisterDto.getProductId());
+
+        int i =productDao.deleteByProductId(product.getProductId());
         System.out.println(i);
-//        assertTrue(i==1);
         String deletename =productDao.findNameById("ALLREUES");
-
         assertEquals(null,deletename);
-        System.out.println(stockDao.findByStockPk(StockPk.IdAndSizeAndColor("ALLREUES","L","blue")));
-        assertTrue(stockDao.findByStockPk(StockPk.IdAndSizeAndColor("ALLREUES","L","blue")).size()==0);
-
-
-
 
     }
 
@@ -163,7 +123,23 @@ class ProductDaoMysqlTest {
     @DisplayName("productId로 DetailDto 찾아오기")
     void searchProduct1() throws Exception {
 
-        ProductDetailDto productDetailDto = productDao.findProductDetailById("P001");
+        Product product = Product.builder()
+                .productId("asdf")
+                .price(1234)
+                .productDescriptionId("NIKE000000001")
+                .name("ALLREUES")
+                .repImg("Asdfasdf")
+                .brandId("A00000000001")
+                .categoryId("C01")
+                .registerManager("asdf")
+                .build();
+
+        productDao.insertTest(product);
+
+        ProductDetailDto productDetailDto = productDao.findProductDetailById(product.getProductId());
+
+        assertTrue(productDetailDto.getProductId().equals(product.getProductId()));
+        assertTrue(productDetailDto.getName().equals(product.getName()));
 
         System.out.println(productDetailDto);
 
@@ -174,51 +150,36 @@ class ProductDaoMysqlTest {
     @DisplayName("제품 수정")
     void updateProduct1() throws Exception {
 
-        ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001", "");
-
-
-        List<String> sizes = new ArrayList<>();
-        sizes.add("L");
-
-        List<String> colors = new ArrayList<>();
-        colors.add("blue");
-
-        List<Integer> quantitis = new ArrayList<>();
-        quantitis.add(133);
-
-        //재고는 생성 안함.
-        ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
-                .price(25900)
-                .productId("CREATE_DESCRIPTION")
-                .brandId("A00000000002")
-                .productDescriptionDto(productDescriptionDto)
-                .categoryId("C14")
-                .managerName("manager9")
-                .name("예시")
-                .color(colors)
-                .size(sizes)
-                .quantity(quantitis)
+        Product product = Product.builder()
+                .productId("asdf")
+                .price(1234)
+                .productDescriptionId("NIKE000000001")
+                .name("ALLREUES")
+                .repImg("Asdfasdf")
+                .brandId("A00000000001")
+                .categoryId("C01")
+                .registerManager("asdf")
                 .build();
 
-        createProduct(productRegisterDto);
+        productDao.insertTest(product);
 
         ProductUpdateDto productUpdateDto1 = new ProductUpdateDto();
 
-        productUpdateDto1.setProductId("CREATE_DESCRIPTION");
+        productUpdateDto1.setProductId(product.getProductId());
         productUpdateDto1.setName("상품 이름 수정");
 
         productDao.updateProduct(productUpdateDto1);
-        assertTrue(productDao.findNameById("CREATE_DESCRIPTION").equals("상품 이름 수정"));
+        assertTrue(productDao.findNameById(product.getProductId()).equals("상품 이름 수정"));
 
         ProductUpdateDto productUpdateDto2 = new ProductUpdateDto();
-        productUpdateDto2.setProductId("CREATE_DESCRIPTION");
+        productUpdateDto2.setProductId(product.getProductId());
         productUpdateDto2.setPrice(1423);
         productUpdateDto2.setName("상품 가격, 이름, 카테고리 수정");
         productDao.updateProduct(productUpdateDto2);
-        assertTrue(productDao.findNameById("CREATE_DESCRIPTION").equals("상품 가격, 이름, 카테고리 수정"));
+        assertTrue(productDao.findNameById(product.getProductId()).equals("상품 가격, 이름, 카테고리 수정"));
 
 
-        String deletename =productDao.findNameById("CREATE_DESCRIPTION");
+        String deletename =productDao.findNameById(product.getProductId());
     }
 
 //    @Test

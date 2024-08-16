@@ -53,7 +53,7 @@ public class ProductService {
 
 
     /*
-    *       상품 등록(상세 설명, 상세설명 img를 재사용하는 경우)
+    *       상품 등록(상세 설명, 상세설명 img를 재사용하는 경우) -> 오버로딩 말고 하나의 메서드로 하기.
     *
     * */
     public String registerSave(ProductRegisterDto productRegisterDto

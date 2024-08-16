@@ -152,6 +152,7 @@ class ProductRestControllerTest {
         //then
         String product = productDaoMysql.findNameById(productRegisterDto.getProductId());
 
+        //생겼는지 확인.
         assertTrue(product!=null);
         System.out.println(productRegisterDto.getColor());
         System.out.println(productRegisterDto.getSize().get(0));
@@ -162,6 +163,7 @@ class ProductRestControllerTest {
                 ,productRegisterDto.getColor().get(0)
         );
 
+        //일단 stock 하나만 만들었으니 하나만 체크해보기. 여러개 넣는거 test하기.
         List<Stock> stock =stockDaoMysql.findByStockPk(stockPk);
 
         assertEquals(133, stock.get(0).getQuantity().intValue());
@@ -193,7 +195,7 @@ class ProductRestControllerTest {
         ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
                 .price(25900)
                 .productId("NOTBRAND113113113")
-                .brandId("A002")
+                .brandId("A002") //해당 브랜드 ID 없음.
                 .productDescriptionDto(productDescriptionDto)
                 .categoryId("C14")
                 .managerName("manager12")
@@ -218,6 +220,7 @@ class ProductRestControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(productRegisterDto.getName() + " 불가(brand 없음)"));
 
+        //진짜 없는지 확인
         String product = productDaoMysql.findNameById(productRegisterDto.getProductId());
         assertNull(product);
 
@@ -410,7 +413,11 @@ class ProductRestControllerTest {
                 .andExpect(jsonPath("$.message").value(productRegisterDto.getName() + " 완료"));
 
         List<Stock> stocks = stockDaoMysql.findByStockPk(StockPk.onlyId("CREATE_DESCRIPTION"));
-        assertTrue(stocks.size()==2);
+
+
+        assertTrue(stocks.size()==colors.size());
+
+        //나중에 stock 컬러랑 size도 list로 다 확인하는 코드 짜기.
         for (Stock stock : stocks) {
             assertTrue(stock.getProductId().equals(productRegisterDto.getProductId()));
         }

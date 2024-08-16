@@ -34,7 +34,6 @@ public class ProductRestController {
 
     private final CategoryService categoryService;
 
-    private final ProductDescriptionService productDescriptionService;
 
     @ExceptionHandler(AssertionError.class)
     public ResponseEntity<?> IllegalArgumentException(AssertionError exception){
@@ -51,6 +50,8 @@ public class ProductRestController {
     *
     *   저장 할때마자 findBy로 DB에 잘 저장 되었는지 확인이 필요한가?
     *    throws Exception이 있는데
+    *
+    *   Product_id를 입력할때 프론트에 검증 버튼 만들어서 DB에 duplicated가 있는지 확인하는 방식으로.
     * */
     @Operation(summary = "상품 등록", description = "상품 등록 Dto, 상품 대표 이미지, 상품 설명 이미지 , 상품 이미지를 매개변수로 받아온다.")
     @PostMapping(value = {"/admin/{productId}"})
@@ -59,11 +60,14 @@ public class ProductRestController {
             , @RequestPart(value = "DescriptionImgs", required = false) List<MultipartFile> desImgs
             , @RequestPart(value = "RepresentationImgs", required = false) List<MultipartFile> represenImgs
             /*, Model model */) {
-
+        // @SessionAttribute - 세션에서 가지고옴.
 
         //나중에 회원 테이블 구현이 끝나면 회원 조회.
 
-        //이거 여기다가 하는게 맞나.
+        //이거 여기다가 하는게 맞나.(readOnly)
+        //브랜드 아이디가 있는지 - 프론트에서 선택(직접 입력이 아닌)을 해서 전송이 된건데 확인을 하는게 맞은지?
+        //해당 브랜드 매니저가 브랜드 물품에 대해서 등록을 하는건데, 브랜드 확인을 하는게 맞는지?
+
         if (brandService.findById(productRegisterDto.getBrandId()) == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",productRegisterDto.getName() + " 불가(brand 없음)"));
 
