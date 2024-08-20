@@ -4,14 +4,15 @@ import com.fastcampus.toyproject2.brand.service.BrandService;
 import com.fastcampus.toyproject2.category.service.CategoryService;
 import com.fastcampus.toyproject2.product.dto.ProductRegisterDto;
 import com.fastcampus.toyproject2.product.dto.ProductUpdateDto;
+import com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto;
 import com.fastcampus.toyproject2.product.service.ProductService;
-import com.fastcampus.toyproject2.productDescription.service.ProductDescriptionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.fastcampus.toyproject2.util.FileService.getFileContent;
 
 
 @RestController
@@ -54,7 +56,7 @@ public class ProductRestController {
     *   Product_id를 입력할때 프론트에 검증 버튼 만들어서 DB에 duplicated가 있는지 확인하는 방식으로.
     * */
     @Operation(summary = "상품 등록", description = "상품 등록 Dto, 상품 대표 이미지, 상품 설명 이미지 , 상품 이미지를 매개변수로 받아온다.")
-    @PostMapping(value = {"/admin/{productId}"})
+    @PostMapping(value = {"/admin/{productId}"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> register(@Valid @RequestPart(value = "ProductRegisterDto") ProductRegisterDto productRegisterDto
             , @RequestPart(value = "RepImg", required = true) MultipartFile repImg
             , @RequestPart(value = "DescriptionImgs", required = false) List<MultipartFile> desImgs
@@ -133,7 +135,7 @@ public class ProductRestController {
 
 
     @Operation(summary="상품 삭제", description = "productId를 통한 상품 삭제")
-    @DeleteMapping(value = "/{productId}")
+    @DeleteMapping(value = "/admin/{productId}")
     public ResponseEntity<?> productdelete(@PathVariable("productId") String productId)  {
         try {
             productService.deleteProduct(productId);
@@ -151,17 +153,20 @@ public class ProductRestController {
 
 
     @Operation(summary = "상품 리스트", description ="상품 리스트 커서기반 불러오기 \n\n" +
-            "cursor(cursor), sortCode(정렬 기준), category(where절), keyword(where절), size 반환해 줘야 다음 게시물 가져다줌.")
+            "cursorProductId(cursor), sortCode(정렬 기준), category(where절), keyword(where절), size 반환해 줘야 다음 게시물 가져다줌.")
     @GetMapping(value ="/list")
-    public ResponseEntity<?> productCursorList(@RequestParam HashMap<String, Object> cursorMap) throws Exception {
+    public List<ProductCursorPageDto> productCursorList(@RequestParam HashMap<String, Object> cursorMap) throws Exception {
         //cursorMap.get("key")가 null 이면 mapper에서 정렬된 데이터의 맨 첫번째부터 데이터 가져옴.
         //GetMapping 은 RequestBody 사용 불가? - 사용가능 하다하는 곳도 있고 못하다 하는 곳도 있고...
         // http 에서 Get으로 body 전송이 안좋다는 얘기도...
 
-        List cursorList = productService.findCursorList(cursorMap);
+        List<ProductCursorPageDto> cursorList = productService.findCursorList(cursorMap);
+        for(ProductCursorPageDto productCursorPageDto : cursorList) {
+            productCursorPageDto.setRepImg(getFileContent(productCursorPageDto.getRepImg()));
+        }
 
         //List안에 내용이 null이면 더이상 안보여 주도록 프론트에서 설정하기.
-        return ResponseEntity.status(HttpStatus.OK).body(cursorList);
+        return cursorList;
     }
 
     /*

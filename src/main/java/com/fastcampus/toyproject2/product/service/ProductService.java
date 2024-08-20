@@ -1,5 +1,7 @@
 package com.fastcampus.toyproject2.product.service;
 
+import com.fastcampus.toyproject2.category.dao.CategoryDao;
+import com.fastcampus.toyproject2.category.dao.CategoryDaoMysql;
 import com.fastcampus.toyproject2.exception.exceptionDto.customExceptionClass.DuplicateProductDescriptionIdException;
 import com.fastcampus.toyproject2.exception.exceptionDto.customExceptionClass.DuplicateProductIdException;
 import com.fastcampus.toyproject2.product.dao.ProductDaoMysql;
@@ -17,6 +19,7 @@ import com.fastcampus.toyproject2.stock.dao.StockDaoMysql;
 import com.fastcampus.toyproject2.stock.dto.Stock;
 import com.fastcampus.toyproject2.util.FileService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
@@ -25,7 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.View;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 
@@ -42,6 +48,7 @@ public class ProductService {
     private final FileService fileService;
     private final View error;
     private final ProductDescriptionService productDescriptionService;
+    private final CategoryDaoMysql categoryDao;
 
     @Value("${productImgLocation}")
     private String imgLocation;
@@ -249,6 +256,8 @@ public class ProductService {
         List<ProductDescriptionImgDetailDto> desImgs = new ArrayList<>();
         List<ProductDescriptionImgDetailDto> repImgs = new ArrayList<>();
 
+        productDetailDto.setCategoryName(categoryDao.findById(productDetailDto.getCategoryId()));
+
 
 
         for(ProductDescriptionImgDetailDto imgs : imgList){
@@ -273,7 +282,9 @@ public class ProductService {
     * */
     @Transactional(readOnly = true)
     public List<ProductCursorPageDto> findCursorList(HashMap<String, Object> map) throws Exception {
+
         //Map으로 해서 들고오던지 Dto로 해서 들고오던지 하기.
+        map.put("size",Integer.parseInt(map.get("size").toString()));
 
         //나중에 하드코딩 지우기 -> DTO로 만들어서 DTO 내부에서 처리하든지.
         if(map.get("sortCode").equals("RANKING")) {
@@ -304,6 +315,11 @@ public class ProductService {
         return productDao.findPageList(pageMap);
     }
 
+
+    @Transactional(readOnly = true)
+    public List<ProductAdminList> findProductAdminList() throws Exception {
+        return productDao.findProductAdminList();
+    }
 
     /*
     *       상품 삭제
@@ -372,6 +388,8 @@ public class ProductService {
     }
 
 
+    }
 
 
-}
+
+

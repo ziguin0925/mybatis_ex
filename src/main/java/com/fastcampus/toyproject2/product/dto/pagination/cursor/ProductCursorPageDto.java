@@ -20,6 +20,4 @@ public class ProductCursorPageDto {
     private String brandId;
     private String brandName;
     private int salesQuantity;
-
-    private String cursor;
 }

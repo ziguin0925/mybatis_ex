@@ -8,6 +8,15 @@
         SELECT * FROM brand WHERE brand_id = #{brandId}
     </select>
 
+    <select id="findAll" resultType="com.fastcampus.toyproject2.brand.dto.BrandListDto">
+        SELECT brand_id
+        ,name
+        ,product_num
+        ,img
+        FROM brand
+
+    </select>
+
     <insert id="insertBrand" parameterType="com.fastcampus.toyproject2.brand.dto.BrandCreateDto">
         INSERT INTO brand (brand_id
                            , name

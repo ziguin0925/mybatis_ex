@@ -4,6 +4,7 @@ package com.fastcampus.toyproject2.brand.service;
 import com.fastcampus.toyproject2.brand.dao.BrandDaoMysql;
 import com.fastcampus.toyproject2.brand.dto.BrandCreateDto;
 import com.fastcampus.toyproject2.brand.dto.BrandDto;
+import com.fastcampus.toyproject2.brand.dto.BrandListDto;
 import com.fastcampus.toyproject2.brand.dto.BrandUpdateDto;
 import com.fastcampus.toyproject2.product.dao.ProductDaoMysql;
 import com.fastcampus.toyproject2.product.dto.ProductPageDto;
@@ -25,6 +26,12 @@ public class BrandService {
     private final BrandDaoMysql brandDao;
     private final FileService fileService;
     private final ProductDaoMysql productDao;
+
+
+    @Transactional(readOnly = true)
+    public List<BrandListDto> findAll() {
+        return brandDao.findAll();
+    }
 
     @Transactional(readOnly = true)
     public BrandDto findById(String id) {

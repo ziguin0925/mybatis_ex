@@ -2,6 +2,7 @@ package com.fastcampus.toyproject2.product.dto;
 
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgDetailDto;
+import com.fastcampus.toyproject2.stock.dto.Stock;
 import lombok.*;
 
 import java.util.List;
@@ -26,6 +27,8 @@ public class ProductDetailDto {
     private String categoryId;
     private String categoryName;
     private String productStatus;
+
+    private  List<Stock>  stockList;
 
     private List<String> parentCategoryIds;
     private List<String> parentCategoryNames;

@@ -1,9 +1,6 @@
 package com.fastcampus.toyproject2.product.dao;
 
-import com.fastcampus.toyproject2.product.dto.Product;
-import com.fastcampus.toyproject2.product.dto.ProductDetailDto;
-import com.fastcampus.toyproject2.product.dto.ProductPageDto;
-import com.fastcampus.toyproject2.product.dto.ProductUpdateDto;
+import com.fastcampus.toyproject2.product.dto.*;
 import com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -21,6 +18,8 @@ public interface ProductDao{
     String findNameById(@Param("productId") String productId)throws Exception;
 
     ProductDetailDto findProductDetailById(@Param("productId") String productId) throws Exception;
+
+    List<ProductAdminList> findProductAdminList() throws Exception;
 
     List<ProductCursorPageDto> findCursorList(HashMap<String, Object> map) throws Exception;
     List<ProductCursorPageDto> findCursorPageListOrderByRank(HashMap<String, Object> map) throws Exception;

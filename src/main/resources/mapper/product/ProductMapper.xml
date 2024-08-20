@@ -25,6 +25,16 @@
         SELECT name FROM product WHERE product_id = #{productId}
     </select>
 
+    <select id="findProductAdminList" resultType="com.fastcampus.toyproject2.product.dto.ProductAdminList">
+        SELECT product_id
+        , name
+        , product_status
+        , rep_img
+        , create_datetime
+            FROM product
+
+    </select>
+
 
     <select id="findProductDetailDtoById" parameterType="String" resultType="com.fastcampus.toyproject2.product.dto.ProductDetailDto">
         SELECT

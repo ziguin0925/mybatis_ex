@@ -1,9 +1,6 @@
 package com.fastcampus.toyproject2.product.dao;
 
-import com.fastcampus.toyproject2.product.dto.Product;
-import com.fastcampus.toyproject2.product.dto.ProductDetailDto;
-import com.fastcampus.toyproject2.product.dto.ProductPageDto;
-import com.fastcampus.toyproject2.product.dto.ProductUpdateDto;
+import com.fastcampus.toyproject2.product.dto.*;
 import com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.session.SqlSession;
@@ -43,6 +40,11 @@ public class ProductDaoMysql implements ProductDao {
     @Override
     public ProductDetailDto findProductDetailById(String productId) throws Exception {
         return sqlSession.selectOne(namespace + "findProductDetailDtoById", productId);
+    }
+
+    @Override
+    public List<ProductAdminList> findProductAdminList() throws Exception {
+        return sqlSession.selectList(namespace + "findProductAdminList");
     }
 
     @Override

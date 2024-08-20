@@ -1,6 +1,8 @@
 package com.fastcampus.toyproject2.brand.controller;
 
 
+import com.fastcampus.toyproject2.brand.dto.BrandListDto;
+import com.fastcampus.toyproject2.brand.service.BrandService;
 import com.fastcampus.toyproject2.product.dto.pagination.PageInfo;
 import com.fastcampus.toyproject2.product.dto.pagination.ProductRequestPageDto;
 import com.fastcampus.toyproject2.product.service.ProductService;
@@ -11,12 +13,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/brand")
 @RequiredArgsConstructor
 public class BrandController {
 
     private final ProductService productService;
+
+    private final BrandService brandService;
+
+    @GetMapping(value ={ "/main"})
+    public String brand(Model model) {
+
+        List<BrandListDto> brandList = brandService.findAll();
+            model.addAttribute("brands", brandList);
+        return "brand/brandMain";
+    }
 
 
     /*

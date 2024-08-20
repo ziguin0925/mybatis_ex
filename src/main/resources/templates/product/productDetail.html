@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/mainLayout}">
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        .product-images img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        .product-images .main-img {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+        }
+        .product-images .additional-img {
+            margin-top: 15px;
+        }
+        .product-details {
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .badge {
+            margin-right: 10px;
+        }
+        .price {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .quantity {
+            margin-top: 15px;
+        }
+        .total-price {
+            margin-top: 20px;
+            font-size: 1.75em;
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .buttons button {
+            margin-right: 10px;
+        }
+        .description {
+            margin-top: 30px;
+        }
+        .description img {
+            margin-top: 15px;
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+<div class="container">
+    <div class="product-images">
+        <img id="mainImage" class="main-img" th:src="@{${productDetail.repImg}}" th:alt="${productDetail.getName()}">
+        <div th:each="itemImg : ${productDetail.productImages}" class="additional-img">
+            <img th:src="@{${itemImg.path}}" class="rounded" width="800">
+        </div>
+    </div>
+
+    <div class="product-details">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h3" th:text="${productDetail.getName()}"></h1>
+            <a><p th:text="${productDetail.getBrandName()}"></p></a><br>
+            <a><p th:text="${productDetail.getCategoryName()}"></p></a>
+            <span th:if="${productDetail.getProductStatus().toString().equals('SELL')}" class="badge badge-success">
+                    판매중
+                </span>
+            <span th:unless="${productDetail.getProductStatus().toString().equals('SELL')}" class="badge badge-danger">
+                    품절
+                </span>
+        </div>
+        <hr>
+        <div class="price" id="price" th:text="${productDetail.getPrice()}"></div>
+        <div class="quantity mt-3">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">수량</span>
+                </div>
+                <input type="number" class="form-control" name="count" id="count" value="1" min="1">
+            </div>
+        </div>
+        <div class="total-price mt-3" id="totalPrice"></div>
+        <div class="buttons mt-3">
+            <button type="button" class="btn btn-primary" th:if="${productDetail.getProductStatus().toString().equals('SELL')}" onclick="addCart()">장바구니 담기</button>
+            <button type="button" class="btn btn-success" th:if="${productDetail.getProductStatus().toString().equals('SELL')}" onclick="order()">주문하기</button>
+            <button type="button" class="btn btn-secondary" th:unless="${productDetail.getProductStatus().toString().equals('SELL')}">품절</button>
+            <p th:text="|별점 = ${productDetail.getStarRating()}|/10"></p>
+        </div>
+    </div>
+
+    <div class="description">
+        <p th:text="|등록자 =${productDetail.getRegisterManager()}|"></p>
+        <p th:text="|후기 수 =${productDetail.getReviewCount()}|"></p>
+        <p th:text="|좋아요 수 =${productDetail.getLikeCount()}|"></p>
+        <p th:text="|조회 수 =${productDetail.getViewCount()}|"></p>
+        <h4>상품 상세 설명</h4>
+        <p th:text="${productDetail.productDescription.getDescription()}"></p>
+        <div th:each="itemImg : ${productDetail.descriptionImages}">
+            <img th:src="@{${itemImg.path}}" class="rounded">
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const priceElement = document.getElementById('price');
+        const countElement = document.getElementById('count');
+        const totalPriceElement = document.getElementById('totalPrice');
+
+        function updateTotalPrice() {
+            const price = parseFloat(priceElement.innerText.replace(/[^0-9.-]+/g, ""));
+            const count = parseInt(countElement.value, 10);
+            const totalPrice = price * count;
+            totalPriceElement.innerText = `₩${totalPrice.toLocaleString()}`;
+        }
+
+        countElement.addEventListener('input', updateTotalPrice);
+        updateTotalPrice();
+    });
+
+    function addCart() {
+        alert('장바구니에 추가되었습니다.');
+    }
+
+    function order() {
+        alert('주문이 완료되었습니다.');
+    }
+</script>
+    </div>
+</body>
+</html>

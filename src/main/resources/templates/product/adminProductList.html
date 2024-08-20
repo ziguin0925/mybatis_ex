@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/mainLayout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상품 목록</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .container {
+            margin-top: 30px;
+        }
+        .product-item {
+            margin-bottom: 15px;
+        }
+        .product-item img {
+            max-width: 100px;
+            border-radius: 8px;
+        }
+        .product-item .btn {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+<div class="container">
+    <h1 class="mb-4">상품 목록</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>이미지</th>
+            <th>상품 이름</th>
+            <th>생성 날짜</th>
+            <th>상태</th>
+            <th>작업</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="product : ${products}">
+            <td>
+                <img th:src="@{${product.repImg}}" alt="상품 이미지">
+            </td>
+            <td th:text="${product.name}"></td>
+            <td th:text="${product.createDatetime}"></td>
+            <td th:text="${product.productStatus}"></td>
+            <td>
+                <a th:href="@{/products/edit/{id}(id=${product.productId})}" class="btn btn-warning btn-sm">수정</a>
+                <button class="btn btn-danger btn-sm" th:onclick="deleteProduct([[${product.productId}]]);" type="button">삭제</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+    <script  th:inline="javascript">
+        function deleteProduct(productId) {
+            if (confirm("정말로 이 상품을 삭제하시겠습니까?")) {
+                $.ajax({
+                    url: '/product/admin/' + productId,
+                    type: 'DELETE',
+                    success: function(response) {
+                        // 삭제 성공 시 상품을 삭제한 행을 테이블에서 제거
+                        $('tr').has('button[onclick="deleteProduct(' + productId + ')"]').remove();
+                        alert('상품이 삭제되었습니다.');
+                        document.location.reload();
+                    },
+                    error: function(xhr, status, error) {
+                        alert('상품 삭제에 실패했습니다.');
+                        console.error('Error:', status, error);
+                    }
+                });
+            }
+        }
+    </script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js">
+
+    function deleteProduct(productId) {
+        if (confirm("정말로 이 상품을 삭제하시겠습니까?")) {
+            $.ajax({
+                url: '/products/admin/' + productId,
+                type: 'DELETE',
+                success: function(response) {
+                    // 삭제 성공 시 상품을 삭제한 행을 테이블에서 제거
+                    $('tr').has('button[onclick="deleteProduct(' + productId + ')"]').remove();
+                    alert('상품이 삭제되었습니다.');
+                },
+                error: function(xhr, status, error) {
+                    alert('상품 삭제에 실패했습니다.');
+                    console.error('Error:', status, error);
+                }
+            });
+        }
+    }
+
+
+
+</script>
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>-->
+</div>
+</body>
+</html>

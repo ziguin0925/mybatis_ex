@@ -2,11 +2,14 @@ package com.fastcampus.toyproject2.brand.dao;
 
 import com.fastcampus.toyproject2.brand.dto.BrandCreateDto;
 import com.fastcampus.toyproject2.brand.dto.BrandDto;
+import com.fastcampus.toyproject2.brand.dto.BrandListDto;
 import com.fastcampus.toyproject2.brand.dto.BrandUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Repository
@@ -25,6 +28,11 @@ public class BrandDaoMysql implements BrandDao{
     @Override
     public BrandDto findById(String brandId) {
         return sqlSession.selectOne(namespace+"findById", brandId);
+    }
+
+    @Override
+    public List<BrandListDto> findAll() {
+        return sqlSession.selectList(namespace+"findAll");
     }
 
     @Override

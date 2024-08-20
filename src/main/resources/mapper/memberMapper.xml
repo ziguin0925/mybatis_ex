@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fastcampus.toyproject2.member.dao.MemberDao">
+    <!-- 회원정보 테이블의 전체 데이터 갯수 세기 -->
+    <select id="count" resultType="int">
+        SELECT count(*) FROM member_info
+    </select>
+
+    <!-- 회원 정보 테이블의 전체 데이터 삭제 -->
+    <delete id="deleteAll">
+        delete from member_info
+    </delete>
+
+    <!-- 회원 id로 회원 정보 삭제 -->
+    <delete id="deleteByMemberID" parameterType="map">
+        delete from member_info where id = #{id}
+    </delete>
+
+    <!-- 회원 가입 - 데이터 생성 -->
+    <insert id="insertMemberAllInfo" parameterType="com.fastcampus.toyproject2.member.dto.MemberDto">
+        insert into member_info
+            (member_state_code, id, password, name, birth, sex, phone_number, email,
+             register_datetime, recommand_id, is_admin)
+        values
+            (#{member_state_code}, #{id}, #{password}, #{name}, STR_TO_DATE(#{birth}, '%Y-%m-%d'), #{sex}, #{phone_number}, #{email},
+             STR_TO_DATE(now(), '%Y-%m-%d %H:%i:%s'), #{recommand_id}, #{is_admin})
+    </insert>
+
+    <!-- 모든 회원 정보 가져오기 - 관리자 모드 -->
+    <select id="selectAllMemberByMemberId" resultType="com.fastcampus.toyproject2.member.dto.MemberDto">
+        select member_number, member_state_code, id, name, birth, sex, phone_number, email,
+               login_datetime, modify_datetime, register_datetime, exit_datetime, recommand_id, is_admin, note
+        from member_info
+        where is_admin = #{is_admin}
+        order by member_number ASC
+    </select>
+
+    <!-- 가입하려는 id 중복 검사 -->
+    <select id="countID" parameterType="string" resultType="int">
+        SELECT count(*)
+        FROM member_info
+        where id = #{id}
+          AND NOT member_state_code = '40004'
+    </select>
+
+    <!-- 가입하려는 email 중복 검사 -->
+    <select id="countEmail" parameterType="string" resultType="int">
+        SELECT count(*)
+        FROM member_info
+        where email = #{email}
+          AND NOT member_state_code = '40004'
+    </select>
+
+    <!-- 회원 id로 회원 정보 조회 -->
+    <select id="selectMemberByMemberId" parameterType="string" resultType="com.fastcampus.toyproject2.member.dto.MemberDto">
+        select member_number, member_state_code, id, password,name, birth, sex, phone_number, email,
+               DATE_FORMAT(login_datetime, '%Y-%m-%d %H:%i:%s'),
+               DATE_FORMAT(modify_datetime, '%Y-%m-%d %H:%i:%s'),
+               DATE_FORMAT(register_datetime, '%Y-%m-%d %H:%i:%s'),
+               DATE_FORMAT(exit_datetime, '%Y-%m-%d %H:%i:%s'),
+               recommand_id, login_count, is_admin, note
+        from member_info
+        where id = #{id}
+          AND NOT member_state_code = '40004'
+    </select>
+
+    <!-- 회원 id, password로 회원 정보 조회 - 로그인 -->
+    <select id="selectMemberByMemberIdPassword" parameterType="string" resultType="com.fastcampus.toyproject2.member.dto.MemberDto">
+        select member_number, member_state_code,
+               id, password,
+               name, birth, sex,
+               phone_number, email,
+               login_datetime,
+               modify_datetime,
+               register_datetime,
+               exit_datetime,
+               recommand_id,
+               login_count,
+               is_admin,
+               note
+        from member_info
+        where id = #{id}
+          AND password = #{password}
+          AND NOT member_state_code = '40004'
+    </select>
+
+    <!-- 회원 id로 회원 전체 정보 수정 -->
+    <update id="updateMemberInfoByMemberId" parameterType="com.fastcampus.toyproject2.member.dto.MemberDto">
+        UPDATE member_info
+        SET member_number = #{member_number}, member_state_code = #{member_state_code},
+            id = #{id}, password = #{password},
+            name = #{name}, birth = #{birth}, sex = #{sex},
+            phone_number = #{phone_number}, email = #{email},
+            login_datetime = #{login_datetime},
+            modify_datetime = STR_TO_DATE(now(), '%Y-%m-%d %H:%i:%s'),
+            register_datetime = #{register_datetime},
+            exit_datetime = #{exit_datetime},
+            recommand_id = #{recommand_id},
+            login_count = #login_count,
+            is_admin = #{is_admin},
+            note = #{note}
+        WHERE member_number = #{member_number}
+          AND id = #{id}
+          AND NOT member_state_code = '40004'
+    </update>
+
+    <!-- 회원 id로 관리자 수정 -->
+    <update id="updateIsAdminByMemberId" parameterType="string">
+        UPDATE member_info
+        SET is_admin = #{is_admin}
+        WHERE id = #{id}
+    </update>
+
+
+</mapper>

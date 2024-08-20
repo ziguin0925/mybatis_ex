@@ -2,6 +2,7 @@ package com.fastcampus.toyproject2.util;
 
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImg;
 import lombok.extern.java.Log;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,10 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class FileService {
@@ -48,7 +46,7 @@ public class FileService {
         file.getOriginalFilename();
         UUID uuid = UUID.randomUUID();
         String extension = checkExtention(Objects.requireNonNull(file.getContentType()));
-        String fileCode = uuid + extension;
+        String fileCode = uuid+ extension;
         String fileUploadFullUrl = uploadPath +"/"+ fileCode;
         FileOutputStream fos = new FileOutputStream(fileUploadFullUrl);
         fos.write(file.getBytes());
@@ -58,7 +56,7 @@ public class FileService {
 
     public String uploadRepImg(MultipartFile productRepImg) throws IOException {
 
-        return uploadFile(imgRepLocation, productRepImg);
+        return "/images/rep/"+uploadFile(imgRepLocation, productRepImg);
 
 
     }
@@ -91,7 +89,7 @@ public class FileService {
                     = ProductDescriptionImg.builder()
                     .productDescriptionId(productDescriptionId)
                     .name(filename)
-                    .path(imgLocation+fileCode)
+                    .path("/images/"+fileCode)
                     .orderNum(i++)
                     .size(file.getSize())
                     .kindOf(ProductDescriptionImg.DESCRIPTION)
@@ -113,7 +111,7 @@ public class FileService {
                     = ProductDescriptionImg.builder()
                     .productDescriptionId(productDescriptionId)
                     .name(filename)
-                    .path(imgLocation+fileCode)
+                    .path("/images/"+fileCode)
                     .orderNum(i++)
                     .size(file.getSize())
                     .kindOf(ProductDescriptionImg.REPRESENTATION)
@@ -127,5 +125,29 @@ public class FileService {
     }
 
 
+    public static byte[] convertFileContentToBlob (String filePath) {
 
+        byte[] result = null;
+        System.out.println(filePath);
+        try {
+            result = FileUtils.readFileToByteArray( new File(filePath));
+        } catch (IOException ie) {
+            System.out.println("file convert Error");
+        }
+
+        return result;
+    }
+
+    public static String convertBlobToBase64 (byte[] blob) {
+        return new String(Base64.getEncoder().encode(blob));
+    }
+
+    public static String getFileContent (String filePath) {
+        byte[] filebyte = convertFileContentToBlob("C:/Users/user/Desktop/git5/toyproject2_5/src/main/resources/static"+filePath);
+        if(filebyte == null){
+            return filePath;
+        }
+        return convertBlobToBase64(filebyte);
+
+    }
 }
