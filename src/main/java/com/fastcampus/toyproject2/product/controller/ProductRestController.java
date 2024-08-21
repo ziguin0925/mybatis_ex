@@ -180,9 +180,8 @@ public class ProductRestController {
     /*
     * aws s3 presigned url 받아오는 api
     * */
-    @PostMapping("presigned-url")
+    @GetMapping("presigned-url")
     public ResponseEntity<?> presignedUrl(@RequestParam String imageName) {
-
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",imageName));
     }
@@ -209,21 +208,35 @@ public class ProductRestController {
     * */
 
 
-
+//-------------------------------------------------------------------------------------------------------------------------
     /*
      * s3 연습
      *
      *
      * */
     @GetMapping("/getImage")
-    public ResponseEntity getMember() {
+    public ResponseEntity<?> getimage() {
 
         //getURL(S3에 저장되어있는 fileName);
 
-        String urltext = s3FileService.getFile("1234");
+        String urltext = s3FileService.getFile("images/9fc116ab-adbc-4bd5-8f0b-a7c3a4181aab스크린샷 2024-08-20 004053.png");
 
         return new ResponseEntity<>(urltext, HttpStatus.OK);
     }
+
+
+    //presinged url 가져오기.
+    @GetMapping("geturl")
+    public ResponseEntity<?> geturl(@RequestParam("imageName") String imageName) {
+
+        System.out.println(imageName);
+
+
+        return new ResponseEntity<>(s3FileService.getPreSignedUrl("images", imageName), HttpStatus.OK);
+    }
+
+
+
 
 
 }

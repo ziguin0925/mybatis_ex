@@ -38,6 +38,6 @@ public class ProductRequestPageDto {
 
     public ProductRequestPageDto() {
         this.pageNum = 1;
-        this.countPerPage = 10;
+        this.countPerPage = 9;
     }
 }

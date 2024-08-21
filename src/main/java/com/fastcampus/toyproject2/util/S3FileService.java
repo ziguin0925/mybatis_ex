@@ -1,11 +1,12 @@
 package com.fastcampus.toyproject2.util;
 
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.Headers;
+import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
 import com.fastcampus.toyproject2.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Component
@@ -144,7 +142,79 @@ public class S3FileService {
 
     public String getFile(String fileName){
         //getUrl(버킷 이름, 파일 이름(+확장자)
-        URL url = amazonS3.getUrl(bucketName,"1234.jpg");
+        URL url = amazonS3.getUrl(bucketName,fileName);
         return url.toString();
     }
+
+//-------------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * presigned url 발급
+     * param : prefix 버킷안에 디렉터리 경로
+     * param : fileName 클라이언트가 전달한 파일명 파라미터
+     * return : presigned url
+     */
+    public String getPreSignedUrl(String prefix, String fileName) {
+        if(prefix != null) {
+            fileName = createPath(prefix, fileName);
+        }else{
+            fileName = createFileId()+fileName;
+        }
+
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePreSignedUrlRequest(bucketName, fileName);
+        URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+        System.out.println("url = " + url);
+        
+        return URLDecoder.decode(url.toString(), StandardCharsets.UTF_8);
+        
+    }
+
+    /**
+     * 파일 업로드용(PUT) presigned url 생성
+     * @param bucket 버킷 이름
+     * @param fileName S3 업로드용 파일 이름
+     * @return presigned url
+     */
+    private GeneratePresignedUrlRequest getGeneratePreSignedUrlRequest(String bucket, String fileName) {
+
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, fileName)
+                                                                        .withMethod(HttpMethod.PUT)
+                                                                        .withExpiration(getPreSignedUrlExpiration());
+
+        generatePresignedUrlRequest.addRequestParameter(
+                Headers.S3_CANNED_ACL,
+                CannedAccessControlList.PublicRead.toString());
+        return generatePresignedUrlRequest;
+    }
+
+    /**
+     * presigned url 유효 기간 설정
+     * return : 유효기간
+     */
+    private Date getPreSignedUrlExpiration() {
+        Date expiration = new Date();
+        long expTimeMillis = expiration.getTime(); // 현재 시간
+        expTimeMillis += 1000 * 60 * 2; //2분  (1000 * 60 = 1분)
+        expiration.setTime(expTimeMillis); //현재 시간 + 2분 까지 유효
+        return expiration;
+    }
+
+    /**
+     * 파일 고유 ID를 생성
+     * return : 36자리의 UUID
+     */
+    private String createFileId() {
+        return UUID.randomUUID().toString();
+    }
+
+    /**
+     * 파일의 전체 경로를 생성
+     * param : prefix 디렉토리 경로
+     * return : 파일의 전체 경로
+     */
+    private String createPath(String prefix, String fileName) {
+        String fileId = createFileId();
+        return String.format("%s/%s", prefix, fileId + fileName);
+    }
+
+
 }
