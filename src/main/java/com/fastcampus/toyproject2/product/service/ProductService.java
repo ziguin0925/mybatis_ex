@@ -2,6 +2,7 @@ package com.fastcampus.toyproject2.product.service;
 
 import com.fastcampus.toyproject2.category.dao.CategoryDao;
 import com.fastcampus.toyproject2.category.dao.CategoryDaoMysql;
+import com.fastcampus.toyproject2.category.dto.CategoryHierarchyDto;
 import com.fastcampus.toyproject2.exception.exceptionDto.customExceptionClass.DuplicateProductDescriptionIdException;
 import com.fastcampus.toyproject2.exception.exceptionDto.customExceptionClass.DuplicateProductIdException;
 import com.fastcampus.toyproject2.product.dao.ProductDaoMysql;
@@ -11,7 +12,6 @@ import com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPag
 import com.fastcampus.toyproject2.productDescription.dao.ProductDescriptionDaoMysql;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
-import com.fastcampus.toyproject2.productDescription.service.ProductDescriptionService;
 import com.fastcampus.toyproject2.productDescriptionImg.dao.ProductDescriptionImgDaoMysql;
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImg;
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgDetailDto;
@@ -19,19 +19,13 @@ import com.fastcampus.toyproject2.stock.dao.StockDaoMysql;
 import com.fastcampus.toyproject2.stock.dto.Stock;
 import com.fastcampus.toyproject2.util.FileService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.javassist.NotFoundException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.View;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 
@@ -46,15 +40,8 @@ public class ProductService {
     private final ProductDescriptionImgDaoMysql productDescriptionImgDao;
 
     private final FileService fileService;
-    private final View error;
-    private final ProductDescriptionService productDescriptionService;
     private final CategoryDaoMysql categoryDao;
 
-    @Value("${productImgLocation}")
-    private String imgLocation;
-
-    @Value(("${productRepImgLocation}"))
-    private String imgRepLocation;
 
 
 
@@ -242,32 +229,44 @@ public class ProductService {
         try {
             productDetailDto = productDao.findProductDetailById(productId);
         }catch (Exception e ){
+            //여기 처리
             System.out.println(e.getMessage());
         }
         if(productDetailDto==null){
             throw new NotFoundException("해당 품목을 찾을 수 없습니다.");
         }
 
-
+        //상품 설명 찾기.
         ProductDescriptionDto productDescriptionDto= productDescriptionDao.findByProductId(productId);
         productDetailDto.setProductDescription(productDescriptionDto);
+
+        //상품 설명ID 로 상품 설명 이미지, 상품 이미지 찾기.
         List<ProductDescriptionImgDetailDto> imgList = productDescriptionImgDao.findAllByProductDescriptionId(productDescriptionDto.getProductDescriptionId());
 
         List<ProductDescriptionImgDetailDto> desImgs = new ArrayList<>();
         List<ProductDescriptionImgDetailDto> repImgs = new ArrayList<>();
 
-        productDetailDto.setCategoryName(categoryDao.findById(productDetailDto.getCategoryId()));
-
-
-
+        //상품 이미지와 상품 설명 이미지 분류.
         for(ProductDescriptionImgDetailDto imgs : imgList){
             if(imgs.getKindOf().equals(ProductDescriptionImg.DESCRIPTION))
                 desImgs.add(imgs);
             else repImgs.add(imgs);
 
         }
+
+        //상품 이미지 Dto에 추가.
         productDetailDto.setDescriptionImages(desImgs);
         productDetailDto.setProductImages(repImgs);
+
+
+
+        //해당 상품의 카테고리 Id 찾기. -> 상품에 아예 카테고리 이름도 넣어버릴까?
+        List<CategoryHierarchyDto> categoryHierarchyDtos = categoryDao.findUpperCategoryHierarchyById(productDetailDto.getCategoryId());
+        productDetailDto.setParentCategorys(categoryHierarchyDtos);
+
+
+
+
 
         return productDetailDto;
     }

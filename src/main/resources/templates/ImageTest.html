@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/mainLayout}">
+
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div layout:fragment="content">
+    <button id="testbt" type="button">불러오기</button>
+
+    <div id="test"></div>
+
+    <script th:inline="javascript">
+        function order() {
+            console.log("asdf");
+            $.ajax({
+                url: '/product/getImage',
+                type: 'GET',
+                processData: true,
+                contentType: "application/x-www-form-urlencoded;",
+                success: function (response) {
+                    console.log('Received response:', response); // 디버깅 정보
+
+                    document.getElementById('test').insertAdjacentHTML('beforeend',
+                        '<img src="' + response + '">');
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    document.getElementById('test').textContent = '데이터 로드에 실패했습니다.';
+                }
+            });
+        }
+
+        document.getElementById("testbt").addEventListener("click", order);
+    </script>
+</div>
+</body>
+</html>

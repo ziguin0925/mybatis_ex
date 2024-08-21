@@ -97,10 +97,20 @@ public class ProductController {
         return "product/adminProductList";
     }
 
+    @GetMapping("imagetest")
+    public String S3ImageTest(){
+        return "ImageTest";
+    }
+
+
+
+
+
     /*
     *  상품 수정 페이지
     *
     * */
+
 
 
 

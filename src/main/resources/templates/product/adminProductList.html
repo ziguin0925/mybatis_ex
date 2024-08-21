@@ -73,29 +73,6 @@
             }
         }
     </script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js">
-
-    function deleteProduct(productId) {
-        if (confirm("정말로 이 상품을 삭제하시겠습니까?")) {
-            $.ajax({
-                url: '/products/admin/' + productId,
-                type: 'DELETE',
-                success: function(response) {
-                    // 삭제 성공 시 상품을 삭제한 행을 테이블에서 제거
-                    $('tr').has('button[onclick="deleteProduct(' + productId + ')"]').remove();
-                    alert('상품이 삭제되었습니다.');
-                },
-                error: function(xhr, status, error) {
-                    alert('상품 삭제에 실패했습니다.');
-                    console.error('Error:', status, error);
-                }
-            });
-        }
-    }
-
-
-
-</script>
 <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>-->
 </div>
 </body>

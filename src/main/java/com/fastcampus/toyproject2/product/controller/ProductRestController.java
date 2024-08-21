@@ -1,11 +1,14 @@
 package com.fastcampus.toyproject2.product.controller;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.fastcampus.toyproject2.brand.service.BrandService;
 import com.fastcampus.toyproject2.category.service.CategoryService;
 import com.fastcampus.toyproject2.product.dto.ProductRegisterDto;
 import com.fastcampus.toyproject2.product.dto.ProductUpdateDto;
 import com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto;
 import com.fastcampus.toyproject2.product.service.ProductService;
+import com.fastcampus.toyproject2.util.FileService;
+import com.fastcampus.toyproject2.util.S3FileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -18,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +38,11 @@ public class ProductRestController {
 
     private final BrandService brandService;
 
+    private final S3FileService s3FileService;
+
+
     private final CategoryService categoryService;
+    private final FileService fileService;
 
 
     @ExceptionHandler(AssertionError.class)
@@ -170,6 +178,19 @@ public class ProductRestController {
     }
 
     /*
+    * aws s3 presigned url 받아오는 api
+    * */
+    @PostMapping("presigned-url")
+    public ResponseEntity<?> presignedUrl(@RequestParam String imageName) {
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",imageName));
+    }
+
+
+
+
+    /*
     *       상품 좋아요.
     *       회원 테이블과 찜 테이블 조인 해서 회원이 자신이 누른 좋아요 찾을 수 있게
     *       찜 누르면 찜 테이블에 찜 갯수 +1
@@ -186,6 +207,23 @@ public class ProductRestController {
     *       후기 작성하면 상품의 테이블에 있는 후기 카운트 +1
     *       + 상품의 별점 평균 내기.
     * */
+
+
+
+    /*
+     * s3 연습
+     *
+     *
+     * */
+    @GetMapping("/getImage")
+    public ResponseEntity getMember() {
+
+        //getURL(S3에 저장되어있는 fileName);
+
+        String urltext = s3FileService.getFile("1234");
+
+        return new ResponseEntity<>(urltext, HttpStatus.OK);
+    }
 
 
 }

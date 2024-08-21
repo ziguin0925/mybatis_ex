@@ -1,5 +1,6 @@
 package com.fastcampus.toyproject2.product.dto;
 
+import com.fastcampus.toyproject2.category.dto.CategoryHierarchyDto;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgDetailDto;
 import com.fastcampus.toyproject2.stock.dto.Stock;
@@ -25,13 +26,12 @@ public class ProductDetailDto {
     private ProductDescriptionDto productDescription;
     private String repImg;
     private String categoryId;
-    private String categoryName;
+    //자신의 카테고리 이름은 parentCategorys에 포함 되어 있음.
     private String productStatus;
 
     private  List<Stock>  stockList;
 
-    private List<String> parentCategoryIds;
-    private List<String> parentCategoryNames;
+    private List<CategoryHierarchyDto> parentCategorys;
     //    private String productStatus;
     private int salesQuantity;
 
