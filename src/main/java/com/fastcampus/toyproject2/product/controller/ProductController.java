@@ -82,6 +82,17 @@ public class ProductController {
 
         return "product/register";
     }
+    @GetMapping("/admin/register/test")
+    public String adminRegisterPageTest(Model model) {
+        //카테고리 가져오기.
+        //카테고리를 선택할 건데 - 화면에 어떻게 뿌려줄건지.
+
+        //상세 설명 가져오기. - 상세설명에 브랜드도 있어야 할까 - 어떤 상품에 어떤 상세 설명이 쓰였는지?, 어떤 카테고리에 어떤 상세 설명이 쓰였는지?
+
+
+        return "test/register";
+    }
+
 
 
     /*
@@ -99,7 +110,7 @@ public class ProductController {
 
     @GetMapping("imagetest")
     public String S3ImageTest(){
-        return "ImageTest";
+        return "test/ImageTest";
     }
 
 

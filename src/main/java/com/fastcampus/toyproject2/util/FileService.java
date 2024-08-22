@@ -1,6 +1,8 @@
 package com.fastcampus.toyproject2.util;
 
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImg;
+import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgDetailDto;
+import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgRegisterDto;
 import lombok.extern.java.Log;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,11 +17,16 @@ import java.util.*;
 @Service
 public class FileService {
 
+    private final S3FileService s3FileService;
     @Value("${productImgLocation}")
     private String imgLocation;
 
     @Value(("${productRepImgLocation}"))
     private String imgRepLocation;
+
+    public FileService(S3FileService s3FileService) {
+        this.s3FileService = s3FileService;
+    }
 
     public String checkExtention(String extention) {
 

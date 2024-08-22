@@ -5,8 +5,11 @@ import com.fastcampus.toyproject2.brand.service.BrandService;
 import com.fastcampus.toyproject2.category.service.CategoryService;
 import com.fastcampus.toyproject2.product.dto.ProductRegisterDto;
 import com.fastcampus.toyproject2.product.dto.ProductUpdateDto;
+import com.fastcampus.toyproject2.product.dto.RegisterTestDto;
 import com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto;
 import com.fastcampus.toyproject2.product.service.ProductService;
+import com.fastcampus.toyproject2.productDescriptionImg.dto.ImagePathDto;
+import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgRegisterDto;
 import com.fastcampus.toyproject2.util.FileService;
 import com.fastcampus.toyproject2.util.S3FileService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -206,6 +211,70 @@ public class ProductRestController {
      *
      *
      * */
+
+
+    @PostMapping(value = {"/admin/test/{productId}"}, consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> presignedUrlRegister(@Valid @RequestBody RegisterTestDto productRegisterDto
+            /*, Model model */) {
+        // @SessionAttribute - 세션에서 가지고옴.
+
+        //나중에 회원 테이블 구현이 끝나면 회원 조회.
+
+        //이거 여기다가 하는게 맞나.(readOnly)
+        //브랜드 아이디가 있는지 - 프론트에서 선택(직접 입력이 아닌)을 해서 전송이 된건데 확인을 하는게 맞은지?
+        //해당 브랜드 매니저가 브랜드 물품에 대해서 등록을 하는건데, 브랜드 확인을 하는게 맞는지?
+
+        if (brandService.findById(productRegisterDto.getBrandId()) == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",productRegisterDto.getName() + " 불가(brand 없음)"));
+
+        }
+
+        if (categoryService.findById(productRegisterDto.getCategoryId()) == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",productRegisterDto.getName() + " 불가(카테고리 없음)"));
+        }
+
+
+        ImagePathDto product;
+
+
+        //사진 저장했는데 브랜드나 카테고리를 제대로 안받아 온거면 안됨, 맨 마지막.
+        //product_description_id 가 있는지 확인 - 없으면 product_description과 product_description_img 둘다 생성해야함.
+
+
+        /*
+                상세 설명 만들기.
+                변수를 한번에 담기.
+                이미지 저장, 상품 저장, 재고 저장, 상세 설명 저장.
+                repImg, desImgs, represenImgs 세개가 모두 null 이 아니어야함.
+
+            */
+        ProductRegisterDto productRegisterDto1 = ProductRegisterDto.builder().productId(productRegisterDto.getProductId())
+                                    .repImg(productRegisterDto.getRepImg())
+                                    .name(productRegisterDto.getName())
+                                    .brandId(productRegisterDto.getBrandId())
+                                    .productDescriptionDto(productRegisterDto.getProductDescriptionDto())
+                                    .categoryId(productRegisterDto.getCategoryId())
+                                    .price(productRegisterDto.getPrice())
+                                    .managerName(productRegisterDto.getManagerName())
+                                    .size(productRegisterDto.getSize())
+                                    .color(productRegisterDto.getColor())
+                                    .quantity(productRegisterDto.getQuantity())
+                                    .build();
+        System.out.println(productRegisterDto);
+
+        System.out.println("product description imgs : " +productRegisterDto.getDesImgs());
+
+        try {
+            product = productService.registerPresignedUrlSave(productRegisterDto1, productRegisterDto.getRepImg(), productRegisterDto.getDesImgs(), productRegisterDto.getRepresenImgs());
+            return ResponseEntity.status(HttpStatus.OK).body(product);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",e.getMessage()));
+        }
+
+    }
+
+
+
     @GetMapping("/getImage")
     public ResponseEntity<?> getimage() {
 
@@ -219,13 +288,13 @@ public class ProductRestController {
 
     //presinged url 가져오기.
     @GetMapping("geturl")
-    public ResponseEntity<?> geturl(@RequestParam("imageName") String imageName
-                                    ,@RequestParam("prefix") String prefix ) {
+    public ResponseEntity<?> geturl(@RequestParam("imagePath") String imagePath) {
+        String decodedPath = URLDecoder.decode(imagePath, StandardCharsets.UTF_8);
 
-        System.out.println(imageName);
+        System.out.println(decodedPath);
+        System.out.println(imagePath);
 
-
-        return new ResponseEntity<>(s3FileService.getPreSignedUrl(prefix, imageName), HttpStatus.OK);
+        return new ResponseEntity<>(s3FileService.getPreSignedUrl(decodedPath), HttpStatus.OK);
     }
 
 

@@ -69,7 +69,7 @@
                                 document.getElementById('inner').style.display = 'none';
                                 response.forEach(function(item) {
                                     document.getElementById('item-contents').insertAdjacentHTML('beforeend',
-                                        '<div class="item" onclick="location.href=\'/product/detail/'+(item.productId)+'">'
+                                        '<div class="item" onclick="location.href=\'/product/detail/'+(item.productId)+'\">'
                                             +'<img src="data:image/gif;base64,' +(item.repImg)+'">'
                                             + '<p>'+(item.productName) +'</p>'+'<br>'
                                             + '<p>'+'가격 :'+(item.price) +'</p>'+

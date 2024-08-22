@@ -9,6 +9,8 @@ import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
 import com.fastcampus.toyproject2.exception.ErrorCode;
+import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImg;
+import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgRegisterDto;
 import com.mysql.cj.x.protobuf.MysqlxDatatypes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,19 +35,19 @@ public class S3FileService {
     private String bucketName;
 
 
-    @Value("cloud.aws.s3.folder.brandFolder")
+    @Value("${cloud.aws.s3.folder.brandFolder}")
     private String brandPath;
 
-    @Value("cloud.aws.s3.folder.repFolder")
+    @Value("${cloud.aws.s3.folder.repFolder}")
     private String repPath;
 
-    @Value("cloud.aws.s3.folder.descriptionFolder")
+    @Value("${cloud.aws.s3.folder.descriptionFolder}")
     private String descriptionFolderPath;
 
-    @Value("cloud.aws.s3.folder.descriptionImgFolder")
+    @Value("${cloud.aws.s3.folder.descriptionImgFolder}")
     private String descriptionImgPath;
 
-    @Value("cloud.aws.s3.folder.productImgFolder")
+    @Value("${cloud.aws.s3.folder.productImgFolder}")
     private String productImgPath;
 
 
@@ -171,14 +173,12 @@ public class S3FileService {
      * param : prefix 버킷안에 디렉터리 경로
      * param : fileName 클라이언트가 전달한 파일명 파라미터
      * return : presigned url
+     *
+     * fileName은 UUID먼저 처리하고 받기.
      */
 
-    public String getPreSignedUrl(String prefix, String fileName) {
-        if(prefix != null) {
-            fileName = createPath(prefix, fileName);
-        }else{
-            fileName = createUUID()+fileName;
-        }
+    public String getPreSignedUrl( String fileName) {
+
 
         GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePreSignedUrlRequest(bucketName, fileName);
         URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
@@ -222,7 +222,7 @@ public class S3FileService {
      * 파일 고유 ID를 생성
      * return : 10자리의 UUID
      */
-    private String createUUID() {
+    public String createUUID() {
         return UUID.randomUUID().toString().substring(0,10);
     }
 
@@ -233,10 +233,7 @@ public class S3FileService {
      *
      * -> 이거를 데이터 베이스에 저장해야됨.
      */
-    public String createPath(String prefix, String fileName) {
-        String fileId = createUUID();
-        return String.format("%s/%s", prefix, fileId + fileName);
-    }
+
 
     public String createBrandImgPath(String brandId, String ImgName){
         return String.format("%s/%s", brandPath(brandId),createUUID()+ImgName);
@@ -244,7 +241,7 @@ public class S3FileService {
     public String createRepImgPath(String brandId, String ProductId, String ImgName){
         return String.format("%s/%s/%s/%s", brandPath(brandId), repPath, ProductId,createUUID()+ImgName);
     }
-    public String createDescriptionImgPath(String brandId,String productDescriptionId, String ImgName){
+    private String createDescriptionImgPath(String brandId,String productDescriptionId, String ImgName){
         return String.format("%s/%s/%s/%s", brandPath(brandId), descriptionPath(productDescriptionId), descriptionImgPath, createUUID()+ImgName);
     }
     public String createProductImgPath(String brandId,String productDescriptionId, String ImgName){
@@ -256,6 +253,51 @@ public class S3FileService {
     }
     private String descriptionPath(String productDescriptionId){
         return String.format("%s/%s", descriptionFolderPath, productDescriptionId);
+    }
+
+
+
+
+    public List<ProductDescriptionImg> presigneUrltoImageList(
+            List<ProductDescriptionImgRegisterDto> DescriptionImgs
+            , List<ProductDescriptionImgRegisterDto> productImgs
+            , String productDescriptionId
+            ,String brandId) throws IOException {
+
+        List<ProductDescriptionImg> imgList = new ArrayList<>();
+        //순서를 Mapper에서 만들어 놓을까.
+        byte order =1;
+
+        for(ProductDescriptionImgRegisterDto file : DescriptionImgs){
+
+            String fileName = file.getFileName();
+//            String filePath = createDescriptionImgPath(brandId, productDescriptionId , fileName);
+            String filePath = createUUID() +fileName;
+
+            Long fileBytes = file.getFileSize();
+
+            imgList.add(ProductDescriptionImg.imageToDescriptionImg(fileName, filePath, fileBytes, productDescriptionId, order));
+            order++;
+        }
+
+
+        if(!productImgs.isEmpty()){
+            order=1;
+
+            for(ProductDescriptionImgRegisterDto file : productImgs){
+
+                String fileName = file.getFileName();
+//                String filePath = createProductImgPath(brandId, productDescriptionId , fileName);
+                String filePath = createUUID()+fileName;
+                Long fileBytes = file.getFileSize();
+
+                imgList.add(ProductDescriptionImg.imageToProductImg(fileName, filePath, fileBytes, productDescriptionId, order));
+                order++;
+            }
+        }
+
+        return imgList;
+
     }
 
 

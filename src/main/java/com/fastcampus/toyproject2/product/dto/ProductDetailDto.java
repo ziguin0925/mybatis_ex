@@ -26,6 +26,7 @@ public class ProductDetailDto {
     private ProductDescriptionDto productDescription;
     private String repImg;
     private String categoryId;
+    private String categoryName;
     //자신의 카테고리 이름은 parentCategorys에 포함 되어 있음.
     private String productStatus;
 

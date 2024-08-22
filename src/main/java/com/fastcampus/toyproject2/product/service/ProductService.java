@@ -13,6 +13,7 @@ import com.fastcampus.toyproject2.productDescription.dao.ProductDescriptionDaoMy
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
 import com.fastcampus.toyproject2.productDescriptionImg.dao.ProductDescriptionImgDaoMysql;
+import com.fastcampus.toyproject2.productDescriptionImg.dto.ImagePathDto;
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImg;
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgDetailDto;
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgRegisterDto;
@@ -106,22 +107,21 @@ public class ProductService {
 
 
     @Transactional
-    public HashMap<String,Object> registerPresignedUrlSave(ProductRegisterDto productRegisterDto
+    public ImagePathDto registerPresignedUrlSave(ProductRegisterDto productRegisterDto
             , String productRepImg
             , List<ProductDescriptionImgRegisterDto> DescriptionImgs
             , List<ProductDescriptionImgRegisterDto> productImgs) throws Exception {
+
+        ImagePathDto imagePathDto = new ImagePathDto();
 
         //null이면 새로 생성 하는거. readonly 못 할까 controller 에서 descriptionService로 읽어야하나.
         ProductDescriptionDto productDescriptionCheck = productDescriptionDao.findById(productRegisterDto.getProductDescriptionDto().getProductDescriptionId());
 
 
-        String repFileCode = s3FileService.createRepImgPath(productRegisterDto.getBrandId(), productRegisterDto.getProductId(), productRepImg);
-        HashMap<?,?> varMap = new HashMap<>(3);
-        varMap.put("repImg", repFileCode);
+//        String repFilePath = s3FileService.createRepImgPath(productRegisterDto.getBrandId(), productRegisterDto.getProductId(), productRepImg);
+        String repFilePath = s3FileService.createUUID()+productRepImg;
 
-
-        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto, repFileCode);
-
+        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto, repFilePath);
 
         List<Stock> stocks = ProductRegisterDto.toStockList(productRegisterDto);
 
@@ -130,25 +130,36 @@ public class ProductService {
         //요청 json이 어떻게 오는지 확인해봐야할듯... DescriptionImgs 있는데 텅 비었다면 isEmpty로 해도 될거같은데.
 
         try{
-
-            if (productDescriptionCheck == null && DescriptionImgs != null) {
+            if (productDescriptionCheck == null && !DescriptionImgs.isEmpty()) {
 
                 //ProductDescription 객체 생성.
                 ProductDescription productDescription = ProductRegisterDto.toProductDescription(productRegisterDto);
 
                 //ProductDescriptionImg 저장 및 객체 생성
-                List<ProductDescriptionImg> imgList = fileService.toImageList(DescriptionImgs, productImgs, productDescription.getProductDescriptionId());
+                List<ProductDescriptionImg> imgList = s3FileService.presigneUrltoImageList(DescriptionImgs, productImgs, productDescription.getProductDescriptionId(), productRegisterDto.getBrandId());
 
                 productDescriptionDao.insert(productDescription);
                 productDescriptionImgDao.insert(imgList);
+
+                for(ProductDescriptionImg img: imgList){
+                    if(img.getKindOf().equals(ProductDescriptionImg.DESCRIPTION)){
+                        imagePathDto.addDescImgPath(img.getPath());
+                    }else{
+                        imagePathDto.addProdImgPath(img.getPath());
+                    }
+                }
+
             }
+            imagePathDto.setRepImgPath(repFilePath);
+
             productDao.insertTest(registerProduct);
             stockDao.insert(stocks);
         }catch (Exception e ){
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
 
-        return productRegisterDto.getName();
+        return imagePathDto;
     }
 
 
