@@ -15,11 +15,14 @@ import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
 import com.fastcampus.toyproject2.productDescriptionImg.dao.ProductDescriptionImgDaoMysql;
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImg;
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgDetailDto;
+import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgRegisterDto;
 import com.fastcampus.toyproject2.stock.dao.StockDaoMysql;
 import com.fastcampus.toyproject2.stock.dto.Stock;
 import com.fastcampus.toyproject2.util.FileService;
+import com.fastcampus.toyproject2.util.S3FileService;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.javassist.NotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -35,131 +39,24 @@ import java.util.List;
 public class ProductService {
 
     private final ProductDaoMysql productDao;
-    private final StockDaoMysql stockDaoMysql;
+    private final StockDaoMysql stockDao;
     private final ProductDescriptionDaoMysql productDescriptionDao;
     private final ProductDescriptionImgDaoMysql productDescriptionImgDao;
 
     private final FileService fileService;
+    private final S3FileService s3FileService;
     private final CategoryDaoMysql categoryDao;
 
 
 
 
 
-    /*
-    *       상품 등록(상세 설명, 상세설명 img를 재사용하는 경우) -> 오버로딩 말고 하나의 메서드로 하기.
-    *
-    * */
-    public String registerSave(ProductRegisterDto productRegisterDto
-            , MultipartFile productRepImg) throws Exception {
-
-        HashMap<String, Object> registerMap = registerProductAndRepImg(productRegisterDto, productRepImg);
-
-        try {
-            productDao.insert(registerMap);
-        }catch (DuplicateKeyException e) {
-            throw new DuplicateProductIdException(productRegisterDto.getProductId()+"는 이미 있는 Id 입니다.");
-        }
-
-        return productRegisterDto.getName();
-    }
-
-
-    /*
-    *       상품 등록(상세 설명, 상세설명 img 를 생성하는 경우)
-    *       이거 안쓰고 밑에꺼 쓰기. - 다중 쿼리로 db연결 한번 만.
-    * */
-//    @Transactional
-//    public String registerSave(ProductRegisterDto productRegisterDto
-//            , MultipartFile productRepImg
-//            , List<MultipartFile> DescriptionImgs
-//            , List<MultipartFile> productImgs) throws Exception {
-//
-//
-//        ProductDescriptionDto productDescriptionDto = productRegisterDto.getProductDescriptionDto();
-//
-//        /*
-//        * ProductDescription 객체 저장
-//        * */
-//
-//        ProductDescription productDescription = ProductDescription.builder()
-//                .productDescriptionId(productDescriptionDto.getProductDescriptionId())
-//                .description(productDescriptionDto.getDescription())
-//                .modifyDatetime(LocalDateTime.now())
-//                .build();
-//
-//        productDescriptionDao.insert(productDescription);
-//
-//
-//        /*
-//         * ProductDescriptionImg 저장
-//         * */
-//
-//
-//        List<ProductDescriptionImg> imgList = new ArrayList<>();
-//        //순서를 Mapper에서 만들어 놓을까.
-//        byte i =1;
-//
-//        for(MultipartFile file : DescriptionImgs){
-//
-//            String filename = file.getOriginalFilename();
-//
-//            String fileCode = fileService.uploadFile(imgLocation, filename, file.getBytes());
-//
-//            //이런 부분 클래스(ProductDescriptionImg) 안에서 정의해도 되는가?
-//            ProductDescriptionImg productDescriptionImg
-//                    = ProductDescriptionImg.builder()
-//                    .productDescriptionId(productDescription.getProductDescriptionId())
-//                    .name(filename)
-//                    .path(imgLocation+fileCode)
-//                    .orderNum(i++)
-//                    .size(file.getSize())
-//                    .kindOf(ProductDescriptionImg.DESCRIPTION)
-//                    .isUsed(ProductDescriptionImg.DEFAULT_USE)
-//                    .build();
-//
-//            imgList.add(productDescriptionImg);
-//        }
-//
-//        i=1;
-//
-//        for(MultipartFile file : productImgs){
-//            System.out.println("이미지  표시 저장 시작");
-//
-//            String filename = file.getOriginalFilename();
-//            String fileCode = fileService.uploadFile(imgLocation, filename, file.getBytes());
-//
-//            ProductDescriptionImg productDescriptionImg
-//                    = ProductDescriptionImg.builder()
-//                    .productDescriptionId(productDescription.getProductDescriptionId())
-//                    .name(filename)
-//                    .path(imgLocation+fileCode)
-//                    .orderNum(i++)
-//                    .size(file.getSize())
-//                    .kindOf(ProductDescriptionImg.REPRESENTATION)
-//                    .isUsed(ProductDescriptionImg.DEFAULT_USE)
-//                    .build();
-//            imgList.add(productDescriptionImg);
-//        }
-//
-//        //img 먼저 생성하고 만드는게 나을지, img를 만들기 전에 생성하는게 좋을 지.
-//
-//        imgList.forEach(x->System.out.println(x.getProductDescriptionId()));
-//        productDescriptionImgDao.insert(imgList);
-//
-//
-//        registerProductAndRepImg(productRegisterDto, productRepImg);
-//
-//        return  productRegisterDto.getName();
-//    }
-
-
-    //한번 연결로 다중 인서트 작업test.
+    //상품 등록.
     @Transactional
     public String registerSave(ProductRegisterDto productRegisterDto
             , MultipartFile productRepImg
             , List<MultipartFile> DescriptionImgs
-            , List<MultipartFile> productImgs) throws Exception{
+            , List<MultipartFile> productImgs) throws Exception {
 
         //null이면 새로 생성 하는거. readonly 못 할까 controller 에서 descriptionService로 읽어야하나.
         ProductDescriptionDto productDescriptionCheck = productDescriptionDao.findById(productRegisterDto.getProductDescriptionDto().getProductDescriptionId());
@@ -167,52 +64,93 @@ public class ProductService {
         /*
          * Product 객체 생성, 대표 사진 저장, stockList 객체 생성 후 Map에 넣기.
          * */
-        HashMap<String, Object> registerMap = registerProductAndRepImg(productRegisterDto, productRepImg);
 
+        String repFileCode = fileService.uploadRepImg(productRepImg);
+
+
+        /*
+         * Product 객체 생성.
+         * */
+
+        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto, repFileCode);
+        /*
+         * Stock 저장
+         * */
+        List<Stock> stocks = ProductRegisterDto.toStockList(productRegisterDto);
 
 
         //상세 설명을 만드는 경우
         //요청 json이 어떻게 오는지 확인해봐야할듯... DescriptionImgs 있는데 텅 비었다면 isEmpty로 해도 될거같은데.
-        if(productDescriptionCheck == null && DescriptionImgs!=null && productImgs!=null){
-            /*
-             * ProductDescription 객체 생성.
-             * */
-
-            ProductDescription productDescription = ProductRegisterDto.toProductDescription(productRegisterDto);
-
-            /*
-             * ProductDescriptionImg 저장 및 객체 생성
-             *
-             * 이 부분은 좀 생각해보기. - DB 저장 에러시 삭제.
-             * */
-
-            List<ProductDescriptionImg> imgList = fileService.toImageList(DescriptionImgs, productImgs, productDescription.getProductDescriptionId());
-
-            registerMap.put("ProductDescription",productDescription);
-            registerMap.put("imgList",imgList);
-        }
-
-
 
         try{
-            productDao.insert(registerMap);
-        }catch (IllegalAccessException e){
 
+            if (productDescriptionCheck == null && DescriptionImgs != null) {
 
-            //이부분 에러 처리 더 하기.
+                //ProductDescription 객체 생성.
+                ProductDescription productDescription = ProductRegisterDto.toProductDescription(productRegisterDto);
 
+                //ProductDescriptionImg 저장 및 객체 생성
+                List<ProductDescriptionImg> imgList = fileService.toImageList(DescriptionImgs, productImgs, productDescription.getProductDescriptionId());
 
-            System.out.println(e.getMessage());
-        } catch (DuplicateKeyException e){
-            if(e.getMessage().contains("product_description.PRIMARY")){
-                throw new DuplicateProductDescriptionIdException(productDescriptionCheck.getProductDescriptionId()+"는 이미 있는 Id 입니다.");
+                productDescriptionDao.insert(productDescription);
+                productDescriptionImgDao.insert(imgList);
             }
-            throw new DuplicateProductIdException(productRegisterDto.getProductId()+"는 이미 있는 Id 입니다.");
+            productDao.insertTest(registerProduct);
+            stockDao.insert(stocks);
+        }catch (Exception e ){
+            e.printStackTrace();
         }
 
         return productRegisterDto.getName();
-
     }
+
+
+    @Transactional
+    public HashMap<String,Object> registerPresignedUrlSave(ProductRegisterDto productRegisterDto
+            , String productRepImg
+            , List<ProductDescriptionImgRegisterDto> DescriptionImgs
+            , List<ProductDescriptionImgRegisterDto> productImgs) throws Exception {
+
+        //null이면 새로 생성 하는거. readonly 못 할까 controller 에서 descriptionService로 읽어야하나.
+        ProductDescriptionDto productDescriptionCheck = productDescriptionDao.findById(productRegisterDto.getProductDescriptionDto().getProductDescriptionId());
+
+
+        String repFileCode = s3FileService.createRepImgPath(productRegisterDto.getBrandId(), productRegisterDto.getProductId(), productRepImg);
+        HashMap<?,?> varMap = new HashMap<>(3);
+        varMap.put("repImg", repFileCode);
+
+
+        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto, repFileCode);
+
+
+        List<Stock> stocks = ProductRegisterDto.toStockList(productRegisterDto);
+
+
+        //상세 설명을 만드는 경우
+        //요청 json이 어떻게 오는지 확인해봐야할듯... DescriptionImgs 있는데 텅 비었다면 isEmpty로 해도 될거같은데.
+
+        try{
+
+            if (productDescriptionCheck == null && DescriptionImgs != null) {
+
+                //ProductDescription 객체 생성.
+                ProductDescription productDescription = ProductRegisterDto.toProductDescription(productRegisterDto);
+
+                //ProductDescriptionImg 저장 및 객체 생성
+                List<ProductDescriptionImg> imgList = fileService.toImageList(DescriptionImgs, productImgs, productDescription.getProductDescriptionId());
+
+                productDescriptionDao.insert(productDescription);
+                productDescriptionImgDao.insert(imgList);
+            }
+            productDao.insertTest(registerProduct);
+            stockDao.insert(stocks);
+        }catch (Exception e ){
+            e.printStackTrace();
+        }
+
+        return productRegisterDto.getName();
+    }
+
 
     /*
     *       상품 상세 정보
@@ -353,41 +291,7 @@ public class ProductService {
 
     }
 
-    /*
-    *       상품 등록시 상품과 상품 대표 이미지 저장.
-    *
-    *
-    * */
-    private HashMap<String, Object> registerProductAndRepImg(ProductRegisterDto productRegisterDto
-            , MultipartFile productRepImg) throws Exception {
-
-        HashMap<String, Object> registerMap = new HashMap<>();
-
-        /*
-        * 대표 사진 저장.
-        * */
-        String repFileCode = fileService.uploadRepImg(productRepImg);
-
-
-        /*
-         * Product 객체 생성.
-         * */
-
-        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto, repFileCode);
-        /*
-         * Stock 저장
-         * */
-        List<Stock> stocks = ProductRegisterDto.toStockList(productRegisterDto);
-
-        registerMap.put("Product",registerProduct);
-        registerMap.put("stockList",stocks);
-        return registerMap;
-
-
-    }
-
-
-    }
+}
 
 
 

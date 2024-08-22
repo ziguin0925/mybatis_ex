@@ -6,11 +6,14 @@ import com.fastcampus.toyproject2.product.dto.*;
 import com.fastcampus.toyproject2.product.dto.pagination.PageInfo;
 import com.fastcampus.toyproject2.product.dto.pagination.ProductRequestPageDto;
 import com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto;
+import com.fastcampus.toyproject2.productDescription.dao.ProductDescriptionDao;
+import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class ProductServiceTest {
     @Autowired
     private ProductService productService;
+    @Qualifier("productDescriptionDao")
+    @Autowired
+    private ProductDescriptionDao productDescriptionDao;
 
 
     @Test
@@ -69,6 +75,8 @@ class ProductServiceTest {
 
         assertNotNull(product);
         assertTrue(product.equals("모두 다 재사용하는 테스트용 의류"));
+        ProductDescriptionDto productDescriptionDtoDB  =productDescriptionDao.findById(productDescriptionDto.getProductDescriptionId());
+        assertTrue(productDescriptionDtoDB.getDescription().equals(productDescriptionDto.getDescription()));
 
     }
 

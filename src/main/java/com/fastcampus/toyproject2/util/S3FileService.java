@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
 import com.fastcampus.toyproject2.exception.ErrorCode;
+import com.mysql.cj.x.protobuf.MysqlxDatatypes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,24 @@ public class S3FileService {
 
     @Value("${aws.s3.bucket}")
     private String bucketName;
+
+
+    @Value("cloud.aws.s3.folder.brandFolder")
+    private String brandPath;
+
+    @Value("cloud.aws.s3.folder.repFolder")
+    private String repPath;
+
+    @Value("cloud.aws.s3.folder.descriptionFolder")
+    private String descriptionFolderPath;
+
+    @Value("cloud.aws.s3.folder.descriptionImgFolder")
+    private String descriptionImgPath;
+
+    @Value("cloud.aws.s3.folder.productImgFolder")
+    private String productImgPath;
+
+
 
     //Controller나 다른 Service에서 이용할 메서드.
     public String upload(MultipartFile image) {
@@ -92,7 +111,7 @@ public class S3FileService {
         byte[] bytes = IOUtils.toByteArray(is);
 
 
-        //메타 데이터란?
+        //메타 데이터 더 찾아보기
         ObjectMetadata metadata = new ObjectMetadata();
         //multipartfile - 해당 파일의 ContentType 설정.
         metadata.setContentType("image/" + extention);
@@ -153,11 +172,12 @@ public class S3FileService {
      * param : fileName 클라이언트가 전달한 파일명 파라미터
      * return : presigned url
      */
+
     public String getPreSignedUrl(String prefix, String fileName) {
         if(prefix != null) {
             fileName = createPath(prefix, fileName);
         }else{
-            fileName = createFileId()+fileName;
+            fileName = createUUID()+fileName;
         }
 
         GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePreSignedUrlRequest(bucketName, fileName);
@@ -200,20 +220,42 @@ public class S3FileService {
 
     /**
      * 파일 고유 ID를 생성
-     * return : 36자리의 UUID
+     * return : 10자리의 UUID
      */
-    private String createFileId() {
-        return UUID.randomUUID().toString();
+    private String createUUID() {
+        return UUID.randomUUID().toString().substring(0,10);
     }
 
     /**
      * 파일의 전체 경로를 생성
      * param : prefix 디렉토리 경로
      * return : 파일의 전체 경로
+     *
+     * -> 이거를 데이터 베이스에 저장해야됨.
      */
-    private String createPath(String prefix, String fileName) {
-        String fileId = createFileId();
+    public String createPath(String prefix, String fileName) {
+        String fileId = createUUID();
         return String.format("%s/%s", prefix, fileId + fileName);
+    }
+
+    public String createBrandImgPath(String brandId, String ImgName){
+        return String.format("%s/%s", brandPath(brandId),createUUID()+ImgName);
+    }
+    public String createRepImgPath(String brandId, String ProductId, String ImgName){
+        return String.format("%s/%s/%s/%s", brandPath(brandId), repPath, ProductId,createUUID()+ImgName);
+    }
+    public String createDescriptionImgPath(String brandId,String productDescriptionId, String ImgName){
+        return String.format("%s/%s/%s/%s", brandPath(brandId), descriptionPath(productDescriptionId), descriptionImgPath, createUUID()+ImgName);
+    }
+    public String createProductImgPath(String brandId,String productDescriptionId, String ImgName){
+        return String.format("%s/%s/%s/%s", brandPath(brandId), descriptionPath(productDescriptionId), productImgPath, createUUID()+ImgName);
+
+    }
+    private String brandPath(String brandId){
+        return String.format("%s/%s", brandPath, brandId);
+    }
+    private String descriptionPath(String productDescriptionId){
+        return String.format("%s/%s", descriptionFolderPath, productDescriptionId);
     }
 
 

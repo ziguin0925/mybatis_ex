@@ -24,13 +24,13 @@
 
     <div id="test"></div>
     <div class="container">
-    <form id="productForm" method="post" enctype='multipart/form-data'>
+    <form id="productForm" method="post" enctype='multipart/form-data' >
         <div class="preview-container" id="mainImagePreview">
             <p>대표 이미지 미리보기:</p>
         </div>
 
         <label for="repImg">상품 대표 이미지:</label>
-        <input type="file" id="repImg" name="repImg" accept="image/*">
+        <input type="file" id="repImg" name="repImg" accept="image/*" multiple>
 
         <button id="submit" type="button">등록</button>
     </form>
@@ -112,22 +112,24 @@
 
                 const formData = new FormData();
 
-                const repImg = document.getElementById('repImg').files[0];
-                console.log(repImg.name);
-                console.log(repImg.type);
-                console.log(repImg.size);
-
-                await getPresignedUrl(repImg);
-                console.log(PresignedUrl);
-                uploadImage(PresignedUrl, repImg)// await 붙여야 PresignedUrl 에 값이 넣어지고 다음으로 넘어감.
+                const repImg = document.getElementById('repImg').files;
+                console.log(repImg);
+                for(let img of repImg){
+                    console.log(img.name);
+                    await getPresignedUrl(img);
+                    console.log(PresignedUrl);
+                    //encodeURIComponent(filename), decodeURIComponent(encodedFilename);
+                    uploadImage(PresignedUrl, img)// await 붙여야 PresignedUrl 에 값이 넣어지고 다음으로 넘어감.
+                }
 
             });
         });
 
-        async function getPresignedUrl(repImg) { //async 붙여야함.
+        async function getPresignedUrl(img) { //async 붙여야함.
             await axios.get("geturl", { // await 붙여야 checkURL이 나옴
                 params :{
-                    imageName : repImg.name
+                    prefix : "images",
+                    imageName : img.name
                 }
             }).then((Response)=>{
                 console.log(Response);

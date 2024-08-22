@@ -98,26 +98,27 @@ public class FileService {
 
             imgList.add(productDescriptionImg);
         }
+        if(!productImgs.isEmpty()){
+            i=1;
 
-        i=1;
+            for(MultipartFile file : productImgs){
+                System.out.println("이미지  표시 저장 시작");
 
-        for(MultipartFile file : productImgs){
-            System.out.println("이미지  표시 저장 시작");
+                String filename = file.getOriginalFilename();
+                String fileCode = uploadFile(imgLocation, file);
 
-            String filename = file.getOriginalFilename();
-            String fileCode = uploadFile(imgLocation, file);
-
-            ProductDescriptionImg productDescriptionImg
-                    = ProductDescriptionImg.builder()
-                    .productDescriptionId(productDescriptionId)
-                    .name(filename)
-                    .path("/images/"+fileCode)
-                    .orderNum(i++)
-                    .size(file.getSize())
-                    .kindOf(ProductDescriptionImg.REPRESENTATION)
-                    .isUsed(ProductDescriptionImg.DEFAULT_USE)
-                    .build();
-            imgList.add(productDescriptionImg);
+                ProductDescriptionImg productDescriptionImg
+                        = ProductDescriptionImg.builder()
+                        .productDescriptionId(productDescriptionId)
+                        .name(filename)
+                        .path("/images/"+fileCode)
+                        .orderNum(i++)
+                        .size(file.getSize())
+                        .kindOf(ProductDescriptionImg.REPRESENTATION)
+                        .isUsed(ProductDescriptionImg.DEFAULT_USE)
+                        .build();
+                imgList.add(productDescriptionImg);
+            }
         }
 
         return imgList;
