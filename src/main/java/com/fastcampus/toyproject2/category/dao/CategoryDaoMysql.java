@@ -2,6 +2,7 @@ package com.fastcampus.toyproject2.category.dao;
 
 import com.fastcampus.toyproject2.category.dto.Category;
 import com.fastcampus.toyproject2.category.dto.CategoryHierarchyDto;
+import com.fastcampus.toyproject2.category.dto.SubCategoryDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.annotation.MapperScan;
@@ -37,6 +38,11 @@ public class CategoryDaoMysql implements CategoryDao {
     @Override
     public List<CategoryHierarchyDto> findLowerCategoryHierarchyById(String categoryId) throws Exception {
         return sqlSession.selectList(namespace+"findLowerCategoryHierarchyById", categoryId);
+    }
+
+    @Override
+    public List<SubCategoryDto> findSubCategoryById(String categoryId) throws Exception {
+        return sqlSession.selectList(namespace+"findLowerCategoryById", categoryId);
     }
 
     @Override

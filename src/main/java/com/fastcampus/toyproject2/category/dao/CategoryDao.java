@@ -2,6 +2,7 @@ package com.fastcampus.toyproject2.category.dao;
 
 import com.fastcampus.toyproject2.category.dto.Category;
 import com.fastcampus.toyproject2.category.dto.CategoryHierarchyDto;
+import com.fastcampus.toyproject2.category.dto.SubCategoryDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,6 +16,8 @@ public interface CategoryDao {
     String findById(@Param("categoryId")  String categoryId) throws Exception;
     List<CategoryHierarchyDto> findUpperCategoryHierarchyById( @Param("categoryId") String categoryId ) throws Exception;
     List<CategoryHierarchyDto> findLowerCategoryHierarchyById( @Param("categoryId") String categoryId ) throws Exception;
+
+    List<SubCategoryDto> findSubCategoryById( @Param("categoryId") String categoryId ) throws Exception;
 
     int update(Category category) throws Exception;
 

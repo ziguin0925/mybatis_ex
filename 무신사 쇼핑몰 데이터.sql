@@ -1,16 +1,16 @@
 SELECT * FROM web_ex.product;
 insert into brand(brand_id, name, img, product_num)
 	values
-		('A00000000001', 'GUCCI', '/img/GUCCI/brand/img1',50),
-		('A00000000002', 'NIKE', '/img/NIKE/brand/img1',120),
-		('A00000000003', 'ADIDAS', '/img/ADIDAS/brand/img1',361),
-		('A00000000004', 'MNC', '/img/MNC/brand/img1',28),
-        ('B00000000001', 'PRADA', '/img/PRADA/brand/img1',95),
-        ('B00000000002', 'UNIQLO', '/img/UNIQLO/brand/img1',546),
-        ('B00000000003', 'D&G', '/img/D&G/brand/img1',112),
-        ('B00000000004', 'POLO', '/img/POLO/brand/img1',42),
-        ('B00000000005', 'CHANEL', '/img/CHANEL/brand/img1', 78),
-		('B00000000006', 'BURBERRY', '/img/BURBERRY/brand/img1', 105)
+		('GUCCI', '구찌', 'brandProducts/GUCCI/GUCCIimg.jpg',50),
+		('NIKE', '나이키', 'brandProducts/NIKE/NIKEimg.jpg',120),
+		('ADIDAS', '아디다스', 'brandProducts/ADIDAS/ADIDASimg.jpg',361),
+		('MNC', '엠엔씨', 'brandProducts/MNC/MNCimg.jpg',28),
+        ('PRADA', '프라다', 'brandProducts/PRADA/PARADAimg.png',95),
+        ('UNIQLO', '유니클로', 'brandProducts/UNIQLO/UNIQLOimg.png',546),
+        ('D&G', '돌체앤 가바나', 'brandProducts/D&G/D&Gimg.png',112),
+        ('POLO', '폴로', 'brandProducts/POLO/POLOimg.png',42),
+        ('CHANEL', '샤넬', 'brandProducts/CHANEL/CHANELimg.jpg', 78),
+		('BURBERRY', '버버리', 'brandProducts/BURBERRY/BURBERRYimg.jpg', 105)
         
 ;
 insert into product_description(product_description_id, description, modify_datetime)
@@ -144,27 +144,27 @@ INSERT INTO product (
     , review_count
     , like_count
 ) VALUES
-	('P001', 'NIKE000000001', 'C05', 'A00000000002', '나이키 남성 빨강 티셔츠', '/img/NIKE/rep/image1.jpg', 29900, 0,'SELL', '2021-08-05 12:00:00', NOW(), 120, 'manager1', 45, 0, 0, 0),
-    ('P002', 'GUCCI00000002', 'C08', 'A00000000001', '구찌 여성 스몰 사이즈 블라우스', '/img/GUCCI/rep/image1.jpg', 248900, 0, 'SELL', '2022-08-01 07:30:00', NOW(), 55550, 'manager2', 48, 0, 0, 0),
-    ('P003', 'ADIDAS0000005', 'C11', 'A00000000003', '아디다스 아동 티셔츠 1', '/img/ADIDAS/rep/image1.jpg', 58900, 0,'SELL', '2012-07-15 11:30:00', NOW(), 28839, 'manager3', 49, 0, 0, 0),
-    ('P004', 'ADIDAS0000005', 'C11', 'A00000000003', '아디다스 아동 티셔츠 2', '/img/ADIDAS/rep/image2.jpg', 58900, 0,'SELL', '2021-01-09 11:30:00', NOW(), 1267, 'manager3', 40, 0, 0, 0),
-    ('P005', 'MNC0000000003', 'C06', 'A00000000004', 'MNC 남성 청바지', '/img/MNC/rep/image1.jpg', 19900, 0,'SELL', '2023-11-09 22:21:19', NOW(), 15425, 'manager4', 39, 0, 0, 0), 
-    ('P006', 'NIKE000000002', 'C09', 'A00000000002', '나이키 여성 스커트', '/img/NIKE/rep/image2.jpg', 15260, 0,'SELL', '2024-02-01 09:41:12', NOW(), 67890, 'manager5', 40, 0, 0, 0),
-    ('P007', 'GUCCI00000001', 'C13', 'A00000000001', '구찌 아동 아우터 특가 상품', '/img/GUCCI/rep/image2.jpg', 78900, 0,'SELL', '2024-03-11 19:01:10', NOW(), 1403, 'manager2', 41, 0, 0, 0),
-    ('P008', 'NIKE000000002', 'C08', 'A00000000002', '나이키 여성 블라우스 특가 상품', '/img/NIKE/rep/image3.jpg', 89000, 0,'SELL', '2023-12-01 10:34:19', NOW(), 5123, 'manager1', 43, 0, 0, 0),
-    ('P009', 'NIKE000000002', 'C08', 'A00000000002', '나이키 여성 블라우스 특가 상품', '/img/NIKE/rep/image23.jpg', 89000, 0,'SELL', '2022-12-09 11:11:11', NOW(), 1123, 'manager3', 45, 0, 0, 0),
-    ('P010', 'CHANEL00000001', 'C55', 'B00000000005', '샤넬 여성 핸드백', '/img/CHANEL/rep/image1.jpg', 1290000, 0,'SELL', '2024-08-01 12:00:00', NOW(), 320, 'manager6', 47, 0, 0, 0),
-    ('P011', 'BURBERRY00000001', 'C57', 'B00000000006', '버버리 남성 코트', '/img/BURBERRY/rep/image1.jpg', 599000, 0,'SELL', '2024-08-15 10:00:00', NOW(), 210, 'manager7', 45, 0, 0, 0),
-    ('P018', 'NIKE000000007', 'C17', 'A00000000002', '나이키 남성 티셔츠 3', '/img/NIKE/rep/image10.jpg', 29900, 0,'SELL', '2024-08-20 12:00:00', NOW(), 850, 'manager11', 46, 0, 0, 0),
-    ('P019', 'NIKE000000007', 'C17', 'A00000000002', '나이키 남성 티셔츠 4', '/img/NIKE/rep/image11.jpg', 31900, 0,'SELL', '2024-08-21 12:00:00', NOW(), 1100, 'manager11', 47, 0, 0, 0),
-    ('P020', 'NIKE000000008', 'C17', 'A00000000002', '나이키 남성 티셔츠 5', '/img/NIKE/rep/image12.jpg', 28900, 0,'SELL', '2024-08-22 12:00:00', NOW(), 950, 'manager12', 45, 0, 0, 0),
-    ('P021', 'NIKE000000008', 'C17', 'A00000000002', '나이키 남성 티셔츠 6', '/img/NIKE/rep/image13.jpg', 29900, 0,'SELL', '2024-08-23 12:00:00', NOW(), 1200, 'manager12', 46, 0, 0, 0),
-    ('P022', 'NIKE000000009', 'C17', 'A00000000002', '나이키 남성 스포츠 티셔츠 1', '/img/NIKE/rep/image14.jpg', 32900, 0,'SELL', '2024-08-24 12:00:00', NOW(), 1300, 'manager13', 47, 0, 0, 0),
-    ('P023', 'NIKE000000009', 'C17', 'A00000000002', '나이키 남성 스포츠 티셔츠 2', '/img/NIKE/rep/image15.jpg', 33900, 0,'SELL', '2024-08-25 12:00:00', NOW(), 1400, 'manager13', 48, 0, 0, 0),
-    ('P024', 'NIKE000000010', 'C17', 'A00000000002', '나이키 남성 클래식 티셔츠 1', '/img/NIKE/rep/image16.jpg', 25900, 0,'SELL', '2024-08-26 12:00:00', NOW(), 1500, 'manager14', 44, 0, 0, 0),
-    ('P025', 'NIKE000000010', 'C17', 'A00000000002', '나이키 남성 클래식 티셔츠 2', '/img/NIKE/rep/image17.jpg', 26900, 0,'SELL', '2024-08-27 12:00:00', NOW(), 1600, 'manager14', 45, 0, 0, 0),
-    ('P027', 'NIKE000000010', 'C17', 'A00000000002', '나이키 남성 클래식 티셔츠 5', '/img/NIKE/rep/image27.jpg', 26900,  0,'SELL', '2024-08-27 12:00:00', NOW(), 1600, 'manager14', 45, 0, 0, 0),
-	('P026', 'NIKE000000010', 'C17', 'A00000000002', '나이키 남성 티셔츠 9', '/img/NIKE/rep/image272.jpg', 26900, 0,'SELL', '2024-08-27 12:00:00', NOW(), 1600, 'manager14', 45, 0, 0, 0)
+	('P001', 'NIKE000000001', 'C05', 'NIKE', '나이키 남성 빨강 티셔츠', 'brandProducts/NIKE/productRepImg/P001/NikeRed.jpg', 29900, 0,'SELL', '2021-08-05 12:00:00', NOW(), 120, 'manager1', 45, 0, 0, 0),
+    ('P002', 'GUCCI00000002', 'C08', 'GUCCI', '구찌 여성 스몰 사이즈 블라우스', 'brandProducts/GUCCI/productRepImg/P002/구찌여성블라우스.jpg', 248900, 0, 'SELL', '2022-08-01 07:30:00', NOW(), 55550, 'manager2', 48, 0, 0, 0),
+    ('P003', 'ADIDAS0000005', 'C11', 'ADIDAS', '아디다스 아동 티셔츠 1', 'brandProducts/ADIDAS/productRepImg/P003/qwtid-iej아디다스아동 티셔츠.jpg', 58900, 0,'SELL', '2012-07-15 11:30:00', NOW(), 28839, 'manager3', 49, 0, 0, 0),
+    ('P004', 'ADIDAS0000005', 'C11', 'ADIDAS', '아디다스 아동 티셔츠 2', 'brandProducts/ADIDAS/productRepImg/P004/ADIDAS티셔츠.jpg', 58900, 0,'SELL', '2021-01-09 11:30:00', NOW(), 1267, 'manager3', 40, 0, 0, 0),
+    ('P005', 'MNC0000000003', 'C06', 'MNC', 'MNC 남성 청바지', 'brandProducts/MNC/productRepImg/P005/MNCjeans.jpg', 19900, 0,'SELL', '2023-11-09 22:21:19', NOW(), 15425, 'manager4', 39, 0, 0, 0), 
+    ('P006', 'NIKE000000002', 'C09', 'NIKE', '나이키 여성 스커트', 'brandProducts/NIKE/productRepImg/P006/NIKE스커트.jpg', 15260, 0,'SELL', '2024-02-01 09:41:12', NOW(), 67890, 'manager5', 40, 0, 0, 0),
+    ('P007', 'GUCCI00000001', 'C13', 'GUCCI', '구찌 아동 아우터 특가 상품', 'brandProducts/GUCCI/productRepImg/P007/gucciouter.jpg', 78900, 0,'SELL', '2024-03-11 19:01:10', NOW(), 1403, 'manager2', 41, 0, 0, 0),
+    ('P008', 'NIKE000000002', 'C08', 'NIKE', '나이키 여성 블라우스 특가 상품', 'brandProducts/NIKE/productRepImg/P008/nike블라우스1.jpg', 89000, 0,'SELL', '2023-12-01 10:34:19', NOW(), 5123, 'manager1', 43, 0, 0, 0),
+    ('P009', 'NIKE000000002', 'C08', 'NIKE', '나이키 여성 블라우스 특가 상품', 'brandProducts/NIKE/productRepImg/P009/나이키여성 블라우스.jpg', 89000, 0,'SELL', '2022-12-09 11:11:11', NOW(), 1123, 'manager3', 45, 0, 0, 0),
+    ('P010', 'CHANEL00000001', 'C55', 'CHANEL', '샤넬 여성 핸드백', 'brandProducts/CHANEL/productRepImg/P010/chanel handbag.jpg', 1290000, 0,'SELL', '2024-08-01 12:00:00', NOW(), 320, 'manager6', 47, 0, 0, 0),
+    ('P011', 'BURBERRY00000001', 'C57', 'BURBERRY', '버버리 남성 코트', 'brandProducts/BURBERRY/productRepImg/P011/BURBERRYcoat.jpg', 599000, 0,'SELL', '2024-08-15 10:00:00', NOW(), 210, 'manager7', 45, 0, 0, 0),
+    ('P018', 'NIKE000000007', 'C17', 'NIKE', '나이키 남성 티셔츠 3', 'brandProducts/NIKE/productRepImg/P018/나이키 티셔츠.jpg', 29900, 0,'SELL', '2024-08-20 12:00:00', NOW(), 850, 'manager11', 46, 0, 0, 0),
+    ('P019', 'NIKE000000007', 'C17', 'NIKE', '나이키 남성 티셔츠 4', 'brandProducts/NIKE/productRepImg/P019/나이키 티셔츠파랑.jpg', 31900, 0,'SELL', '2024-08-21 12:00:00', NOW(), 1100, 'manager11', 47, 0, 0, 0),
+    ('P020', 'NIKE000000008', 'C17', 'NIKE', '나이키 남성 티셔츠 5', 'brandProducts/NIKE/productRepImg/P020/나이키 티셔츠.jpg', 28900, 0,'SELL', '2024-08-22 12:00:00', NOW(), 950, 'manager12', 45, 0, 0, 0),
+    ('P021', 'NIKE000000008', 'C17', 'NIKE', '나이키 남성 티셔츠 6', 'brandProducts/NIKE/productRepImg/P021/나이키 스투시.jpg', 29900, 0,'SELL', '2024-08-23 12:00:00', NOW(), 1200, 'manager12', 46, 0, 0, 0),
+    ('P022', 'NIKE000000009', 'C17', 'NIKE', '나이키 남성 스포츠 티셔츠 1', 'brandProducts/NIKE/productRepImg/P022/스포츠 티셔츠.jpg', 32900, 0,'SELL', '2024-08-24 12:00:00', NOW(), 1300, 'manager13', 47, 0, 0, 0),
+    ('P023', 'NIKE000000009', 'C17', 'NIKE', '나이키 남성 스포츠 티셔츠 2', 'brandProducts/NIKE/productRepImg/P023/nikesport.jpg', 33900, 0,'SELL', '2024-08-25 12:00:00', NOW(), 1400, 'manager13', 48, 0, 0, 0),
+    ('P024', 'NIKE000000010', 'C17', 'NIKE', '나이키 남성 클래식 티셔츠 1', 'brandProducts/NIKE/productRepImg/P024/nikesports3.jpg', 25900, 0,'SELL', '2024-08-26 12:00:00', NOW(), 1500, 'manager14', 44, 0, 0, 0),
+    ('P025', 'NIKE000000010', 'C17', 'NIKE', '나이키 남성 클래식 티셔츠 2', 'brandProducts/NIKE/productRepImg/P024/nikesports3.jpg', 26900, 0,'SELL', '2024-08-27 12:00:00', NOW(), 1600, 'manager14', 45, 0, 0, 0),
+    ('P027', 'NIKE000000010', 'C17', 'NIKE', '나이키 남성 클래식 티셔츠 5', 'brandProducts/NIKE/productRepImg/P027/나이키 긴팔티.jpg', 26900,  0,'SELL', '2024-08-27 12:00:00', NOW(), 1600, 'manager14', 45, 0, 0, 0),
+	('P026', 'NIKE000000010', 'C17', 'NIKE', '나이키 남성 티셔츠 9', 'brandProducts/NIKE/productRepImg/P026/나이키 클래식 티셔츠.jpg', 26900, 0,'SELL', '2024-08-27 12:00:00', NOW(), 1600, 'manager14', 45, 0, 0, 0)
 ;
 
         
@@ -300,5 +300,22 @@ INSERT INTO product_description_img (
 	('NIKE000000010', '남성 클래식 티셔츠 image_D2', 2, '/img/NIKE/image31.jpg', 'Y', 'DES', 1024, NOW(), NOW()),
 	('NIKE000000010', '남성 클래식 티셔츠 image_R1', 1, '/img/NIKE/image32.jpg', 'Y', 'REP', 2048, NOW(), NOW()),
 	('NIKE000000010', '남성 클래식 티셔츠 image_R2', 2, '/img/NIKE/image33.jpg', 'Y', 'REP', 2048, NOW(), NOW())
+;
+
+
+insert into member_info(member_state_code, id, password, name, birth, sex, phone_number, email, login_datetime, modify_datetime, register_datetime, exit_datetime ,recommand_id, is_admin)
+values
+('40001', 'asdf1234', 'asdf1234!', '김진철', '2000-08-22', 'M', '01012345678', 'asdf@naver.com', now(), NULL ,'2023-02-20 8:09:45', '9999-12-31 23:59:59', NULL, 'N' ),
+('40001', 'qwer1234', 'qwer1234!', '우소미', '1999-09-22', 'F', '01009876543', 'qwer@naver.com', now(), NULL ,'2023-04-21 8:09:35', '9999-12-31 23:59:59', 'asdf1234', 'N' ),
+('40001', 'zxcv1234', 'zxcv1234!', '조시형', '1993-03-21', 'F', '01023456789', 'zxcv@naver.com', now(), NULL ,'2023-05-03 16:04:00', '9999-12-31 23:59:59', NULL, 'N' ),
+('40002', 'qwerty1234', 'qwerty1234!', '임미정', '1992-05-17', 'F', '01034567890', 'qwerty@naver.com', now(), NULL , '2023-05-17 17:08:29', '9999-12-31 23:59:59', NULL, 'N' ),
+('40001', 'asdfgh1234', 'asdfgh1234!', '공경민', '2000-02-20', 'M', '01045678901', 'asdfgh@naver.com', now(), NULL ,'2023-06-25 8:00:00', '9999-12-31 23:59:59', NULL, 'N' ),
+('40001', 'zxcvbn1234', 'zxcvbn1234!', '장우원', '1996-08-24', 'M', '01056789012', 'zxcvbn@naver.com', now(), NULL ,'2023-07-09 14:23:45', '9999-12-31 23:59:59', 'asdf1234', 'N' ),
+('40001', 'poiu1234', 'poiu1234!', '남라미', '2001-05-04', 'F', '01067890123', 'poiu@naver.com', now(), NULL ,'2023-08-09 13:45:23', '9999-12-31 23:59:59', NULL, 'N' ),
+('40001', 'lkjh1234', 'lkjh1234!', '최서윤', '2001-07-25', 'F', '01078901234', 'lkjh@naver.com', now(), NULL ,'2023-09-21 16:24:17', '9999-12-31 23:59:59', NULL, 'N' ),
+('40004', 'mnbv1234', 'mnbv1234!', '홍재안', '1995-04-14', 'M', '01089012345', 'mnbv@naver.com', now(), NULL ,'2023-10-09 21:04:21', '2024-08-06 15:03:47', NULL, 'N' ),
+('40001', 'ghjkl1234', 'ghjkl1234!', '이정헌', '1990-02-10', 'M', '01090123456', 'ghjkl@naver.com', now(), NULL ,'2023-11-12 8:34:23', '9999-12-31 23:59:59', NULL, 'N' ),
+('40001', '20231201123', 'vbnm1234!', '문연지', '1992-11-24', 'F', '01001234567', 'yeonji@naver.com',now(), NULL , '2023-12-01 8:00:00', '9999-12-31 23:59:59', NULL, 'Y' ),
+('40001', '20240101001', 'yuiop1234!', '이아윤', '1994-11-14', 'F', '01087654321', 'ayoon@naver.com', now(), NULL ,'2024-01-01 8:00:00', '9999-12-31 23:59:59', NULL, 'Y' )
 ;
 

@@ -1,8 +1,13 @@
 package com.fastcampus.toyproject2.product.controller;
 
+import com.fastcampus.toyproject2.category.dto.Category;
+import com.fastcampus.toyproject2.category.dto.SubCategoryDto;
+import com.fastcampus.toyproject2.category.service.CategoryService;
 import com.fastcampus.toyproject2.product.dto.ProductAdminList;
+import com.fastcampus.toyproject2.product.dto.ProductDetailDto;
 import com.fastcampus.toyproject2.product.dto.pagination.Page;
 import com.fastcampus.toyproject2.product.service.ProductService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +23,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-
+    private final CategoryService categoryService;
 
 
     //페이지마다 컨트롤러가 하나씩 있는게 아님. (랭킹, 세일, 이벤트 등등 숫자로 구분) - 무신사
@@ -28,6 +33,8 @@ public class ProductController {
     * */
     @GetMapping("/{pageNumber}")
     public String mainpage(@PathVariable int pageNumber, Model model){
+
+
         if(pageNumber== Page.RANKINGPAGE){
             /*
             * 어느정도 정보 주기.
@@ -42,7 +49,6 @@ public class ProductController {
         }else if(pageNumber == Page.MAINPAGE){
             return "main/main";
         }
-        System.out.println("mainpage");
 
         return"redirect:/product/100";
     }
@@ -52,11 +58,17 @@ public class ProductController {
     *   상품 상세 페이지 연결
     *
     *   상품 코드를 숫자로 할지 생각.
+    *   디테일 페이지에 들어가면 자동으로 조회수 증가 하도록
     * */
     @GetMapping("/detail/{productId}")
     public String productDetailPage(@PathVariable String productId, Model model) {
             try {
+
                 model.addAttribute("productDetail", productService.findProductDetailById(productId));
+
+                //일단 조회수 중복 증가 방지를 위해 따로 빼둠. -> 나중에 cookie 등으로 중복 증가 하지 못하게등 생각해보기.
+                productService.viewCount(productId);
+
             }catch (Exception e){
                 e.printStackTrace();
                 //해당 상품을 못찾으므로 error페이지를 띄워주거나 error 메세지를 클라이언트에게 띄우기.
@@ -73,24 +85,17 @@ public class ProductController {
     * 해당 브랜드의 사람이 등록을 할건데. 브랜드 Id를 path로 주는게 맞는지.
     * */
     @GetMapping("/admin/register")
-    public String adminRegisterPage(Model model) {
+    public String adminRegisterPage(Model model) throws Exception {
         //카테고리 가져오기.
         //카테고리를 선택할 건데 - 화면에 어떻게 뿌려줄건지.
 
         //상세 설명 가져오기. - 상세설명에 브랜드도 있어야 할까 - 어떤 상품에 어떤 상세 설명이 쓰였는지?, 어떤 카테고리에 어떤 상세 설명이 쓰였는지?
 
+        List<SubCategoryDto> categoryList = categoryService.findSubCategory(Category.FIRSTCATEGORY);
+
+        model.addAttribute("categoryList", categoryList);
 
         return "product/register";
-    }
-    @GetMapping("/admin/register/test")
-    public String adminRegisterPageTest(Model model) {
-        //카테고리 가져오기.
-        //카테고리를 선택할 건데 - 화면에 어떻게 뿌려줄건지.
-
-        //상세 설명 가져오기. - 상세설명에 브랜드도 있어야 할까 - 어떤 상품에 어떤 상세 설명이 쓰였는지?, 어떤 카테고리에 어떤 상세 설명이 쓰였는지?
-
-
-        return "test/register";
     }
 
 
@@ -122,7 +127,16 @@ public class ProductController {
     *
     * */
 
+    @GetMapping("/admin/{productId}")
+    public String adminEditProduct(@PathVariable("productId") String productId, Model model) throws Exception {
+        ProductDetailDto productData =productService.findProductDetailById(productId);
+        List<SubCategoryDto> categoryList = categoryService.findSubCategory(Category.FIRSTCATEGORY);
 
+        model.addAttribute("categoryList", categoryList);
+
+        model.addAttribute("productData", productData);
+        return "product/adminProductEdit";
+    }
 
 
 

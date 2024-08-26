@@ -9,6 +9,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -30,9 +31,17 @@ public class BrandDaoMysql implements BrandDao{
         return sqlSession.selectOne(namespace+"findById", brandId);
     }
 
+
+
     @Override
-    public List<BrandListDto> findAll() {
-        return sqlSession.selectList(namespace+"findAll");
+    public List<BrandListDto> brandListPaging(HashMap<String, Object> map) throws Exception {
+        return sqlSession.selectList(namespace+"brandListPaging", map);
+    }
+
+    @Override
+    public int countAllBrand() {
+        return sqlSession.selectOne(namespace+"countAllBrand");
+
     }
 
     @Override

@@ -1,3 +1,24 @@
+CREATE TABLE  if not exists member_info (
+  `member_number` INT NOT NULL AUTO_INCREMENT,
+  `member_state_code` VARCHAR(50) NOT NULL,
+  `id` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(500) NOT NULL,
+  `name` VARCHAR(50) NOT NULL,
+  `birth` DATE NOT NULL,
+  `sex` VARCHAR(1) NOT NULL,
+  `phone_number` VARCHAR(20) NOT NULL,
+  `email` VARCHAR(100) NOT NULL,
+  `login_datetime` DATETIME NULL,
+  `modify_datetime` DATETIME NULL,
+  `register_datetime` DATETIME NOT NULL,
+  `exit_datetime` DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59',
+  `recommand_id` VARCHAR(50) NULL,
+  `login_count` TINYINT(2) NOT NULL DEFAULT 0,
+  `is_admin` VARCHAR(1) NOT NULL DEFAULT 'N',
+  `note` TEXT NULL,
+  PRIMARY KEY (`member_number`));
+
+
 create table if not exists brand(
 	brand_id VARCHAR(25) PRIMARY KEY,
     name VARCHAR(20) NOT NULL,
@@ -81,6 +102,27 @@ create table if not exists product_description_img(
         REFERENCES product_description(product_description_id)
         on delete cascade 
 );
+-- 회원이 삭제 되어도 리뷰는 삭제되지 않도록, fk인 member_id는 null로 
+create table if not exists review(
+	review_id int primary KEY  auto_increment,
+    product_id VARCHAR(20) NOT NULL,
+    member_number int,
+    content VARCHAR(500) NOT NULL,
+    review_img VARCHAR(500),
+    star TINYINT NOT NULL,
+    like_count INT default 0,
+    create_datetime DATETIME default NOW(),
+    modify_datetime DATETIME default NOW(),
+    CONSTRAINT review_member_fk
+		foreign key (member_number)
+        references member_info(member_number)
+        ON DELETE SET NULL,
+	CONSTRAINT review_product_fk
+		foreign key (product_id)
+        references product(product_id)
+);
+
+
 
 
 

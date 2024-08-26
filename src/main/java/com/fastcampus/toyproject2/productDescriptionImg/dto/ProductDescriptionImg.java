@@ -1,9 +1,6 @@
 package com.fastcampus.toyproject2.productDescriptionImg.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -14,6 +11,8 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@Builder
 public class ProductDescriptionImg {
 
     public static String DEFAULT_USE ="Y";
@@ -38,17 +37,7 @@ public class ProductDescriptionImg {
 
 
 
-    @Builder
-    public ProductDescriptionImg(Long productDescriptionImgId, String productDescriptionId, String name, byte orderNum, String path, String isUsed, String kindOf, Long size) {
-        this.productDescriptionImgId = productDescriptionImgId;
-        this.productDescriptionId = productDescriptionId;
-        this.name = name;
-        this.orderNum = orderNum;
-        this.path = path;
-        this.isUsed = isUsed;
-        this.kindOf = kindOf;
-        this.size = size;
-    }
+
 
     public static ProductDescriptionImg imageToDescriptionImg(String fileName, String filePath, Long fileBytes , String productDescriptionId, byte order){
 

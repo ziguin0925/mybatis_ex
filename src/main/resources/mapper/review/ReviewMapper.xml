@@ -5,5 +5,33 @@
 <mapper namespace="ReviewMapper">
 
 
+    <insert id="createReview" parameterType="com.fastcampus.toyproject2.review.dto.ReviewCreateDto">
+        INSERT INTO review(product_id
+        , member_number
+        , content
+        , review_img
+        , star)
+        VALUES ( #{productId}
+               , #{memberNumber}
+               , #{content}
+               , #{reviewImg}
+               , #{star})
+    </insert>
+
+    <select id="findReviewByProductId" parameterType="String" resultType="com.fastcampus.toyproject2.review.dto.ProductReviewListDto">
+        SELECT
+            r.review_id
+             , m.member_number
+        , m.name
+        , r.content
+        , r.star
+        , r.reviewImg
+        , r.like_count
+        , r.create_datetime
+            FROM review r
+            INNER JOIN member_info m
+            ON r.member_number = m.member_number
+            WHERE r.product_id = #{productId}
+    </select>
 
 </mapper>

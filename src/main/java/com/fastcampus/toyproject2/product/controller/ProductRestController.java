@@ -67,13 +67,12 @@ public class ProductRestController {
     *    throws Exception이 있는데
     *
     *   Product_id를 입력할때 프론트에 검증 버튼 만들어서 DB에 duplicated가 있는지 확인하는 방식으로.
+    *
+    *  상품 등록시 이미지에 대한 presigned url 경로를 반환해줌.
     * */
     @Operation(summary = "상품 등록", description = "상품 등록 Dto, 상품 대표 이미지, 상품 설명 이미지 , 상품 이미지를 매개변수로 받아온다.")
-    @PostMapping(value = {"/admin/{productId}"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> register(@Valid @RequestPart(value = "ProductRegisterDto") ProductRegisterDto productRegisterDto
-            , @RequestPart(value = "RepImg", required = true) MultipartFile repImg
-            , @RequestPart(value = "DescriptionImgs", required = false) List<MultipartFile> desImgs
-            , @RequestPart(value = "RepresentationImgs", required = false) List<MultipartFile> represenImgs
+    @PostMapping(value = {"/admin/{productId}"}, consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> presignedUrlRegister(@Valid @RequestBody ProductRegisterDto productRegisterDto
             /*, Model model */) {
         // @SessionAttribute - 세션에서 가지고옴.
 
@@ -93,7 +92,7 @@ public class ProductRestController {
         }
 
 
-        String product = "";
+        ImagePathDto product;
 
 
         //사진 저장했는데 브랜드나 카테고리를 제대로 안받아 온거면 안됨, 맨 마지막.
@@ -105,12 +104,12 @@ public class ProductRestController {
                 변수를 한번에 담기.
                 이미지 저장, 상품 저장, 재고 저장, 상세 설명 저장.
                 repImg, desImgs, represenImgs 세개가 모두 null 이 아니어야함.
+
             */
 
         try {
-            product = productService.registerSave(productRegisterDto, repImg, desImgs, represenImgs);
-            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",product + " 완료"));
-
+            product = productService.registerSave(productRegisterDto);
+            return ResponseEntity.status(HttpStatus.OK).body(product);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",e.getMessage()));
         }
@@ -132,7 +131,7 @@ public class ProductRestController {
     @Operation(summary="상품 수정", description = "상품을 수정할 때 상세 설명, 상세 설명 이미지, 상품 이미지들을 수정할 때에는 다른 Controller에서 처리할 수 있도록 다른 페이지로 넘어가도록 처리.")
     @PatchMapping(value ={"/admin/{productId}"})
     public ResponseEntity<?> productupdate(@PathVariable(name = "productId") String productId
-            , @Validated @RequestPart(value = "ProductUpdateDto") ProductUpdateDto productUpdateDto)  {
+            , @Validated @RequestBody ProductUpdateDto productUpdateDto)  {
                 //해당 상품이 존재하는지 확인?
 
                 try {
@@ -174,9 +173,6 @@ public class ProductRestController {
         // http 에서 Get으로 body 전송이 안좋다는 얘기도...
 
         List<ProductCursorPageDto> cursorList = productService.findCursorList(cursorMap);
-        for(ProductCursorPageDto productCursorPageDto : cursorList) {
-            productCursorPageDto.setRepImg(getFileContent(productCursorPageDto.getRepImg()));
-        }
 
         //List안에 내용이 null이면 더이상 안보여 주도록 프론트에서 설정하기.
         return cursorList;
@@ -207,74 +203,16 @@ public class ProductRestController {
 
 //-------------------------------------------------------------------------------------------------------------------------
     /*
-     * s3 연습
+     * s3
      *
      *
      * */
 
 
-    @PostMapping(value = {"/admin/test/{productId}"}, consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> presignedUrlRegister(@Valid @RequestBody RegisterTestDto productRegisterDto
-            /*, Model model */) {
-        // @SessionAttribute - 세션에서 가지고옴.
-
-        //나중에 회원 테이블 구현이 끝나면 회원 조회.
-
-        //이거 여기다가 하는게 맞나.(readOnly)
-        //브랜드 아이디가 있는지 - 프론트에서 선택(직접 입력이 아닌)을 해서 전송이 된건데 확인을 하는게 맞은지?
-        //해당 브랜드 매니저가 브랜드 물품에 대해서 등록을 하는건데, 브랜드 확인을 하는게 맞는지?
-
-        if (brandService.findById(productRegisterDto.getBrandId()) == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",productRegisterDto.getName() + " 불가(brand 없음)"));
-
-        }
-
-        if (categoryService.findById(productRegisterDto.getCategoryId()) == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",productRegisterDto.getName() + " 불가(카테고리 없음)"));
-        }
-
-
-        ImagePathDto product;
-
-
-        //사진 저장했는데 브랜드나 카테고리를 제대로 안받아 온거면 안됨, 맨 마지막.
-        //product_description_id 가 있는지 확인 - 없으면 product_description과 product_description_img 둘다 생성해야함.
-
-
-        /*
-                상세 설명 만들기.
-                변수를 한번에 담기.
-                이미지 저장, 상품 저장, 재고 저장, 상세 설명 저장.
-                repImg, desImgs, represenImgs 세개가 모두 null 이 아니어야함.
-
-            */
-        ProductRegisterDto productRegisterDto1 = ProductRegisterDto.builder().productId(productRegisterDto.getProductId())
-                                    .repImg(productRegisterDto.getRepImg())
-                                    .name(productRegisterDto.getName())
-                                    .brandId(productRegisterDto.getBrandId())
-                                    .productDescriptionDto(productRegisterDto.getProductDescriptionDto())
-                                    .categoryId(productRegisterDto.getCategoryId())
-                                    .price(productRegisterDto.getPrice())
-                                    .managerName(productRegisterDto.getManagerName())
-                                    .size(productRegisterDto.getSize())
-                                    .color(productRegisterDto.getColor())
-                                    .quantity(productRegisterDto.getQuantity())
-                                    .build();
-        System.out.println(productRegisterDto);
-
-        System.out.println("product description imgs : " +productRegisterDto.getDesImgs());
-
-        try {
-            product = productService.registerPresignedUrlSave(productRegisterDto1, productRegisterDto.getRepImg(), productRegisterDto.getDesImgs(), productRegisterDto.getRepresenImgs());
-            return ResponseEntity.status(HttpStatus.OK).body(product);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",e.getMessage()));
-        }
-
-    }
 
 
 
+    //url만 DB에 저장하면 이거 없어도 됨
     @GetMapping("/getImage")
     public ResponseEntity<?> getimage() {
 
@@ -287,12 +225,10 @@ public class ProductRestController {
 
 
     //presinged url 가져오기.
+    //프론트에서 사진 업로드.
     @GetMapping("geturl")
     public ResponseEntity<?> geturl(@RequestParam("imagePath") String imagePath) {
         String decodedPath = URLDecoder.decode(imagePath, StandardCharsets.UTF_8);
-
-        System.out.println(decodedPath);
-        System.out.println(imagePath);
 
         return new ResponseEntity<>(s3FileService.getPreSignedUrl(decodedPath), HttpStatus.OK);
     }

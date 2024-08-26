@@ -293,6 +293,12 @@
     </update>
 
 
+    <update id="updateViewCount" parameterType="String">
+        UPDATE product
+            SET view_count = view_count+1 WHERE product_id = #{productId}
+    </update>
+
+
 
 
 

@@ -7,8 +7,11 @@ import com.fastcampus.toyproject2.product.dto.pagination.PageInfo;
 import com.fastcampus.toyproject2.product.dto.pagination.ProductRequestPageDto;
 import com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto;
 import com.fastcampus.toyproject2.productDescription.dao.ProductDescriptionDao;
+import com.fastcampus.toyproject2.productDescription.dao.ProductDescriptionDaoMysql;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
+import com.fastcampus.toyproject2.productDescriptionImg.dto.ImagePathDto;
+import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgRegisterDto;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,16 +35,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class ProductServiceTest {
     @Autowired
     private ProductService productService;
-    @Qualifier("productDescriptionDao")
     @Autowired
-    private ProductDescriptionDao productDescriptionDao;
+    private ProductDescriptionDaoMysql productDescriptionDao;
 
 
     @Test
     @DisplayName("서비스로 상품 등록 - 클라이언트가 상세 설명을 재사용하는 경우")
     public void register() throws Exception {
 
-        MultipartFile repImg = createRepImg();
         List<String> sizes = new ArrayList<>();
         sizes.add("L");
         sizes.add("M");
@@ -53,6 +54,16 @@ class ProductServiceTest {
         List<Integer> quantitis = new ArrayList<>();
         quantitis.add(133);
         quantitis.add(134);
+
+        List<ProductDescriptionImgRegisterDto> descriptionImgs = new ArrayList<>();
+        descriptionImgs.add(new ProductDescriptionImgRegisterDto("상세설명 이미지.png",35000L,"image/png"));
+
+
+        List<ProductDescriptionImgRegisterDto> productImgs=new ArrayList<>();
+        productImgs.add(new ProductDescriptionImgRegisterDto("상품 이미지.png",35000L,"image/png"));
+
+
+
 
         ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001", "나이키의 반팔 티는 좋은 제품이다.");
         ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
@@ -66,15 +77,17 @@ class ProductServiceTest {
                 .color(colors)
                 .size(sizes)
                 .quantity(quantitis)
+                .desImgs(descriptionImgs)
+                .represenImgs(productImgs)
+                .repImg("대표 이미지")
                 .build();
 
-        List<MultipartFile> desImgs = new ArrayList<>();
-        List<MultipartFile> represenImgs = new ArrayList<>();
 
-        String product = productService.registerSave(productRegisterDto, repImg, desImgs, represenImgs);
+
+        ImagePathDto product = productService.registerSave(productRegisterDto);
 
         assertNotNull(product);
-        assertTrue(product.equals("모두 다 재사용하는 테스트용 의류"));
+        assertTrue(productService.findProductDetailById(productRegisterDto.getProductId()).getName().equals(productRegisterDto.getName()));
         ProductDescriptionDto productDescriptionDtoDB  =productDescriptionDao.findById(productDescriptionDto.getProductDescriptionId());
         assertTrue(productDescriptionDtoDB.getDescription().equals(productDescriptionDto.getDescription()));
 
@@ -103,6 +116,14 @@ class ProductServiceTest {
         List<Integer> quantitis = new ArrayList<>();
         quantitis.add(332);
 
+        List<ProductDescriptionImgRegisterDto> descriptionImgs = new ArrayList<>();
+        descriptionImgs.add(new ProductDescriptionImgRegisterDto("상세설명 이미지.png",35000L,"image/png"));
+
+
+        List<ProductDescriptionImgRegisterDto> productImgs=new ArrayList<>();
+        productImgs.add(new ProductDescriptionImgRegisterDto("상품 이미지.png",35000L,"image/png"));
+
+
         ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("ADIDAS0000001","상세 설명은 짧고 간단하게.");
         ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
                 .price(25900)
@@ -115,14 +136,15 @@ class ProductServiceTest {
                 .color(colors)
                 .size(sizes)
                 .quantity(quantitis)
+                .represenImgs(productImgs)
+                .desImgs(descriptionImgs)
+                .repImg("대표 이미지")
                 .build();
 
-        List<MultipartFile> desImages = create2Imgs(2,"des");
-        List<MultipartFile> repImages = create2Imgs(2,"rep");
 
         long curLong = System.currentTimeMillis();
         try {
-            productService.registerSave(productRegisterDto, repImg, desImages, repImages);
+            productService.registerSave(productRegisterDto);
         }catch (Exception e){
             assertTrue((e instanceof DuplicateProductDescriptionIdException));
         }
@@ -142,7 +164,7 @@ class ProductServiceTest {
     @Test
     @DisplayName("DetailDto 찾아오기")
     void searchProduct1() throws Exception {
-        String requestProductId = "P001";
+        String requestProductId = "P004";
 
 
         //null일 경우 controller 예외 처리 해주기. -> 잘못된 접근
@@ -151,8 +173,6 @@ class ProductServiceTest {
         //다음에는 상품을 등록하고 DetailDto 찾아오기. - 더 세세하게 test할 수 있도록.
 
         System.out.println(productDetailDto);
-
-
 
         assertTrue(productDetailDto.getProductId().equals(requestProductId));
 
@@ -222,8 +242,8 @@ class ProductServiceTest {
 
 
         product table의 star_rating 을 int로 둠
-        -> mysql 에 float 로 평균 별점을 저장 한다고 할 때  ex)4.8 - P001
-        select * from product where star_rating = 4.8 로 P001 이 안찾아짐. -> 부동 소수점
+        -> mysql 에 float 로 평균 별점을 저장 한다고 할 때  ex)4.8 - P004
+        select * from product where star_rating = 4.8 로 P004 이 안찾아짐. -> 부동 소수점
 
         어짜피 소수점 한자리수 미만의 숫자는 관심 대상이 아닐 듯함.
 
@@ -568,6 +588,16 @@ class ProductServiceTest {
         quantitis.add(133);
         quantitis.add(134);
 
+        List<ProductDescriptionImgRegisterDto> descriptionImgs = new ArrayList<>();
+        descriptionImgs.add(new ProductDescriptionImgRegisterDto("상세설명 이미지.png",35000L,"image/png"));
+
+
+        List<ProductDescriptionImgRegisterDto> productImgs=new ArrayList<>();
+        productImgs.add(new ProductDescriptionImgRegisterDto("상품 이미지.png",35000L,"image/png"));
+
+
+
+
         ProductDescriptionDto productDescriptionDto = new ProductDescriptionDto("NIKE000000001", "나이키의 반팔 티는 좋은 제품이다.");
         ProductRegisterDto productRegisterDto = ProductRegisterDto.builder()
                 .price(25900)
@@ -580,12 +610,15 @@ class ProductServiceTest {
                 .color(colors)
                 .size(sizes)
                 .quantity(quantitis)
+                .repImg("대표 이미지.jpg")
+                .desImgs(descriptionImgs)
+                .represenImgs(productImgs)
                 .build();
 
         List<MultipartFile> desImgs = new ArrayList<>();
         List<MultipartFile> represenImgs = new ArrayList<>();
 
-        String product = productService.registerSave(productRegisterDto, repImg, desImgs, represenImgs);
+        ImagePathDto product = productService.registerSave(productRegisterDto);
 
         ProductDetailDto productDetailDto  = productService.findProductDetailById(productRegisterDto.getProductId());
 
@@ -684,7 +717,7 @@ class ProductServiceTest {
     @DisplayName("상품 상세 설명 가져오기")
     void detailPage() throws Exception{
         long curLong = System.currentTimeMillis();
-        ProductDetailDto productDetailDto = productService.findProductDetailById("P001");
+        ProductDetailDto productDetailDto = productService.findProductDetailById("P004");
         long endLong = System.currentTimeMillis();
 
         double seconds = (double) (endLong - curLong) /1000;
@@ -692,14 +725,14 @@ class ProductServiceTest {
 
         System.out.println(productDetailDto);
 
-        assertTrue(productDetailDto.getProductId().equals("P001"));
+        assertTrue(productDetailDto.getProductId().equals("P004"));
     }
 
     @Test
     @DisplayName("가져오려고 하는 상세 상품이 없는 경우")
     void  detailProductNotFound() throws Exception{
         try {
-            ProductDetailDto productDetailDto = productService.findProductDetailById("P001");
+            ProductDetailDto productDetailDto = productService.findProductDetailById("P004");
         }catch (NotFoundException e){
             assertTrue(e.getMessage().equals("해당 품목을 찾을 수 없습니다."));
         }
@@ -711,9 +744,9 @@ class ProductServiceTest {
     @DisplayName("서비스 상품 삭제")
     void deleteProduct() throws Exception {
         //상품 삭제시 다른 매니저가 삭제할 수 도 있으므로 해당 상품의 registerManager 만 삭제할수 있도록 하기.
-        productService.deleteProduct("P001");
+        productService.deleteProduct("P004");
         try{
-            productService.findProductDetailById("P001");
+            productService.findProductDetailById("P004");
         }catch (NotFoundException e){
             assertTrue(e.getMessage().equals("해당 품목을 찾을 수 없습니다."));
         }
@@ -740,7 +773,7 @@ class ProductServiceTest {
         //수정 같은 경우도 registermanager만 수정할 수 있도록.
 
         ProductUpdateDto productUpdateDto = new ProductUpdateDto();
-        productUpdateDto.setProductId("P001");
+        productUpdateDto.setProductId("P004");
         productUpdateDto.setProductStatus("EVENT");
         productUpdateDto.setPrice(99999);
         productUpdateDto.setRegisterManager("수정자");

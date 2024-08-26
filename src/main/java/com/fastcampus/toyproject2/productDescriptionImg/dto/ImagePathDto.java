@@ -14,7 +14,10 @@ public class ImagePathDto {
     private String repImgPath;
 
     private List<String> descImgPath ;
+
     private List<String> prodImgPath ;
+
+
     public ImagePathDto(){
         this.descImgPath = new ArrayList<>();
         this.prodImgPath =  new ArrayList<>();
@@ -27,4 +30,6 @@ public class ImagePathDto {
     public void addProdImgPath(String prodImgPath) {
         this.prodImgPath.add(prodImgPath);
     }
+
+
 }

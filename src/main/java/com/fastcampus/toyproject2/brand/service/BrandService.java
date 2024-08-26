@@ -6,10 +6,12 @@ import com.fastcampus.toyproject2.brand.dto.BrandCreateDto;
 import com.fastcampus.toyproject2.brand.dto.BrandDto;
 import com.fastcampus.toyproject2.brand.dto.BrandListDto;
 import com.fastcampus.toyproject2.brand.dto.BrandUpdateDto;
+import com.fastcampus.toyproject2.brand.dto.page.BrandPageInfo;
 import com.fastcampus.toyproject2.product.dao.ProductDaoMysql;
 import com.fastcampus.toyproject2.product.dto.ProductPageDto;
 import com.fastcampus.toyproject2.product.dto.pagination.PageInfo;
 import com.fastcampus.toyproject2.util.FileService;
+import com.fastcampus.toyproject2.util.S3FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,11 +28,24 @@ public class BrandService {
     private final BrandDaoMysql brandDao;
     private final FileService fileService;
     private final ProductDaoMysql productDao;
+    private final S3FileService s3fileService;
+    private final BrandDaoMysql brandDaoMysql;
 
 
     @Transactional(readOnly = true)
-    public List<BrandListDto> findAll() {
-        return brandDao.findAll();
+    public List<BrandListDto> findBrandMainPage(BrandPageInfo brandPageInfo) throws Exception {
+
+        HashMap<String,Object> map = BrandPageInfo.toHashMap(brandPageInfo);
+
+        List<BrandListDto> brandList =brandDao.brandListPaging(map);
+
+        brandPageInfo.brandCountCal(brandDao.countAllBrand());
+
+        for (BrandListDto brandDto : brandList) {
+            brandDto.setImg(s3fileService.plusBucketPath(brandDto.getImg()));
+        }
+
+        return brandList;
     }
 
     @Transactional(readOnly = true)
@@ -38,16 +53,18 @@ public class BrandService {
         return brandDao.findById(id);
     }
 
-    public int createBrand(BrandCreateDto brand, MultipartFile brandImg) throws Exception {
+    public String createBrand(BrandCreateDto brand) throws Exception {
 
         //이미지 이름.
-        String fileCode = fileService.uploadRepImg(brandImg);
-        brand.setImg(fileCode);
+        String brandImgPath = s3fileService.brandImgPrefixPath(brand.getBrandId(), brand.getImg());
+        brand.setImg(brandImgPath);
+        //DE 저장하는 DAO 함수 호출
+        brandDaoMysql.insert(brand);
 
-        return brandDao.insert(brand);
+        return brandImgPath;
     }
 
-    public int updateBrand(BrandUpdateDto brandUpdateDto, MultipartFile brandImg)throws Exception{
+    public int updateBrand(BrandUpdateDto brandUpdateDto)throws Exception{
 
         //기존 이미지 이름 가져오기.
         //기존 이미지 삭제

@@ -25,7 +25,7 @@
     </insert>
 
 
-<!-- 특정 카테고리 ID의 상위 카테고리 계층적으로 찾기. -->
+<!-- 특정 카테고리 ID의 모든 상위 카테고리 계층적으로 찾기. -->
     <select id ="findUpperCategoryHierarchyById" parameterType="String" resultType="com.fastcampus.toyproject2.category.dto.CategoryHierarchyDto">
         WITH RECURSIVE CategoryHierarchy AS (
             SELECT
@@ -53,6 +53,15 @@
             category_name
         FROM
             CategoryHierarchy;
+    </select>
+
+
+<!--  해당 카테고리 ID의 상위 카테고리 하나만 찾기  -->
+    <select id="findUpperCategoryById" parameterType="String" resultType="com.fastcampus.toyproject2.category.dto.SubCategoryDto">
+        SELECT category_id
+        , category_name
+            FROM category
+            WHERE category_id = #{categoryId}
     </select>
 
 
@@ -87,6 +96,17 @@
         SubCategories
     order by category_id;
 </select>
+
+    <select id="findLowerCategoryById" parameterType="String" resultType="com.fastcampus.toyproject2.category.dto.SubCategoryDto">
+        SELECT category_id
+             , category_name
+        FROM category
+        WHERE parent_category_id = #{categoryId}
+    </select>
+
+
+
+
 
     <update id="updateCategory" parameterType="com.fastcampus.toyproject2.category.dto.Category">
         UPDATE category

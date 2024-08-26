@@ -4,12 +4,59 @@
     <meta charset="UTF-8">
     <title>toyproject</title>
     <link rel="stylesheet" href="../../css/main.css">
+    <style>
+        .center{
+            flex-direction: column;
+            width: 650px;
+            background-color: #f8f9fa;
+
+        }
+        body{
+            display: flex;
+            justify-content: center;
+
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 650px;
+            height: 60px;
+            background-color: #fff;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            text-align: center;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .nav-item p {
+            margin-top: 5px;
+        }
+
+        .icon-button {
+            background: white;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            z-index: 1000;
+
+        }
+    </style>
 </head>
 <body>
+<div class="center" >
+
 <div th:replace="~{fragments/header::header}"></div>
 
 <div layout:fragment="content"></div>
 
 <div th:replace="~{fragments/footer::footer}"></div>
+</div>
 </body>
 </html>

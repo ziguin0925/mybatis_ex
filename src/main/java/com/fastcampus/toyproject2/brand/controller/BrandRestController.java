@@ -30,14 +30,14 @@ public class BrandRestController {
     * 브랜드 등록 처리
     * */
     @Operation(summary = "브랜드 등록", description = "브랜드 등록하는 api")
-    @PostMapping("/admin")
-    public ResponseEntity<?> brandRegister(@Validated @RequestPart(value = "Brand") BrandCreateDto brand
-            , @RequestPart(required = true) MultipartFile brandImg ) throws Exception {
-
-        brandService.createBrand(brand, brandImg);
+    @PostMapping("/admin/{brandId}")
+    public ResponseEntity<?> brandRegister(@Validated @RequestBody BrandCreateDto brand) throws Exception {
 
 
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",brand.getName() + "브랜드 등록 완료"));
+        String brandImgPath = brandService.createBrand(brand);
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(brandImgPath);
     }
 
     //register와 update의 차이가 별로 없음...
@@ -45,10 +45,9 @@ public class BrandRestController {
     @Operation(summary = "브랜드 내용 수정", description = "브랜드 등록과 브랜드 수정에서 받는 파라미터의 차이가 거의 없음.\n\n" +
             "합칠지 따로 둘지 고민.")
     @PatchMapping("/admin")
-    public ResponseEntity<?> brandUpdate(@Validated @RequestPart(value = "Brand")BrandUpdateDto brandUpdateDto
-            , @RequestPart(required = false) MultipartFile brandImg) throws Exception {
+    public ResponseEntity<?> brandUpdate(@Validated @RequestBody BrandUpdateDto brandUpdateDto) throws Exception {
 
-        brandService.updateBrand(brandUpdateDto, brandImg);
+        brandService.updateBrand(brandUpdateDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",brandUpdateDto.getName() + "브랜드 수정 완료"));
     }

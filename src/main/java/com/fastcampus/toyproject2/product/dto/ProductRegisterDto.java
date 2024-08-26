@@ -2,6 +2,7 @@ package com.fastcampus.toyproject2.product.dto;
 
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
 import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
+import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgRegisterDto;
 import com.fastcampus.toyproject2.stock.dto.Stock;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +18,8 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @Getter
+@AllArgsConstructor
+@Builder
 public class ProductRegisterDto {
     /*
     @NotNull - "", " " 은 허용
@@ -36,9 +39,12 @@ public class ProductRegisterDto {
     @NotNull(message = "상품 이름은 3글자 이상, 25자 미만 이어야 합니다.")
     private String name;
 
+
+    private String repImg;
+
     //해당 브랜드가 있는지 확인.
     @NotBlank(message = "Product brand is not defined")
-    private String BrandId;
+    private String brandId;
 
     //목록에 나타낼 대표 사진 이외 모든 상세 설명 재사용 할지 여부.
     //기존의 product_description_id을 사용하지 않는다면 받아오기.
@@ -65,20 +71,11 @@ public class ProductRegisterDto {
     @NotNull(message = "Product quantity is not defined")
     private List<Integer> quantity= new ArrayList<>();
 
+    private List<ProductDescriptionImgRegisterDto> desImgs; // 설명 이미지 리스트
+    private List<ProductDescriptionImgRegisterDto> represenImgs;
 
-    @Builder
-    public ProductRegisterDto(String productId, String name, String brandId, ProductDescriptionDto productDescriptionDto, String repImg, String categoryId, int price, String managerName, List<String> size, List<String> color, List<Integer> quantity) {
-        this.productId = productId;
-        this.name = name;
-        this.productDescriptionDto = productDescriptionDto;
-        this.BrandId = brandId;
-        this.categoryId = categoryId;
-        this.price = price;
-        this.managerName = managerName;
-        this.size = size;
-        this.color = color;
-        this.quantity = quantity;
-    }
+
+
 
 
     public static ProductDescription toProductDescription(ProductRegisterDto productRegisterDto){

@@ -97,7 +97,10 @@ public class ProductDaoMysql implements ProductDao {
         return sqlSession.update(namespace+"updateProduct", productUpdateDto);
     }
 
-
+    @Override
+    public int updateViewCount(String productId) throws Exception {
+        return sqlSession.update(namespace+"updateViewCount", productId);
+    }
 
 
     @Override

@@ -1,10 +1,7 @@
 package com.fastcampus.toyproject2.product.service;
 
-import com.fastcampus.toyproject2.category.dao.CategoryDao;
 import com.fastcampus.toyproject2.category.dao.CategoryDaoMysql;
 import com.fastcampus.toyproject2.category.dto.CategoryHierarchyDto;
-import com.fastcampus.toyproject2.exception.exceptionDto.customExceptionClass.DuplicateProductDescriptionIdException;
-import com.fastcampus.toyproject2.exception.exceptionDto.customExceptionClass.DuplicateProductIdException;
 import com.fastcampus.toyproject2.product.dao.ProductDaoMysql;
 import com.fastcampus.toyproject2.product.dto.*;
 import com.fastcampus.toyproject2.product.dto.pagination.PageInfo;
@@ -23,8 +20,6 @@ import com.fastcampus.toyproject2.util.FileService;
 import com.fastcampus.toyproject2.util.S3FileService;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.javassist.NotFoundException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional
@@ -54,63 +48,7 @@ public class ProductService {
 
     //상품 등록.
     @Transactional
-    public String registerSave(ProductRegisterDto productRegisterDto
-            , MultipartFile productRepImg
-            , List<MultipartFile> DescriptionImgs
-            , List<MultipartFile> productImgs) throws Exception {
-
-        //null이면 새로 생성 하는거. readonly 못 할까 controller 에서 descriptionService로 읽어야하나.
-        ProductDescriptionDto productDescriptionCheck = productDescriptionDao.findById(productRegisterDto.getProductDescriptionDto().getProductDescriptionId());
-
-        /*
-         * Product 객체 생성, 대표 사진 저장, stockList 객체 생성 후 Map에 넣기.
-         * */
-
-        String repFileCode = fileService.uploadRepImg(productRepImg);
-
-
-        /*
-         * Product 객체 생성.
-         * */
-
-        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto, repFileCode);
-        /*
-         * Stock 저장
-         * */
-        List<Stock> stocks = ProductRegisterDto.toStockList(productRegisterDto);
-
-
-        //상세 설명을 만드는 경우
-        //요청 json이 어떻게 오는지 확인해봐야할듯... DescriptionImgs 있는데 텅 비었다면 isEmpty로 해도 될거같은데.
-
-        try{
-
-            if (productDescriptionCheck == null && DescriptionImgs != null) {
-
-                //ProductDescription 객체 생성.
-                ProductDescription productDescription = ProductRegisterDto.toProductDescription(productRegisterDto);
-
-                //ProductDescriptionImg 저장 및 객체 생성
-                List<ProductDescriptionImg> imgList = fileService.toImageList(DescriptionImgs, productImgs, productDescription.getProductDescriptionId());
-
-                productDescriptionDao.insert(productDescription);
-                productDescriptionImgDao.insert(imgList);
-            }
-            productDao.insertTest(registerProduct);
-            stockDao.insert(stocks);
-        }catch (Exception e ){
-            e.printStackTrace();
-        }
-
-        return productRegisterDto.getName();
-    }
-
-
-    @Transactional
-    public ImagePathDto registerPresignedUrlSave(ProductRegisterDto productRegisterDto
-            , String productRepImg
-            , List<ProductDescriptionImgRegisterDto> DescriptionImgs
-            , List<ProductDescriptionImgRegisterDto> productImgs) throws Exception {
+    public ImagePathDto registerSave(ProductRegisterDto productRegisterDto) throws Exception {
 
         ImagePathDto imagePathDto = new ImagePathDto();
 
@@ -119,9 +57,10 @@ public class ProductService {
 
 
 //        String repFilePath = s3FileService.createRepImgPath(productRegisterDto.getBrandId(), productRegisterDto.getProductId(), productRepImg);
-        String repFilePath = s3FileService.createUUID()+productRepImg;
 
-        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto, repFilePath);
+        String repFilePrefix = s3FileService.repImgPrefixPath(productRegisterDto.getBrandId(), productRegisterDto.getProductId(),productRegisterDto.getRepImg());
+
+        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto,repFilePrefix);
 
         List<Stock> stocks = ProductRegisterDto.toStockList(productRegisterDto);
 
@@ -130,13 +69,13 @@ public class ProductService {
         //요청 json이 어떻게 오는지 확인해봐야할듯... DescriptionImgs 있는데 텅 비었다면 isEmpty로 해도 될거같은데.
 
         try{
-            if (productDescriptionCheck == null && !DescriptionImgs.isEmpty()) {
+            if (productDescriptionCheck == null && !productRegisterDto.getDesImgs().isEmpty()) {
 
                 //ProductDescription 객체 생성.
                 ProductDescription productDescription = ProductRegisterDto.toProductDescription(productRegisterDto);
 
                 //ProductDescriptionImg 저장 및 객체 생성
-                List<ProductDescriptionImg> imgList = s3FileService.presigneUrltoImageList(DescriptionImgs, productImgs, productDescription.getProductDescriptionId(), productRegisterDto.getBrandId());
+                List<ProductDescriptionImg> imgList = s3FileService.presigneUrltoImageList(productRegisterDto.getDesImgs(), productRegisterDto.getRepresenImgs(), productDescription.getProductDescriptionId(), productRegisterDto.getBrandId());
 
                 productDescriptionDao.insert(productDescription);
                 productDescriptionImgDao.insert(imgList);
@@ -150,7 +89,7 @@ public class ProductService {
                 }
 
             }
-            imagePathDto.setRepImgPath(repFilePath);
+            imagePathDto.setRepImgPath(repFilePrefix);
 
             productDao.insertTest(registerProduct);
             stockDao.insert(stocks);
@@ -161,7 +100,6 @@ public class ProductService {
 
         return imagePathDto;
     }
-
 
     /*
     *       상품 상세 정보
@@ -177,6 +115,7 @@ public class ProductService {
         ProductDetailDto productDetailDto = null;
         try {
             productDetailDto = productDao.findProductDetailById(productId);
+            productDetailDto.setRepImg(s3FileService.plusBucketPath(productDetailDto.getRepImg()));
         }catch (Exception e ){
             //여기 처리
             System.out.println(e.getMessage());
@@ -197,10 +136,12 @@ public class ProductService {
 
         //상품 이미지와 상품 설명 이미지 분류.
         for(ProductDescriptionImgDetailDto imgs : imgList){
+
+            imgs.setPath(s3FileService.plusBucketPath(imgs.getPath()));
+
             if(imgs.getKindOf().equals(ProductDescriptionImg.DESCRIPTION))
                 desImgs.add(imgs);
             else repImgs.add(imgs);
-
         }
 
         //상품 이미지 Dto에 추가.
@@ -212,10 +153,6 @@ public class ProductService {
         //해당 상품의 카테고리 Id 찾기. -> 상품에 아예 카테고리 이름도 넣어버릴까?
         List<CategoryHierarchyDto> categoryHierarchyDtos = categoryDao.findUpperCategoryHierarchyById(productDetailDto.getCategoryId());
         productDetailDto.setParentCategorys(categoryHierarchyDtos);
-
-
-
-
 
         return productDetailDto;
     }
@@ -234,22 +171,28 @@ public class ProductService {
         //Map으로 해서 들고오던지 Dto로 해서 들고오던지 하기.
         map.put("size",Integer.parseInt(map.get("size").toString()));
 
+        List<ProductCursorPageDto> productList;
+
         //나중에 하드코딩 지우기 -> DTO로 만들어서 DTO 내부에서 처리하든지.
         if(map.get("sortCode").equals("RANKING")) {
-            return productDao.findCursorPageListOrderByRank(map);
+            productList= productDao.findCursorPageListOrderByRank(map);
         }else if(map.get("sortCode").equals("SALES")){
-            return productDao.findCursorPageListOrderBySales(map);
+            productList =  productDao.findCursorPageListOrderBySales(map);
         }else if(map.get("sortCode").equals("HIGHPRICE")){
-            return productDao.findCursorPageListByHighPrice(map);
+            productList =  productDao.findCursorPageListByHighPrice(map);
         }else if(map.get("sortCode").equals("LOWPRICE")){
-            return productDao.findCursorPageListByLowPrice(map);
+            productList =  productDao.findCursorPageListByLowPrice(map);
         }else if(map.get("sortCode").equals("LATEST")){
-            return productDao.findCursorPageListByLastest(map);
+            productList = productDao.findCursorPageListByLastest(map);
+        }else{
+            productList =productDao.findCursorList(map);
+        }
+        for (ProductCursorPageDto productCursorPageDto : productList) {
+            productCursorPageDto.setRepImg(s3FileService.plusBucketPath(productCursorPageDto.getRepImg()));
         }
 
-        return productDao.findCursorList(map);
+        return productList;
     }
-
 
     /*
     *       페이지 기반 상품 페이징
@@ -260,23 +203,34 @@ public class ProductService {
 
         HashMap<String ,Object> pageMap = PageInfo.toHashMap(pageInfo);
         pageInfo.productCountCal(productDao.countProduct(pageMap));
-        return productDao.findPageList(pageMap);
+        List<ProductPageDto> productList= productDao.findPageList(pageMap);
+        for(ProductPageDto product : productList){
+            product.setRepImg(s3FileService.plusBucketPath(product.getRepImg()));
+        }
+        return productList;
     }
-
 
     @Transactional(readOnly = true)
     public List<ProductAdminList> findProductAdminList() throws Exception {
-        return productDao.findProductAdminList();
+        List<ProductAdminList> productAdminList = productDao.findProductAdminList();
+
+        for(ProductAdminList productAdmin : productAdminList){
+            productAdmin.setRepImg(s3FileService.plusBucketPath(productAdmin.getRepImg()));
+        }
+        return productAdminList;
+    }
+
+    @Transactional
+    public void viewCount(String productId) throws Exception {
+        productDao.updateViewCount(productId);
     }
 
     /*
     *       상품 삭제
     *
     * */
-    public int deleteProduct(String productId) throws Exception {
-
+    public void deleteProduct(String productId) throws Exception {
         int deleteNum = 0;
-
         try {
             deleteNum = productDao.deleteByProductId(productId);
         }catch (Exception e ){
@@ -285,8 +239,6 @@ public class ProductService {
         if(deleteNum==0){
             throw new NotFoundException("삭제하려는 상품이 존재하지 않습니다.");
         }
-
-        return deleteNum;
     }
 
     public void updateProduct(ProductUpdateDto productUpdateDto) throws NotFoundException {
@@ -299,9 +251,7 @@ public class ProductService {
         if(i==0){
             throw new NotFoundException("수정 물품이 존재하지 않습니다.");
         }
-
     }
-
 }
 
 

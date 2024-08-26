@@ -21,6 +21,12 @@
         .product-item .btn {
             margin-left: 10px;
         }
+
+        .product-image {
+            width: 150px;
+            height: 150px;
+            object-fit: contain; /* 필요에 따라 이미지가 요소 크기에 맞도록 자르기 */
+        }
     </style>
 </head>
 <body>
@@ -40,13 +46,13 @@
         <tbody>
         <tr th:each="product : ${products}">
             <td>
-                <img th:src="@{${product.repImg}}" alt="상품 이미지">
+                <img th:src="@{${product.repImg}}" alt="상품 이미지" class="product-image">
             </td>
             <td th:text="${product.name}"></td>
             <td th:text="${product.createDatetime}"></td>
             <td th:text="${product.productStatus}"></td>
             <td>
-                <a th:href="@{/products/edit/{id}(id=${product.productId})}" class="btn btn-warning btn-sm">수정</a>
+                <a th:href="@{/product/admin/{productId}(productId=${product.productId})}" class="btn btn-warning btn-sm">수정</a>
                 <button class="btn btn-danger btn-sm" th:onclick="deleteProduct([[${product.productId}]]);" type="button">삭제</button>
             </td>
         </tr>

@@ -1,34 +1,45 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/mainLayout}">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
         }
-        .container {
-            margin-top: 30px;
+
+        .container_detail {
+            width: 100%;
+            max-width: 650px;
+            box-sizing: border-box; /* 패딩과 보더를 width에 포함 */
+            background-color: #f8f9fa;
+            text-align: center;
+
         }
         .product-images img {
-            max-width: 100%;
+            max-width: 630px;
             border-radius: 8px;
         }
         .product-images .main-img {
-            width: 100%;
-            max-height: 500px;
-            object-fit: cover;
+            width: 650px;
+            height: 500px;
+            object-fit: contain;
         }
         .product-images .additional-img {
-            margin-top: 15px;
+            width: 650px;
+            max-height: 500px;
+            object-fit: contain;
         }
         .product-details {
             padding: 20px;
             background: white;
+            width: 650px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: justify;
         }
         .badge {
             margin-right: 10px;
@@ -55,15 +66,80 @@
         }
         .description img {
             margin-top: 15px;
-            max-width: 100%;
+            width: 650px;
             border-radius: 8px;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            width: 650px;
+            height: 50px;
+            background-color: white;
+            padding: 0 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between; /* 양 끝으로 정렬 */
+            align-items: center;
+        }
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            padding: 0;
+            margin-left: 15px;
+            outline:none;
+        }
+        button.icon-button:focus{
+            border: none;
+            outline:none;
         }
 
     </style>
 </head>
 <body>
-<div layout:fragment="content">
-<div class="container">
+
+
+<div class="container_detail">
+    <div class="top-bar">
+            <!--     뒤로가기      -->
+        <div class="top-bar-left">
+            <button id="backbutton" class="icon-button" onclick="goBack()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+                </svg></button>
+        </div>
+        <div class="top-bar-right">
+            <!--     홈       -->
+            <button class="icon-button" onclick="goHome()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
+                <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
+            </svg>
+            </button>
+            <!--     검색       -->
+            <button class="icon-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+            </svg>
+            </button>
+            <!--     장바구니       -->
+            <button class="icon-button"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bag" viewBox="0 0 16 16">
+                <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/>
+            </svg>
+            </button>
+        </div>
+    </div>
     <div class="product-images">
         <img id="mainImage" class="main-img" th:src="@{${productDetail.repImg}}" th:alt="${productDetail.getName()}">
         <div th:each="itemImg : ${productDetail.productImages}" class="additional-img">
@@ -73,6 +149,7 @@
 
     <div class="product-details">
         <div class="d-flex justify-content-between align-items-center">
+
             <h1 class="h3" th:text="${productDetail.getName()}"></h1>
             <a><p th:text="${productDetail.getBrandName()}"></p></a><br>
             <a><p th:text="${productDetail.getCategoryName()}"></p></a>
@@ -138,6 +215,15 @@
 
     function order() {
         alert('주문이 완료되었습니다.');
+    }
+
+    function goBack() {
+        window.history.back();
+        // 또는 window.history.go(-1); 를 사용할 수 있습니다.
+    }
+    function goHome() {
+        window.location = '/product/100';
+        // 또는 window.history.go(-1); 를 사용할 수 있습니다.
     }
 </script>
     </div>

@@ -1,7 +1,50 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <div th:fragment="footer">
-    <div id="footer">
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <button class="icon-button" onclick="location.href='/category'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                </svg>
+            </button>
+            <p>카테고리</p>
+        </div>
+        <div class="nav-item">
+            <button class="icon-button" onclick="location.href='/snap'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-stars" viewBox="0 0 16 16">
+                    <path d="M7.5 2.5a.5.5 0 0 1 1 0v4.31l1.907-.636a.5.5 0 1 1 .316.949l-2.773.927a.5.5 0 0 1-.635-.398L7.5 2.5z"/>
+                </svg>
+            </button>
+            <p>스냅</p>
+        </div>
+        <div class="nav-item">
+            <button class="icon-button" onclick="location.href='/'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
+                    <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
+                </svg>
+            </button>
+            <p>홈</p>
+        </div>
+        <div class="nav-item">
+            <button class="icon-button" onclick="location.href='/likes'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                    <path d="M8 3.314C12.438-1.248 23.534 4.735 8 15-7.534 4.735 3.562-1.248 8 3.314z"/>
+                </svg>
+            </button>
+            <p>좋아요</p>
+        </div>
+        <div class="nav-item">
+            <button class="icon-button" onclick="location.href='/my'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 1a5 5 0 0 0-4.546 2.916C4.06 13.286 5.523 14 8 14c2.477 0 3.94-.714 4.546-2.084A5 5 0 0 0 8 9z"/>
+                </svg>
+            </button>
+            <p>마이</p>
+        </div>
+    </div>
+    <div id="footer" style="margin-bottom: 100px">
         <h1>toyproject.2</h1>
     </div>
 </div>

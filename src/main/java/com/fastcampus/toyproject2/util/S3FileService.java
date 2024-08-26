@@ -29,10 +29,21 @@ import java.net.URLDecoder;
 @Component
 public class S3FileService {
 
+    private static final String BRANDPATH ="brandImg";
+    private static final String DESCRIPTIONPATH ="brandImg";
+    private static final String PRODUCTPATH ="brandImg";
+    private static final String PRODUCTREPPATH ="brandImg";
+
+
+
     private final AmazonS3 amazonS3;
 
     @Value("${aws.s3.bucket}")
     private String bucketName;
+
+    @Value("${cloud.aws.s3.folder.defaultImgParh}")
+    private String bucketPath;
+
 
 
     @Value("${cloud.aws.s3.folder.brandFolder}")
@@ -173,12 +184,10 @@ public class S3FileService {
      * param : prefix 버킷안에 디렉터리 경로
      * param : fileName 클라이언트가 전달한 파일명 파라미터
      * return : presigned url
-     *
      * fileName은 UUID먼저 처리하고 받기.
      */
 
     public String getPreSignedUrl( String fileName) {
-
 
         GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePreSignedUrlRequest(bucketName, fileName);
         URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
@@ -190,12 +199,13 @@ public class S3FileService {
 
     /**
      * 파일 업로드용(PUT) presigned url 생성
-     * @param bucket 버킷 이름
-     * @param fileName S3 업로드용 파일 이름
-     * @return presigned url
+     *  bucket 버킷 이름
+     *  fileName S3 업로드용 파일 이름
+     *  return presigned url
      */
     private GeneratePresignedUrlRequest getGeneratePreSignedUrlRequest(String bucket, String fileName) {
 
+        //Put에 대한 메서드로 presigned URL생성
         GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, fileName)
                                                                         .withMethod(HttpMethod.PUT)
                                                                         .withExpiration(getPreSignedUrlExpiration());
@@ -203,6 +213,7 @@ public class S3FileService {
         generatePresignedUrlRequest.addRequestParameter(
                 Headers.S3_CANNED_ACL,
                 CannedAccessControlList.PublicRead.toString());
+
         return generatePresignedUrlRequest;
     }
 
@@ -235,17 +246,17 @@ public class S3FileService {
      */
 
 
-    public String createBrandImgPath(String brandId, String ImgName){
-        return String.format("%s/%s", brandPath(brandId),createUUID()+ImgName);
+    public String brandImgPrefixPath(String brandId, String fileName){
+        return String.format("%s/%s", brandPath(brandId),createUUID()+fileName);
     }
-    public String createRepImgPath(String brandId, String ProductId, String ImgName){
-        return String.format("%s/%s/%s/%s", brandPath(brandId), repPath, ProductId,createUUID()+ImgName);
+    public String repImgPrefixPath(String brandId, String ProductId, String fileName){
+        return String.format("%s/%s/%s/%s", brandPath(brandId), repPath,ProductId, createUUID()+fileName);
     }
-    private String createDescriptionImgPath(String brandId,String productDescriptionId, String ImgName){
-        return String.format("%s/%s/%s/%s", brandPath(brandId), descriptionPath(productDescriptionId), descriptionImgPath, createUUID()+ImgName);
+    private String descriptionImgPrefixPath(String brandId,String productDescriptionId,String fileName){
+        return String.format("%s/%s/%s/%s", brandPath(brandId), descriptionPath(productDescriptionId), descriptionImgPath,createUUID()+fileName);
     }
-    public String createProductImgPath(String brandId,String productDescriptionId, String ImgName){
-        return String.format("%s/%s/%s/%s", brandPath(brandId), descriptionPath(productDescriptionId), productImgPath, createUUID()+ImgName);
+    public String productImgPrefixPath(String brandId,String productDescriptionId,String fileName){
+        return String.format("%s/%s/%s/%s", brandPath(brandId), descriptionPath(productDescriptionId), productImgPath,createUUID()+fileName);
 
     }
     private String brandPath(String brandId){
@@ -258,47 +269,62 @@ public class S3FileService {
 
 
 
+
     public List<ProductDescriptionImg> presigneUrltoImageList(
-            List<ProductDescriptionImgRegisterDto> DescriptionImgs
+            List<ProductDescriptionImgRegisterDto> descriptionImgs
             , List<ProductDescriptionImgRegisterDto> productImgs
             , String productDescriptionId
-            ,String brandId) throws IOException {
+            ,String brandId) {
+
+        //순서를 Mapper에서 만들어 놓을까.
 
         List<ProductDescriptionImg> imgList = new ArrayList<>();
-        //순서를 Mapper에서 만들어 놓을까.
-        byte order =1;
 
-        for(ProductDescriptionImgRegisterDto file : DescriptionImgs){
+        // Description Images 처리
+        addImagesToList(imgList, descriptionImgs, productDescriptionId, brandId, true);
 
-            String fileName = file.getFileName();
-//            String filePath = createDescriptionImgPath(brandId, productDescriptionId , fileName);
-            String filePath = createUUID() +fileName;
-
-            Long fileBytes = file.getFileSize();
-
-            imgList.add(ProductDescriptionImg.imageToDescriptionImg(fileName, filePath, fileBytes, productDescriptionId, order));
-            order++;
-        }
-
-
-        if(!productImgs.isEmpty()){
-            order=1;
-
-            for(ProductDescriptionImgRegisterDto file : productImgs){
-
-                String fileName = file.getFileName();
-//                String filePath = createProductImgPath(brandId, productDescriptionId , fileName);
-                String filePath = createUUID()+fileName;
-                Long fileBytes = file.getFileSize();
-
-                imgList.add(ProductDescriptionImg.imageToProductImg(fileName, filePath, fileBytes, productDescriptionId, order));
-                order++;
-            }
+        // Product Images 처리 (비어있을 수 있음)
+        if (productImgs != null && !productImgs.isEmpty()) {
+            addImagesToList(imgList, productImgs, productDescriptionId, brandId, false);
         }
 
         return imgList;
+    }
 
+    private void addImagesToList(List<ProductDescriptionImg> imgList,
+                                 List<ProductDescriptionImgRegisterDto> imageDtos,
+                                 String productDescriptionId,
+                                 String brandId,
+                                 boolean isDescriptionImg) {
+
+        byte order = 1;
+
+        for (ProductDescriptionImgRegisterDto file : imageDtos) {
+            String fileName = file.getFileName();
+
+            if (fileName == null || fileName.isEmpty()) {
+                //fileName이 없으면 임의로 만들어줌.
+                fileName = createUUID();
+            }
+
+            String filePath = isDescriptionImg
+                    ? descriptionImgPrefixPath(brandId, productDescriptionId, fileName) : productImgPrefixPath(brandId, productDescriptionId, fileName);
+
+            Long fileBytes = file.getFileSize();
+
+            if (isDescriptionImg) {
+                imgList.add(ProductDescriptionImg.imageToDescriptionImg(fileName, filePath, fileBytes, productDescriptionId, order));
+            } else {
+                imgList.add(ProductDescriptionImg.imageToProductImg(fileName, filePath, fileBytes, productDescriptionId, order));
+            }
+            order++;
+        }
     }
 
 
+
+
+    public String plusBucketPath(String imgPath) {
+        return bucketPath+imgPath;
+    }
 }
