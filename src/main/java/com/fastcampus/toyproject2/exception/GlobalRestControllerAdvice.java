@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.net.ConnectException;
 import java.util.*;
 
-
+/*
 @RestControllerAdvice
 public class GlobalRestControllerAdvice {
 
@@ -62,6 +62,4 @@ public class GlobalRestControllerAdvice {
         return ResponseEntity.badRequest().body(map);
     }
 
-
-
-}
+}*/

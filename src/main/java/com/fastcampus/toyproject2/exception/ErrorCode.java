@@ -1,18 +1,40 @@
 package com.fastcampus.toyproject2.exception;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Getter
-public enum ErrorCode {
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+public enum ErrorCode implements EnumModel {
 
-    NO_FILE_EXTENTION(404, "파일의 확장자가 올바르지 않습니다.");
+    // COMMON
+    INVALID_CODE(400, "C001", "Invalid Code"),
+    RESOURCE_NOT_FOUND(204, "C002", "Resource not found"),
+    EXPIRED_CODE(400, "C003", "Expired Code"),
 
-    private final int status;
-    private final String message;
+    // AWS
+    AWS_ERROR(400, "A001", "aws client error");
 
-    ErrorCode(int status, String message) {
+    private int status;
+    private String code;
+    private String message;
+    private String detail;
+
+    ErrorCode(int status, String code, String message) {
         this.status = status;
         this.message = message;
+        this.code = code;
     }
 
+    @Override
+    public String getKey() {
+        return this.code;
+    }
+
+    @Override
+    public String getValue() {
+        return this.message;
+    }
 }

@@ -13,16 +13,13 @@ import com.fastcampus.toyproject2.productDescriptionImg.dao.ProductDescriptionIm
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ImagePathDto;
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImg;
 import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgDetailDto;
-import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgRegisterDto;
 import com.fastcampus.toyproject2.stock.dao.StockDaoMysql;
 import com.fastcampus.toyproject2.stock.dto.Stock;
-import com.fastcampus.toyproject2.util.FileService;
 import com.fastcampus.toyproject2.util.S3FileService;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +35,6 @@ public class ProductService {
     private final ProductDescriptionDaoMysql productDescriptionDao;
     private final ProductDescriptionImgDaoMysql productDescriptionImgDao;
 
-    private final FileService fileService;
     private final S3FileService s3FileService;
     private final CategoryDaoMysql categoryDao;
 
