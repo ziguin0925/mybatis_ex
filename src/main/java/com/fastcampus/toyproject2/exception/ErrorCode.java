@@ -10,9 +10,14 @@ import lombok.RequiredArgsConstructor;
 public enum ErrorCode implements EnumModel {
 
     // COMMON
-    INVALID_CODE(400, "C001", "Invalid Code"),
-    RESOURCE_NOT_FOUND(204, "C002", "Resource not found"),
-    EXPIRED_CODE(400, "C003", "Expired Code"),
+    INVALID_CODE(400, "E001", "Invalid Code"),
+    RESOURCE_NOT_FOUND(204, "E002", "Resource not found"),
+    EXPIRED_CODE(400, "E003", "Expired Code"),
+    PARAMETER_NOT_VALID(400, "E004", "Parameter not valid"),
+
+
+    //Network
+    NETWORK_ERROR_CODE(500, "N001", "Internal network Error"),
 
     // AWS
     AWS_ERROR(400, "A001", "aws client error");

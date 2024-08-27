@@ -36,6 +36,11 @@ public class ProductDaoMysql implements ProductDao {
         return sqlSession.selectOne(namespace+"findNameById", productId);
     }
 
+    @Override
+    public String findRepImgById(String productId) throws Exception {
+        return sqlSession.selectOne(namespace+"findRepImgById", productId);
+    }
+
 
     @Override
     public ProductDetailDto findProductDetailById(String productId) throws Exception {

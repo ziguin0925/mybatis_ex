@@ -35,6 +35,12 @@
 
     </select>
 
+    <select id="findRepImgById" parameterType="String" resultType="String">
+        SELECT rep_img
+            from product
+            WHERE product_id = #{productId}
+    </select>
+
 
     <select id="findProductDetailDtoById" parameterType="String" resultType="com.fastcampus.toyproject2.product.dto.ProductDetailDto">
         SELECT

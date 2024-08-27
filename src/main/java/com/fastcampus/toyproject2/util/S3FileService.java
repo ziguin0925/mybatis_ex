@@ -27,13 +27,6 @@ import java.net.URLDecoder;
 @Component
 public class S3FileService {
 
-    private static final String BRANDPATH ="brandImg";
-    private static final String DESCRIPTIONPATH ="brandImg";
-    private static final String PRODUCTPATH ="brandImg";
-    private static final String PRODUCTREPPATH ="brandImg";
-
-
-
     private final AmazonS3 amazonS3;
 
     @Value("${aws.s3.bucket}")
@@ -59,7 +52,7 @@ public class S3FileService {
     @Value("${cloud.aws.s3.folder.productImgFolder}")
     private String productImgPath;
 
-
+    //프론트에서 직접 서버로 이미지 파일을 보냈을 때.
 
     //Controller나 다른 Service에서 이용할 메서드.
     public String upload(MultipartFile image) {
@@ -151,24 +144,7 @@ public class S3FileService {
         return amazonS3.getUrl(bucketName, s3FileName).toString();
     }
 
-    public void deleteImageFromS3(String imageAddress){
-        String key = getKeyFromImageAddress(imageAddress);
-        try{
-            amazonS3.deleteObject(new DeleteObjectRequest(bucketName, key));
-        }catch (Exception e){
-            throw new RuntimeException("파일을 삭제하는데 실패했습니다. IOException");
-        }
-    }
 
-    private String getKeyFromImageAddress(String imageAddress){
-        try{
-            URL url = new URL(imageAddress);
-            String decodingKey = URLDecoder.decode(url.getPath(), "UTF-8");
-            return decodingKey.substring(1); // 맨 앞의 '/' 제거
-        }catch (MalformedURLException | UnsupportedEncodingException e){
-            throw new RuntimeException("파일을 삭제하는데 실패했습니다. IOException");
-        }
-    }
 
     public String getFile(String fileName){
         //getUrl(버킷 이름, 파일 이름(+확장자)
@@ -225,6 +201,28 @@ public class S3FileService {
         expTimeMillis += 1000 * 60 * 2; //2분  (1000 * 60 = 1분)
         expiration.setTime(expTimeMillis); //현재 시간 + 2분 까지 유효
         return expiration;
+    }
+
+
+    //서버에서 이미지 삭제.
+    public void deleteImageFromS3(String imageAddress){
+        String key = getKeyFromImageAddress(imageAddress);
+        try{
+            amazonS3.deleteObject(new DeleteObjectRequest(bucketName, key));
+        }catch (Exception e){
+            throw new RuntimeException("파일을 삭제하는데 실패했습니다. IOException");
+        }
+    }
+
+    private String getKeyFromImageAddress(String imageAddress){
+        try{
+            URL url = new URL(bucketPath+imageAddress);
+            //decoder 필요한지 보기.
+            String decodingKey = URLDecoder.decode(url.getPath(), "UTF-8");
+            return decodingKey.substring(1); // 맨 앞의 '/' 제거
+        }catch (MalformedURLException | UnsupportedEncodingException e){
+            throw new RuntimeException("파일을 삭제하는데 실패했습니다. IOException");
+        }
     }
 
     /**

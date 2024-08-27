@@ -131,16 +131,18 @@ public class ProductRestController {
     @Operation(summary="상품 수정", description = "상품을 수정할 때 상세 설명, 상세 설명 이미지, 상품 이미지들을 수정할 때에는 다른 Controller에서 처리할 수 있도록 다른 페이지로 넘어가도록 처리.")
     @PatchMapping(value ={"/admin/{productId}"})
     public ResponseEntity<?> productupdate(@PathVariable(name = "productId") String productId
-            , @Validated @RequestBody ProductUpdateDto productUpdateDto)  {
-                //해당 상품이 존재하는지 확인?
+            , @Validated @RequestBody ProductUpdateDto productUpdateDto) {
+        //해당 상품이 존재하는지 확인?
 
-                try {
-                        productService.updateProduct(productUpdateDto);
-                }catch ( NotFoundException e ) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",e.getMessage()));
-                }
+        String repImgPath;
+        try {
+            repImgPath = productService.updateProduct(productUpdateDto);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        }
 
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",productId + "상품 수정 완료"));
+        //null이면 RepImg가 안바뀌었다는것.
+        return ResponseEntity.status(HttpStatus.OK).body(repImgPath);
     }
 
 
@@ -152,14 +154,13 @@ public class ProductRestController {
         try {
             productService.deleteProduct(productId);
         }catch (NotFoundException e){
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message",e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message",productId+ "상품 삭제 완료"));
+        return ResponseEntity.status(HttpStatus.OK).body(productId+ "상품 삭제 완료");
     }
 
 

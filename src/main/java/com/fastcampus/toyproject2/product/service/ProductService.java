@@ -54,16 +54,9 @@ public class ProductService {
 
 //        String repFilePath = s3FileService.createRepImgPath(productRegisterDto.getBrandId(), productRegisterDto.getProductId(), productRepImg);
 
-        String repFilePrefix = s3FileService.repImgPrefixPath(productRegisterDto.getBrandId(), productRegisterDto.getProductId(),productRegisterDto.getRepImg());
-
-        Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto,repFilePrefix);
-
-        List<Stock> stocks = ProductRegisterDto.toStockList(productRegisterDto);
-
-
         //상세 설명을 만드는 경우
         //요청 json이 어떻게 오는지 확인해봐야할듯... DescriptionImgs 있는데 텅 비었다면 isEmpty로 해도 될거같은데.
-
+        //Dao 마다 예외 처리 - duplicatedKey등.
         try{
             if (productDescriptionCheck == null && !productRegisterDto.getDesImgs().isEmpty()) {
 
@@ -85,6 +78,12 @@ public class ProductService {
                 }
 
             }
+            String repFilePrefix = s3FileService.repImgPrefixPath(productRegisterDto.getBrandId(), productRegisterDto.getProductId(),productRegisterDto.getRepImg());
+
+            Product registerProduct = ProductRegisterDto.toProduct(productRegisterDto,repFilePrefix);
+
+            List<Stock> stocks = ProductRegisterDto.toStockList(productRegisterDto);
+
             imagePathDto.setRepImgPath(repFilePrefix);
 
             productDao.insertTest(registerProduct);
@@ -94,6 +93,7 @@ public class ProductService {
             throw new RuntimeException(e.getMessage());
         }
 
+        //s3에 저장될 경로 배열 return
         return imagePathDto;
     }
 
@@ -237,8 +237,23 @@ public class ProductService {
         }
     }
 
-    public void updateProduct(ProductUpdateDto productUpdateDto) throws NotFoundException {
+    public String updateProduct(ProductUpdateDto productUpdateDto) throws NotFoundException {
         int i=0;
+
+        //Repimg가 변경 되었을 때.
+        if(productUpdateDto.getRepImg()!=null){
+            try{
+                s3FileService.deleteImageFromS3(productDao.findRepImgById(productUpdateDto.getProductId()));
+            } catch (NotFoundException e) {
+                throw new NotFoundException(e.getMessage());
+            } catch (Exception e ){
+                System.out.println(e.getMessage());
+            }
+            //productUpdateDto의 이미지 이름 s3Path+UUID 설정
+            productUpdateDto.setRepImg(s3FileService.repImgPrefixPath(productUpdateDto.getBrandId(), productUpdateDto.getProductId(), productUpdateDto.getRepImg()));
+        }
+
+
         try {
             i =productDao.updateProduct(productUpdateDto);
         }catch (Exception e ){
@@ -247,6 +262,9 @@ public class ProductService {
         if(i==0){
             throw new NotFoundException("수정 물품이 존재하지 않습니다.");
         }
+
+        //null일 수 도 있음.
+        return productUpdateDto.getRepImg();
     }
 }
 

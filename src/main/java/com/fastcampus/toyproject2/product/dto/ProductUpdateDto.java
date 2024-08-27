@@ -26,6 +26,8 @@ public class ProductUpdateDto {
 
     private String repImg;
 
+    private String brandId;
+
     @Positive(message = "가격을 다시 설정해 주세요")
     private Integer price;
 

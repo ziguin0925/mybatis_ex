@@ -30,6 +30,7 @@ public class ProductController {
 
     /*
     * 일단 모름.
+    * page 번호 넘겨줘서 페이지 번호에 따라 sortCode Service에서 변경하기.
     * */
     @GetMapping("/{pageNumber}")
     public String mainpage(@PathVariable int pageNumber, Model model){
@@ -129,12 +130,15 @@ public class ProductController {
 
     @GetMapping("/admin/{productId}")
     public String adminEditProduct(@PathVariable("productId") String productId, Model model) throws Exception {
-        ProductDetailDto productData =productService.findProductDetailById(productId);
-        List<SubCategoryDto> categoryList = categoryService.findSubCategory(Category.FIRSTCATEGORY);
 
+        //해당 productId의 상세 정보 불러오기.
+        ProductDetailDto productData =productService.findProductDetailById(productId);
+        model.addAttribute("productData", productData);
+
+        //C001 의류 의 한단계 아래 카테고리 목록 불러오기.
+        List<SubCategoryDto> categoryList = categoryService.findSubCategory(Category.FIRSTCATEGORY);
         model.addAttribute("categoryList", categoryList);
 
-        model.addAttribute("productData", productData);
         return "product/adminProductEdit";
     }
 

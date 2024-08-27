@@ -16,6 +16,7 @@ public interface ProductDao{
 
 
     String findNameById(@Param("productId") String productId)throws Exception;
+    String findRepImgById(@Param("productId") String productId)throws Exception;
 
     ProductDetailDto findProductDetailById(@Param("productId") String productId) throws Exception;
 
