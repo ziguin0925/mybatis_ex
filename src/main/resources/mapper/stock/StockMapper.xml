@@ -26,7 +26,7 @@
         </foreach>
     </insert>
 
-    <select id="selectByStockPk" parameterType="com.fastcampus.toyproject2.stock.dto.StockPk" resultType="com.fastcampus.toyproject2.stock.dto.Stock">
+    <select id="selectByStockPk" parameterType="com.fastcampus.toyproject2.Item.stock.dto.StockPk" resultType="com.fastcampus.toyproject2.Item.stock.dto.Stock">
         SELECT * FROM Stock
         <where>
             <if test="productId != null">
@@ -42,7 +42,7 @@
     </select>
 
 
-    <update id="updateByStock" parameterType="com.fastcampus.toyproject2.stock.dto.Stock">
+    <update id="updateByStock" parameterType="com.fastcampus.toyproject2.Item.stock.dto.Stock">
         UPDATE  Stock SET quantity = #{quantity}, create_datetime = NOW()
             WHERE product_id = #{productId}
                 AND size = #{size}
@@ -50,7 +50,7 @@
     </update>
 
 
-    <delete id="deleteByStockPk" parameterType="com.fastcampus.toyproject2.stock.dto.StockPk">
+    <delete id="deleteByStockPk" parameterType="com.fastcampus.toyproject2.Item.stock.dto.StockPk">
         DELETE FROM stock
         <where>
             <if test="productId != null">

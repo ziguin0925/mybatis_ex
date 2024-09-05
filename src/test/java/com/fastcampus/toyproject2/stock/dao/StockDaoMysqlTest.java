@@ -1,17 +1,15 @@
 package com.fastcampus.toyproject2.stock.dao;
 
-import com.fastcampus.toyproject2.stock.dto.Stock;
-import com.fastcampus.toyproject2.stock.dto.StockPk;
+import com.fastcampus.toyproject2.Item.stock.dao.StockDaoMysql;
+import com.fastcampus.toyproject2.Item.stock.dto.Stock;
+import com.fastcampus.toyproject2.Item.stock.dto.StockPk;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
-import java.util.InvalidPropertiesFormatException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;

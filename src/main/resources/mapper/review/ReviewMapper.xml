@@ -5,7 +5,7 @@
 <mapper namespace="ReviewMapper">
 
 
-    <insert id="createReview" parameterType="com.fastcampus.toyproject2.review.dto.ReviewCreateDto">
+    <insert id="createReview" parameterType="com.fastcampus.toyproject2.Item.review.dto.ReviewCreateDto">
         INSERT INTO review(product_id
         , member_number
         , content
@@ -18,7 +18,7 @@
                , #{star})
     </insert>
 
-    <select id="findReviewByProductId" parameterType="String" resultType="com.fastcampus.toyproject2.review.dto.ProductReviewListDto">
+    <select id="findReviewByProductId" parameterType="String" resultType="com.fastcampus.toyproject2.Item.review.dto.ProductReviewListDto">
         SELECT
             r.review_id
              , m.member_number

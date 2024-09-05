@@ -1,7 +1,8 @@
 package com.fastcampus.toyproject2.category.dao;
 
-import com.fastcampus.toyproject2.category.dto.Category;
-import com.fastcampus.toyproject2.category.dto.CategoryHierarchyDto;
+import com.fastcampus.toyproject2.Item.category.dao.CategoryDaoMysql;
+import com.fastcampus.toyproject2.Item.category.dto.Category;
+import com.fastcampus.toyproject2.Item.category.dto.CategoryHierarchyDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

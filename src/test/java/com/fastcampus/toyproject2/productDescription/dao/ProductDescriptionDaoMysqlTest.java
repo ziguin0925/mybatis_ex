@@ -1,8 +1,8 @@
 package com.fastcampus.toyproject2.productDescription.dao;
 
-import com.fastcampus.toyproject2.productDescription.dto.ProductDescription;
-import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
-import com.fastcampus.toyproject2.productDescriptionImg.dao.ProductDescriptionImgDaoMysql;
+import com.fastcampus.toyproject2.Item.productDescription.dao.ProductDescriptionDaoMysql;
+import com.fastcampus.toyproject2.Item.productDescription.dto.ProductDescription;
+import com.fastcampus.toyproject2.Item.productDescription.dto.ProductDescriptionDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;

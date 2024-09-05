@@ -2,12 +2,10 @@ package com.fastcampus.toyproject2.salesorder.controller;
 
 import com.fastcampus.toyproject2.salesorder.dto.SalesOrder;
 import com.fastcampus.toyproject2.salesorder.service.SalesOrderServiceImpl;
-import com.fastcampus.toyproject2.util.pagination.CursorRequest;
-import com.fastcampus.toyproject2.util.pagination.CursorResponse;
-import com.fastcampus.toyproject2.salesorder.service.SalesOrderService;
+import com.fastcampus.toyproject2.ETC.util.pagination.CursorRequest;
+import com.fastcampus.toyproject2.ETC.util.pagination.CursorResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

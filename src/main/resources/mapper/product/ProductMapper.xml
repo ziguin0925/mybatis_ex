@@ -25,7 +25,7 @@
         SELECT name FROM product WHERE product_id = #{productId}
     </select>
 
-    <select id="findProductAdminList" resultType="com.fastcampus.toyproject2.product.dto.ProductAdminList">
+    <select id="findProductAdminList" resultType="com.fastcampus.toyproject2.Item.product.dto.ProductAdminList">
         SELECT product_id
         , name
         , product_status
@@ -42,7 +42,7 @@
     </select>
 
 
-    <select id="findProductDetailDtoById" parameterType="String" resultType="com.fastcampus.toyproject2.product.dto.ProductDetailDto">
+    <select id="findProductDetailDtoById" parameterType="String" resultType="com.fastcampus.toyproject2.Item.product.dto.ProductDetailDto">
         SELECT
         p.product_id
         , p.name
@@ -67,7 +67,7 @@
     </select>
 
 <!-- 커서 기반  -->
-    <select id="cursorPaging" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.ProductPageDto">
+    <select id="cursorPaging" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.Item.product.dto.ProductPageDto">
         SELECT p.product_id as productId
         , p.name as productName
         , p.price as price
@@ -91,7 +91,7 @@
         limit #{size}
     </select>
 
-    <select id="cursorRankingPage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto">
+    <select id="cursorRankingPage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.Item.product.dto.pagination.cursor.ProductCursorPageDto">
         SELECT p.product_id as productId
              , p.name as productName
              , p.price as price
@@ -117,7 +117,7 @@
 
     </select>
 
-    <select id="cursorSalesQuantityPage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto">
+    <select id="cursorSalesQuantityPage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.Item.product.dto.pagination.cursor.ProductCursorPageDto">
         SELECT p.product_id as productId
         , p.name as productName
         , p.price as price
@@ -146,7 +146,7 @@
 
     <!--    create index priceASC_productASC on product(price ASC, product_id ASC);-->
 
-    <select id="cursorHighPricePage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto">
+    <select id="cursorHighPricePage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.Item.product.dto.pagination.cursor.ProductCursorPageDto">
         SELECT p.product_id as productId
         , p.name as productName
         , p.price as price
@@ -173,7 +173,7 @@
 
     <!--  부등호 방향 바뀜  낮은 가격 순 -->
 
-    <select id="cursorLowPricePage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto">
+    <select id="cursorLowPricePage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.Item.product.dto.pagination.cursor.ProductCursorPageDto">
         SELECT p.product_id as productId
         , p.name as productName
         , p.price as price
@@ -201,7 +201,7 @@
 
 <!--  earliest(오래된 순)은 가격에서 한것과 같이 해주기.  -->
 
-    <select id="cursorLatestPage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.pagination.cursor.ProductCursorPageDto">
+    <select id="cursorLatestPage" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.Item.product.dto.pagination.cursor.ProductCursorPageDto">
         SELECT p.product_id as productId
         , p.name as productName
         , p.price as price
@@ -231,7 +231,7 @@
 
 
     <!-- 페이지 기반 -->
-    <select id="pagePaging" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.product.dto.ProductPageDto">
+    <select id="pagePaging" parameterType="hashMap"  resultType="com.fastcampus.toyproject2.Item.product.dto.ProductPageDto">
          SELECT p.product_id as productId
                 , p.name as productName
                 , p.price as price
@@ -277,7 +277,7 @@
 
 
     <!--글자수, 공백으로만 되어있는지는 앞에서 검사하기.-->
-    <update id="updateProduct" parameterType="com.fastcampus.toyproject2.product.dto.ProductUpdateDto">
+    <update id="updateProduct" parameterType="com.fastcampus.toyproject2.Item.product.dto.ProductUpdateDto">
         UPDATE product
             <set>
                 <if test="repImg != null">
@@ -308,7 +308,7 @@
 
 
 
-    <insert id="insert" parameterType="com.fastcampus.toyproject2.product.dto.Product">
+    <insert id="insert" parameterType="com.fastcampus.toyproject2.Item.product.dto.Product">
         INSERT INTO product (product_id,
                              product_description_id,
                              category_id,

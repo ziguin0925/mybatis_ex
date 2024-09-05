@@ -1,7 +1,8 @@
 package com.fastcampus.toyproject2.salesorder.service;
 
+import com.fastcampus.toyproject2.ETC.util.pagination.CursorRequest;
+import com.fastcampus.toyproject2.ETC.util.pagination.CursorResponse;
 import com.fastcampus.toyproject2.salesorder.dto.SalesOrder;
-import com.fastcampus.toyproject2.util.pagination.*;
 import org.springframework.stereotype.Service;
 
 @Service

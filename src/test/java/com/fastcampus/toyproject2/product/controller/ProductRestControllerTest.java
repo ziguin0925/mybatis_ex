@@ -1,18 +1,18 @@
 package com.fastcampus.toyproject2.product.controller;
 
-import com.fastcampus.toyproject2.product.dao.ProductDaoMysql;
-import com.fastcampus.toyproject2.product.dto.ProductRegisterDto;
-import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
-import com.fastcampus.toyproject2.productDescriptionImg.dao.ProductDescriptionImgDaoMysql;
-import com.fastcampus.toyproject2.productDescriptionImg.dto.ProductDescriptionImgDetailDto;
-import com.fastcampus.toyproject2.stock.dao.StockDaoMysql;
-import com.fastcampus.toyproject2.stock.dto.Stock;
-import com.fastcampus.toyproject2.stock.dto.StockPk;
+import com.fastcampus.toyproject2.Item.product.controller.ProductRestController;
+import com.fastcampus.toyproject2.Item.product.dao.ProductDaoMysql;
+import com.fastcampus.toyproject2.Item.product.dto.ProductRegisterDto;
+import com.fastcampus.toyproject2.Item.productDescription.dto.ProductDescriptionDto;
+import com.fastcampus.toyproject2.Item.productDescriptionImg.dao.ProductDescriptionImgDaoMysql;
+import com.fastcampus.toyproject2.Item.productDescriptionImg.dto.ProductDescriptionImgDetailDto;
+import com.fastcampus.toyproject2.Item.stock.dao.StockDaoMysql;
+import com.fastcampus.toyproject2.Item.stock.dto.Stock;
+import com.fastcampus.toyproject2.Item.stock.dto.StockPk;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springdoc.core.service.RequestBodyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;

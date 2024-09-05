@@ -1,10 +1,10 @@
 package com.fastcampus.toyproject2.brand.dao;
 
-import com.fastcampus.toyproject2.brand.dto.BrandCreateDto;
-import com.fastcampus.toyproject2.brand.dto.BrandListDto;
-import com.fastcampus.toyproject2.brand.dto.BrandUpdateDto;
+import com.fastcampus.toyproject2.Item.brand.dao.BrandDaoMysql;
+import com.fastcampus.toyproject2.Item.brand.dto.BrandCreateDto;
+import com.fastcampus.toyproject2.Item.brand.dto.BrandListDto;
+import com.fastcampus.toyproject2.Item.brand.dto.BrandUpdateDto;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

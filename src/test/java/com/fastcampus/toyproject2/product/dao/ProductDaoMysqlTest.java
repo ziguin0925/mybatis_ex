@@ -1,14 +1,14 @@
 package com.fastcampus.toyproject2.product.dao;
 
-import com.fastcampus.toyproject2.product.dto.Product;
-import com.fastcampus.toyproject2.product.dto.ProductDetailDto;
-import com.fastcampus.toyproject2.product.dto.ProductRegisterDto;
-import com.fastcampus.toyproject2.product.dto.ProductUpdateDto;
-import com.fastcampus.toyproject2.productDescription.dao.ProductDescriptionDao;
-import com.fastcampus.toyproject2.productDescription.dto.ProductDescriptionDto;
-import com.fastcampus.toyproject2.stock.dao.StockDaoMysql;
-import com.fastcampus.toyproject2.stock.dto.StockPk;
-import com.fastcampus.toyproject2.util.FileService;
+import com.fastcampus.toyproject2.Item.product.dao.ProductDaoMysql;
+import com.fastcampus.toyproject2.Item.product.dto.Product;
+import com.fastcampus.toyproject2.Item.product.dto.ProductDetailDto;
+import com.fastcampus.toyproject2.Item.product.dto.ProductRegisterDto;
+import com.fastcampus.toyproject2.Item.product.dto.ProductUpdateDto;
+import com.fastcampus.toyproject2.Item.productDescription.dao.ProductDescriptionDao;
+import com.fastcampus.toyproject2.Item.productDescription.dto.ProductDescriptionDto;
+import com.fastcampus.toyproject2.Item.stock.dao.StockDaoMysql;
+import com.fastcampus.toyproject2.ETC.util.FileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -22,8 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
