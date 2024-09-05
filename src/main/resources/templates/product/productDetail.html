@@ -3,6 +3,8 @@
 
 <head>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css" />
     <style>
         body {
             display: flex;
@@ -28,6 +30,45 @@
             height: 500px;
             object-fit: contain;
         }
+
+        .swiper-container {
+            margin-top: 40px;
+            max-width: 650px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .swiper-slide img {
+            width: 500px;
+            height: auto;
+        }
+        .swiper-wrapper {
+            display: flex;
+        }
+
+
+        .swiper-button-next,
+        .swiper-button-prev {
+            color: #000; /* 아이콘 색상 */
+            position: absolute;
+            top: 50%;
+            width: 30px;
+            height: 30px;
+            margin-top: -15px; /* 아이콘이 슬라이더 중앙에 위치하도록 */
+            z-index: 10;
+        }
+
+        .swiper-button-next {
+            right: 10px; /* 오른쪽에서 10px */
+            transform: translateX(-50%);
+        }
+
+        .swiper-button-prev {
+            left: 10px; /* 왼쪽에서 10px */
+            transform: translateX(50%);
+        }
+
+
         .product-images .additional-img {
             width: 650px;
             max-height: 500px;
@@ -74,7 +115,7 @@
             position: fixed;
             top: 0;
             width: 650px;
-            height: 50px;
+            height: 40px;
             background-color: white;
             padding: 0 15px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -105,6 +146,28 @@
             border: none;
             outline:none;
         }
+
+        .fixed-footer {
+            position: fixed;
+            bottom: 0;
+            height: 40px;
+            width: 100%;
+            max-width: 650px;
+            background-color: white;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .fixed-footer .buy-button {
+            background: black;
+            width: 70%;
+            height: 35px;
+            font-size: 10px;
+        }
+
 
     </style>
 </head>
@@ -140,12 +203,30 @@
             </button>
         </div>
     </div>
-    <div class="product-images">
-        <img id="mainImage" class="main-img" th:src="@{${productDetail.repImg}}" th:alt="${productDetail.getName()}">
-        <div th:each="itemImg : ${productDetail.productImages}" class="additional-img">
-            <img th:src="@{${itemImg.path}}" class="rounded" width="800">
+
+
+
+    <div class="swiper-container">
+
+        <div class="swiper-wrapper">
+            <div class="swiper-slide">
+                <img id="mainImage" class="main-img" th:src="@{${productDetail.repImg}}" th:alt="${productDetail.getName()}">
+            </div>
+            <div th:each="itemImg : ${productDetail.productImages}" class="swiper-slide">
+                <img th:src="@{${itemImg.path}}" class="rounded" width="800">
+            </div>
+
         </div>
+
+        <!-- 추가적으로 슬라이더 네비게이션 버튼을 추가할 수 있습니다 -->
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+
+        <!-- 슬라이더 페이지네이션 -->
+
     </div>
+
+
 
     <div class="product-details">
         <div class="d-flex justify-content-between align-items-center">
@@ -162,14 +243,19 @@
         </div>
         <hr>
         <div class="price" id="price" th:text="${productDetail.getPrice()}"></div>
-        <div class="quantity mt-3">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">수량</span>
-                </div>
-                <input type="number" class="form-control" name="count" id="count" value="1" min="1">
+        <div id="option-container"></div>
+
+        <div class="input-group" id="count-div">
+            <div class="input-group-prepend">
+                <span class="input-group-text">수량</span>
+            </div>
+            <input type="number" class="form-control" name="count" id="count" value="1" min="1"  style="background: white" readonly>
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="incrementCount" onclick="incrementCount()">+</button>
+                <button class="btn btn-outline-secondary" type="button" id="decrementCount" onclick="decrementCount()">-</button>
             </div>
         </div>
+
         <div class="total-price mt-3" id="totalPrice"></div>
         <div class="buttons mt-3">
             <button type="button" class="btn btn-primary" th:if="${productDetail.getProductStatus().toString().equals('SELL')}" onclick="addCart()">장바구니 담기</button>
@@ -190,13 +276,37 @@
             <img th:src="@{${itemImg.path}}" class="rounded">
         </div>
     </div>
+    <div class="fixed-footer">
+        <button class="icon-button" >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                <path d="M8 3.314C12.438-1.248 23.534 4.735 8 15-7.534 4.735 3.562-1.248 8 3.314z"/>
+            </svg>
+        </button>
+        <button class="buy-button" id="addToCartButton" onclick="openOptions()">구매하기</button>
+    </div>
 </div>
 
-<script>
+
+
+<script th:inline="javascript">
+    const countElement = document.getElementById(`count`);
+    const incrementButton = document.getElementById('incrementCount')
+    const decrementButton = document.getElementById('decrementCount')
+    const productId = [[${productDetail.productId}]];
+    const priceElement = document.getElementById('price');
+    const totalPriceElement = document.getElementById('totalPrice');
+
+    const optionLevels = /*[[${productDetail.productOptionDepth}]]*/ 0;
+
+
     document.addEventListener('DOMContentLoaded', function() {
-        const priceElement = document.getElementById('price');
-        const countElement = document.getElementById('count');
-        const totalPriceElement = document.getElementById('totalPrice');
+        const optionContainer = document.getElementById('option-container');
+        const optionList = /*[[${productDetail.optionList}]]*/ [];
+        const optionLevels = /*[[${productDetail.productOptionDepth}]]*/ 0;
+        const selectedOptionNames = new Array(optionLevels).fill("")
+        countElement.disabled = true;
+        incrementButton.disabled = true;
+        decrementButton.disabled = true;
 
         function updateTotalPrice() {
             const price = parseFloat(priceElement.innerText.replace(/[^0-9.-]+/g, ""));
@@ -204,17 +314,150 @@
             const totalPrice = price * count;
             totalPriceElement.innerText = `₩${totalPrice.toLocaleString()}`;
         }
-
         countElement.addEventListener('input', updateTotalPrice);
         updateTotalPrice();
+
+        initializeOptions(optionList, optionLevels, selectedOptionNames);
+
+    });
+    function updateTotalPrice() {
+        const price = parseFloat(priceElement.innerText.replace(/[^0-9.-]+/g, ""));
+        const count = parseInt(countElement.value, 10);
+        const totalPrice = price * count;
+        totalPriceElement.innerText = `₩${totalPrice.toLocaleString()}`;
+    }
+
+
+
+    function initializeOptions(optionList, optionLevels, selectedOptionNames) {
+        const optionContainer = document.getElementById('option-container');
+
+
+        // 옵션 계층만큼 select 요소를 생성
+        for (let i = 1; i <= optionLevels; i++) {
+            const selectElement = document.createElement('select');
+            selectElement.id = `optionLevel${i}`;
+            selectElement.disabled = i !== 1; // 첫 번째 select만 활성화
+            selectElement.addEventListener('change', function() {
+                handleOptionChange(i, optionList, optionLevels, selectedOptionNames);
+            });
+
+            const placeholderOption = document.createElement('option');
+            placeholderOption.value = "";
+            placeholderOption.textContent = `옵션 ${i} 선택`;
+            selectElement.appendChild(placeholderOption);
+
+            optionContainer.appendChild(selectElement);
+        }
+
+        populateOptions(1, null, optionList, selectedOptionNames);
+    }
+
+    function populateOptions(level, parentOptionId, optionList, selectedOptionNames) {
+        const selectElement = document.getElementById(`optionLevel${level}`);
+
+        if (!selectElement) {
+            console.error(`Select element for level ${level} not found!`);
+            return;
+        }
+
+        selectElement.innerHTML = `<option value="">옵션 ${level} 선택</option>`; // 초기화
+
+        const filteredOptions = optionList.filter(option => option.optionDepth === level && (!parentOptionId || option.productOptionId.startsWith(parentOptionId)));
+        console.log(filteredOptions);
+
+        filteredOptions.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option.productOptionId;
+            opt.textContent = option.optionName;
+            selectElement.appendChild(opt);
+        });
+
+        selectElement.disabled = filteredOptions.length === 0;
+    }
+
+
+    let lastOptionName="";
+    let lastOptionId="";
+    function handleOptionChange(level, optionList, optionLevels, selectedOptionNames) {
+        const selectedOptionId = document.getElementById(`optionLevel${level}`).value;
+        const selectedOptionText = document.getElementById(`optionLevel${level}`).options[document.getElementById(`optionLevel${level}`).selectedIndex].text;
+
+        // 선택된 옵션 이름 저장
+        selectedOptionNames[level - 1] = selectedOptionText;
+
+        // 하위 옵션 비활성화 및 초기화
+        for (let i = level + 1; i <= optionLevels; i++) {
+            const nextSelectElement = document.getElementById(`optionLevel${i}`);
+
+            if (!nextSelectElement) {
+                console.error(`Select element for level ${i} not found!`);
+                return;
+            }
+
+            nextSelectElement.innerHTML = `<option value="">옵션 ${i} 선택</option>`;
+            nextSelectElement.disabled = true;
+        }
+
+
+        // 선택한 옵션에 따라 다음 계층의 옵션을 로드
+        if (selectedOptionId) {
+            populateOptions(level + 1, selectedOptionId, optionList, selectedOptionNames);
+        }
+
+        // 최종 옵션까지 선택된 경우 전체 옵션 이름을 출력
+        if (level === optionLevels && selectedOptionId.length === optionLevels*2) {
+            console.log("true" + selectedOptionId.length);
+            lastOptionName = selectedOptionNames.join('/');
+            countElement.disabled = false;
+            incrementButton.disabled = false;
+            decrementButton.disabled = false;
+            lastOptionId = selectedOptionId;
+        }else{
+            console.log("false" + selectedOptionId.length);
+            incrementButton.disabled = true;
+            decrementButton.disabled = true;
+            countElement.disabled = true;
+            countElement.value = 1;
+            lastOptionId ="";
+        }
+    }
+
+    let swiper = new Swiper('.swiper-container', {
+        slidesPerView: 1,
+        spaceBetween: 10,
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        loop: true, // 슬라이더 반복 옵션
     });
 
     function addCart() {
-        alert('장바구니에 추가되었습니다.');
+        if(lastOptionId.length === optionLevels*2 ) {
+            console.log("수량 :" + countElement.value);
+            console.log("상품 ID : " + productId);
+            console.log("product_option-fullName : " + lastOptionName);
+            console.log("product_last_option_id : " + lastOptionId);
+            alert('장바구니에 추가되었습니다.');
+        }else {
+            alert('옵션을 먼저 선택해 주십시오.')
+        }
     }
 
     function order() {
-        alert('주문이 완료되었습니다.');
+        if(lastOptionId.length === optionLevels*2 ){
+            console.log(lastOptionId.length);
+            console.log(optionLevels*2);
+
+            console.log("수량 :"+countElement.value);
+            console.log("상품 ID : " +productId);
+            console.log("product_option-fullName : "+lastOptionName);
+            console.log("product_last_option_id : "+lastOptionId);
+            alert('주문이 완료되었습니다.');
+        }else{
+            alert('옵션을 먼저 선택해 주십시오.')
+        }
     }
 
     function goBack() {
@@ -224,6 +467,19 @@
     function goHome() {
         window.location = '/product/100';
         // 또는 window.history.go(-1); 를 사용할 수 있습니다.
+    }
+    function incrementCount() {
+        const currentValue = parseInt(countElement.value, 10);
+        countElement.value = currentValue + 1;
+        updateTotalPrice();
+    }
+
+    function decrementCount() {
+        const currentValue = parseInt(countElement.value, 10);
+        if (currentValue > 1) {
+            countElement.value = currentValue - 1;
+            updateTotalPrice();
+        }
     }
 </script>
     </div>

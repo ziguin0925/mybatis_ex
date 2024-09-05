@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>글작성화면</title>
+</head>
+<body>
+<script>
+    let msg = "[[${msg}]]";
+    if(msg=="INSERT_OK") alert("정상적으로 등록되었습니다.");
+    if(msg=="INSERT_ERR") alert("게시물 등록에 실패하였습니다. 다시 시도해 주세요.");
+</script>
+<form action="/cs/notice/insert" method="post">
+    제목 : <input type="text" name="notice_title" th:value="${noticeDto != null ? noticeDto.notice_title : ''}"><br>
+    작성자 : <input type="text" name="writer" th:value="${member_Id}" readonly><br>
+    내용 : <textarea name="notice_content" cols="30" rows="10" th:text="${noticeDto != null ? noticeDto.notice_content : ''}"></textarea><br>
+    공지 상단 고정 :
+    <input type="radio" name="is_top_post" value="Y"> Y
+    <input type="radio" name="is_top_post" value="N" checked> N<br>
+
+    공지 표시 :
+    <input type="radio" name="is_post" value="Y" checked> Y
+    <input type="radio" name="is_post" value="N"> N<br>
+<!--    공지 상단 고정 : <input type="checkbox" name="is_top_post" value="Y" th:checked="${noticeDto != null and noticeDto.is_top_post == 'Y'}"/><br>-->
+<!--    공지 게시 여부 : <input type="checkbox" name="is_post" value="Y" th:checked="${noticeDto != null and noticeDto.is_post == 'Y'}"/><br>-->
+    <input type="submit" value="작성">
+</form>
+</body>
+</html>

@@ -27,6 +27,30 @@
             height: 150px;
             object-fit: contain; /* 필요에 따라 이미지가 요소 크기에 맞도록 자르기 */
         }
+        .pagination ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .pagination li {
+            margin: 0 5px;
+        }
+
+        .pagination li a {
+            text-decoration: none;
+            padding: 8px 12px;
+            color: #007bff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .pagination li.active a {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
     </style>
 </head>
 <body>
@@ -58,6 +82,25 @@
         </tr>
         </tbody>
     </table>
+    <div class="pagination">
+        <ul>
+            <li> <a th:if="${pageInfo.isPreviousPage}" th:href ="@{|product/admin/list?pageNum=${pageInfo.productEditPageDto.pageNum -3}|}" th:text="|<|"> \< </a>   </li>
+            <li th:each="pageNum : ${#numbers.sequence(pageInfo.beginPage, pageInfo.endPage)}">
+                <!--                    th:if="${pageNum >= currentPage - 2} and ${pageNum <= currentPage + 2}"-->
+                <!--                    th:classappend="${pageNum == currentPage} ? 'active'">-->
+                <div th:if="${pageInfo.productEditPageDto.getPageNum()}==${pageNum}">
+                    <a th:href="@{#}"
+                       th:text="${pageNum}">1</a>
+                </div>
+                <div th:unless="${pageInfo.productEditPageDto.getPageNum()}==${pageNum}">
+                    <a th:href="@{|/product/admin/list?pageNum=${pageNum}|}"
+                       th:text="${pageNum}">1</a>
+                </div>
+            </li>
+            <li> <a th:if="${pageInfo.isNextPage}" th:href ="@{|product/admin/list?pageNum=${pageInfo.productEditPageDto.pageNum +3}|}" th:text="|>|"> X </a>   </li>
+
+        </ul>
+    </div>
 </div>
     <script  th:inline="javascript">
         function deleteProduct(productId) {

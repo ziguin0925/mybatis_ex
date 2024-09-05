@@ -82,12 +82,15 @@
         <h1>브랜드 상품 목록</h1>
 
         <div class="product-grid">
-            <div class="product-item" th:each="product : ${productsList}" onclick="goBack()">
-                <img th:src="@{${product.repImg}}" alt="Product Image">
-                <h2 th:text="${product.productName}">상품 이름</h2>
-                <p th:text="${product.price}">₩ 가격</p>
-                <div class="rating">
-                    <span th:text="${product.starRating}">★ 4.5</span>
+            <div class="product-item" th:each="product : ${productsList}">
+                <div class="clickable-product" th:attr="data-product-id=${product.productId}">
+
+                    <img th:src="@{${product.repImg}}" alt="Product Image">
+                    <h2 th:text="${product.productName}">상품 이름</h2>
+                    <p th:text="${product.price}">₩ 가격</p>
+                    <div class="rating">
+                        <span th:text="${product.starRating}">★ 4.5</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -106,6 +109,21 @@
             </ul>
         </div>
     </div>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.clickable-product').forEach(function(element) {
+                element.addEventListener('click', function() {
+                    var productId = this.getAttribute('data-product-id');
+                    goDetail(productId);
+                });
+            });
+        });
+
+        function goDetail(productId) {
+            // 원하는 URL로 이동
+            window.location.href = '/product/detail/' + productId;
+        }
+    </script>
 </div>
 </body>
 </html>
